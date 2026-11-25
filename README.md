@@ -5,9 +5,6 @@ A browser-based brick-built driving game with Open World pursuits and Grand Prix
 ```sh
 python3 -m http.server 4173
 ```
-
-Open http://localhost:4173 and choose **Open World** or **Race Mode**. The deployed HTML loads Three.js 0.160.0 from jsDelivr. The automated checks serve the same version locally from the lockfile.
-
 ## Driving
 
 | Control | Action |
