@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Brickway | Open World Racing</title>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="brickway-release" content="2026.11.25-f1-grand-prix-overhaul"><title>Brickway | Open World Racing</title>
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -550,7 +550,7 @@ body.phone-device .mc-pedal-drift-btn{
 .mc-gas-btn{background:linear-gradient(180deg,rgba(64,226,124,.55),rgba(20,130,64,.72));border-color:rgba(170,255,205,.8)}
 .mc-brake-btn{background:linear-gradient(180deg,rgba(255,88,112,.55),rgba(190,18,60,.72));border-color:rgba(255,185,195,.8)}
 .mc-joy-base{box-shadow:0 10px 26px rgba(0,0,0,.55),inset 0 0 20px rgba(255,212,42,.12)}
-</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@500;600;700;800;900&display=swap" rel="stylesheet"></head>
+</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@500;600;700;800;900&display=swap" rel="stylesheet"><style>.gp-option[hidden]{display:none!important}#gp-next,#gp-distance,#gp-surface{background:#192636;color:white;border:1px solid #66798a;border-radius:4px;font:inherit;pointer-events:auto;padding:3px}</style></head>
 <body>
 <div id="bw-ios-install" hidden role="dialog" aria-modal="true" aria-labelledby="bwi-title">
 <div class="bwi-card"><div class="bwi-inner"><div class="bwi-brand">BRICKWAY · OPEN CITY</div><h2 id="bwi-title">Play in Fullscreen</h2><p>Install the game on your Home Screen to play without Safari's browser bars.</p>
@@ -590,7 +590,7 @@ body.phone-device .mc-pedal-drift-btn{
  </div>
  <div class="ss-minimal-wrap">
  <button type="button" class="ss-min-btn" id="btn-mode-openworld"><span>OPEN WORLD</span><span class="ss-sub">Free Roam &amp; Heists</span></button>
- <button type="button" class="ss-min-btn f1" id="btn-mode-f1race"><span>RACE MODE</span><span class="ss-sub">3-Lap Circuit Race</span></button>
+ <button type="button" class="ss-min-btn f1" id="btn-mode-f1race"><span>RACE MODE</span><span class="ss-sub">multi-lap Circuit Race</span></button>
 
  </div>
  <div class="ss-keys">
@@ -600,10 +600,10 @@ body.phone-device .mc-pedal-drift-btn{
  </div>
  </div>
 <section id="gp-setup-screen" class="gp-setup" hidden aria-labelledby="gp-setup-title"><header class="gp-head"><button type="button" id="gp-back" class="gp-back">← &nbsp; MODES</button><span class="gp-eyebrow">BRICKWAY &nbsp; / &nbsp; MOTORSPORT</span><span class="gp-head-tag">RACE WEEKEND</span></header>
-<div class="gp-hero"><div><span class="gp-kicker">01 &nbsp; / &nbsp; GRAND PRIX</span><h2 id="gp-setup-title" tabindex="-1">RACE<br><i>CONTROL.</i></h2><p>Configure your race weekend before heading to the grid.</p></div><div class="gp-circuit"><svg viewBox="0 0 780 770" role="img" aria-label="Schematic of Brickway Autodromo GP circuit"><path d="M80 645 L280 645 L495 645 L615 615 L645 535 L565 485 L465 515 L365 458 L445 392 L345 328 L465 272 L605 255 L735 225 L755 125 L700 35 L585 25 L485 85 L375 35 L255 70 L145 145 L55 255 L30 395 L40 545 Z" stroke="#182635" stroke-width="70" fill="none" stroke-linejoin="round"/><path d="M80 645 L280 645 L495 645 L615 615 L645 535 L565 485 L465 515 L365 458 L445 392 L345 328 L465 272 L605 255 L735 225 L755 125 L700 35 L585 25 L485 85 L375 35 L255 70 L145 145 L55 255 L30 395 L40 545 Z" stroke="#5d7387" stroke-width="43" fill="none" stroke-linejoin="round"/><path d="M80 645 L280 645 L495 645 L615 615 L645 535 L565 485 L465 515 L365 458 L445 392 L345 328 L465 272 L605 255 L735 225 L755 125 L700 35 L585 25 L485 85 L375 35 L255 70 L145 145 L55 255 L30 395 L40 545 Z" stroke="#f5f7fa" stroke-width="20" fill="none" stroke-linejoin="round"/><circle cx="80" cy="645" r="22" fill="#ed364e" stroke="white" stroke-width="5"/></svg><div><b>AUTODROMO GP</b><small>6 CARS &nbsp; / &nbsp; 3 LAPS</small></div></div></div>
-<div class="gp-config-grid"><fieldset><legend><span>01</span> &nbsp; SESSION</legend><label class="gp-option "><input type="radio" name="gp-session" value="race" checked><span class="gp-option-copy"><strong>Grand Prix</strong><small>3-lap race</small><em>Full grid</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label class="gp-option "><input type="radio" name="gp-session" value="qualifying"><span class="gp-option-copy"><strong>Qualifying + GP</strong><small>1 timed lap, then race</small><em>Best lap ghost</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label class="gp-option "><input type="radio" name="gp-session" value="championship"><span class="gp-option-copy"><strong>Championship</strong><small>5-round season</small><em>Saved standings</em></span><span class="gp-tick" aria-hidden="true">✓</span></label></fieldset>
+<div class="gp-hero"><div><span class="gp-kicker">01 &nbsp; / &nbsp; GRAND PRIX</span><h2 id="gp-setup-title" tabindex="-1">RACE<br><i>CONTROL.</i></h2><p>Configure your race weekend before heading to the grid.</p></div><div class="gp-circuit"><svg viewBox="0 0 780 770" role="img" aria-label="Schematic of Brickway Autodromo GP circuit"><path d="M330 620 L530 620 L635 620 L661 611 L672 590 L664 569 L636 562 L550 559 L490 526 L462 470 L485 418 L548 398 L591 362 L597 305 L566 259 L497 236 L348 236 L285 236 L262 221 L239 193 L208 190 L160 209 L133 257 L151 318 L197 359 L205 401 L174 436 L115 444 L87 464 L84 495 L110 525 L148 549 L171 591 L205 618 L250 620 Z" stroke="#182635" stroke-width="70" fill="none" stroke-linejoin="round"/><path d="M330 620 L530 620 L635 620 L661 611 L672 590 L664 569 L636 562 L550 559 L490 526 L462 470 L485 418 L548 398 L591 362 L597 305 L566 259 L497 236 L348 236 L285 236 L262 221 L239 193 L208 190 L160 209 L133 257 L151 318 L197 359 L205 401 L174 436 L115 444 L87 464 L84 495 L110 525 L148 549 L171 591 L205 618 L250 620 Z" stroke="#5d7387" stroke-width="43" fill="none" stroke-linejoin="round"/><path d="M330 620 L530 620 L635 620 L661 611 L672 590 L664 569 L636 562 L550 559 L490 526 L462 470 L485 418 L548 398 L591 362 L597 305 L566 259 L497 236 L348 236 L285 236 L262 221 L239 193 L208 190 L160 209 L133 257 L151 318 L197 359 L205 401 L174 436 L115 444 L87 464 L84 495 L110 525 L148 549 L171 591 L205 618 L250 620 Z" stroke="#f5f7fa" stroke-width="20" fill="none" stroke-linejoin="round"/><circle cx="330" cy="620" r="22" fill="#ed364e" stroke="white" stroke-width="5"/></svg><div><b>AUTODROMO GP</b><small>6 CARS · <select aria-label="Track condition" id="gp-surface"><option value="dry">Dry</option><option value="damp">Damp</option><option value="wet">Wet</option></select> <select id="gp-distance" aria-label="Race distance"><option value="12">Short · 12 laps</option><option value="20" selected>Standard · 20 laps</option><option value="30">Long · 30 laps</option></select></small></div></div></div>
+<div class="gp-config-grid"><fieldset><legend><span>01</span> &nbsp; SESSION</legend><label class="gp-option "><input type="radio" name="gp-session" value="race" checked><span class="gp-option-copy"><strong>Grand Prix</strong><small>multi-lap race</small><em>Full grid</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label class="gp-option "><input type="radio" name="gp-session" value="qualifying"><span class="gp-option-copy"><strong>Qualifying + GP</strong><small>1 timed lap, then race</small><em>Best lap ghost</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label class="gp-option "><input type="radio" name="gp-session" value="championship"><span class="gp-option-copy"><strong>Championship</strong><small>5-round season</small><em>Saved standings</em></span><span class="gp-tick" aria-hidden="true">✓</span></label></fieldset>
 <fieldset><legend><span>02</span> &nbsp; AI DIFFICULTY</legend><label class="gp-option "><input type="radio" name="gp-difficulty" value="easy"><span class="gp-option-copy"><strong>Easy</strong><small>Approachable pace</small><em>● ○ ○</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label class="gp-option "><input type="radio" name="gp-difficulty" value="pro" checked><span class="gp-option-copy"><strong>Pro</strong><small>Fast, defensive opponents</small><em>● ● ○</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label class="gp-option "><input type="radio" name="gp-difficulty" value="legend"><span class="gp-option-copy"><strong>Legend</strong><small>Elite pace & relentless attacks</small><em>● ● ●</em></span><span class="gp-tick" aria-hidden="true">✓</span></label></fieldset>
-<fieldset><legend><span>03</span> &nbsp; STARTING TYRES</legend><label class="gp-option gp-soft"><input type="radio" name="gp-compound" value="soft"><span class="gp-option-copy"><strong>Soft</strong><small>Higher grip / faster wear</small><em>30% wear per lap</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label class="gp-option gp-medium"><input type="radio" name="gp-compound" value="medium" checked><span class="gp-option-copy"><strong>Medium</strong><small>Balanced performance</small><em>20% wear per lap</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label class="gp-option gp-hard"><input type="radio" name="gp-compound" value="hard"><span class="gp-option-copy"><strong>Hard</strong><small>Durability / lower pace</small><em>12% wear per lap</em></span><span class="gp-tick" aria-hidden="true">✓</span></label></fieldset></div>
+<fieldset><legend><span>03</span> &nbsp; STARTING TYRES</legend><label class="gp-option gp-soft"><input type="radio" name="gp-compound" value="soft"><span class="gp-option-copy"><strong>Soft</strong><small>Higher grip / faster wear</small><em>11.3% base wear per lap</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label class="gp-option gp-medium"><input type="radio" name="gp-compound" value="medium" checked><span class="gp-option-copy"><strong>Medium</strong><small>Balanced performance</small><em>7.7% base wear per lap</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label class="gp-option gp-hard"><input type="radio" name="gp-compound" value="hard"><span class="gp-option-copy"><strong>Hard</strong><small>Durability / lower pace</small><em>5.2% base wear per lap</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label hidden class="gp-option gp-weather-tyre"><input type="radio" name="gp-compound" value="intermediate"><span class="gp-option-copy"><strong>Intermediate</strong><small>Grooved tread for damp asphalt</small></span></label><label hidden class="gp-option gp-weather-tyre"><input type="radio" name="gp-compound" value="wet"><span class="gp-option-copy"><strong>Wet</strong><small>Deep tread for a wet circuit</small></span></label></fieldset></div>
 <footer class="gp-footer"><div><span class="gp-kicker">YOUR RACE</span><div id="gp-summary" aria-live="polite">Grand Prix · Pro · Medium</div><small>DRS · Slipstream · Pit stops · Race control</small></div><button type="button" id="gp-launch" class="gp-launch">GO TO GRID <span>→</span></button></footer></section>
 </div>
 <div id="race-countdown" aria-live="assertive"><div id="race-countdown-num">3</div></div>
@@ -614,8 +614,8 @@ body.phone-device .mc-pedal-drift-btn{
 </div>
 <div id="f1-race-hud">
  <div class="f1-pill pos" id="f1-pos">POS: 1st / 6</div>
- <div class="f1-pill lap" id="f1-lap">LAP: 1 / 3</div>
- <div class="f1-pill" id="f1-timer">00:00.0</div><div id="f1-telemetry">S1 · BEST -- · GAP --</div><div id="f1-strategy"><span id="gp-tyres">MEDIUM · TYRE LIFE 100%</span> · <span id="gp-drs">DRS OFF</span> · <button id="gp-pit" type="button" disabled>PIT (P)</button></div>
+ <div class="f1-pill lap" id="f1-lap">LAP: 1 / 20</div>
+ <div class="f1-pill" id="f1-timer">00:00.0</div><div id="f1-telemetry">S1 · BEST -- · GAP --</div><div id="f1-strategy"><span id="gp-tyres">MEDIUM · TYRE LIFE 100%</span> · <span id="gp-drs">DRS OFF</span> · <select id="gp-next" aria-label="Next pit compound"><option value="soft">Box soft</option><option selected value="medium">Box medium</option><option value="hard">Box hard</option><option value="intermediate">Box intermediate</option><option value="wet">Box wet</option></select> <button id="gp-pit" type="button" disabled>PIT (P)</button></div>
 </div>
 <div id="gp-pit-status" role="status" hidden></div><div id="f1-live-ranks" aria-label="Live Race Ranks">
  <div class="f1-rk-title"><span>🏁 LIVE RANKS</span><span id="f1-rk-diff">PRO</span></div>
@@ -747,10 +747,11 @@ const inZones=(u,zones)=>zones.some(([a,b])=>a<=b?u>=a&&u<=b:u>=a||u<=b);
 const drsOpen=({inZone,lap,gapAheadSec})=>!!inZone&&lap>=2&&gapAheadSec>=0&&gapAheadSec<1;
 const SLIPSTREAM={windowSec:1.2,maxBonus:.10};
 const slipstreamPowerMult=g=>Number.isFinite(g)&&g>=0&&g<SLIPSTREAM.windowSec?1+SLIPSTREAM.maxBonus*(1-g/SLIPSTREAM.windowSec):1;
-const TYRES={soft:{wearPerLap:.30,power:1.04},medium:{wearPerLap:.20,power:1},hard:{wearPerLap:.12,power:.97}};
-const applyLapWear=(w,c)=>clamp(w+(TYRES[c]||TYRES.medium).wearPerLap,0,1),tyrePowerMult=(c,w)=>(TYRES[c]||TYRES.medium).power*(1-.12*clamp(w,0,1)),nextCompound=c=>({soft:'medium',medium:'hard',hard:'soft'}[c]||'medium');
+const circuit=[[-60, 240], [140, 240], [245, 240], [271, 231], [282, 210], [274, 189], [246, 182], [160, 179], [100, 146], [72, 90], [95, 38], [158, 18], [201, -18], [207, -75], [176, -121], [107, -144], [-42, -144], [-105, -144], [-128, -159], [-151, -187], [-182, -190], [-230, -171], [-257, -123], [-239, -62], [-193, -21], [-185, 21], [-216, 56], [-275, 64], [-303, 84], [-306, 115], [-280, 145], [-242, 169], [-219, 211], [-185, 238], [-140, 240]];
+const TYRES={soft:{wearPerLap:.113,power:1.04},medium:{wearPerLap:.077,power:1},hard:{wearPerLap:.052,power:.97},intermediate:{wearPerLap:.080,power:.98},wet:{wearPerLap:.066,power:.95}};
+const applyLapWear=(w,c)=>clamp(w+(TYRES[c]||TYRES.medium).wearPerLap,0,1),tyrePowerMult=(c,w)=>(TYRES[c]||TYRES.medium).power*(1-.25*clamp(w,0,1)**1.6),nextCompound=c=>({soft:'medium',medium:'hard',hard:'soft'}[c]||'medium');
 const PIT={stopSec:3};const inPitZone=u=>u>=.91&&u<1;
-function performPitStop(t){t.compound=nextCompound(t.compound);t.wear=0;t.stops=(t.stops||0)+1;return PIT.stopSec;}
+function performPitStop(t,compound){t.compound=Object.hasOwn(TYRES,compound)?compound:nextCompound(t.compound);t.wear=0;t.stops=(t.stops||0)+1;return PIT.stopSec;}
 const PENALTY={threshold:45,cooldown:2,penaltySec:3};
 function registerBarrierHit(s,v,t){if(v<PENALTY.threshold||t-(s.lastHit??-Infinity)<PENALTY.cooldown)return null;s.lastHit=t;s.warnings=(s.warnings||0)+1;if(s.warnings%3===0){s.penalties=(s.penalties||0)+1;s.penaltySec=(s.penaltySec||0)+PENALTY.penaltySec;return 'penalty';}return 'warning';}
 const startLights=t=>({lit:clamp(Math.floor(Math.max(0,t)/.6+1e-7),0,5),go:t>=3.2});
@@ -770,7 +771,47 @@ const isSeasonComplete=s=>s.round>=s.rounds;
 function scoreRound(s,ids,fastest){if(isSeasonComplete(s))return s;const used=new Set();ids.forEach((id,i)=>{if(!Object.hasOwn(s.totals,id)||used.has(id))return;used.add(id);s.totals[id]+=pointsFor(i+1)+(id===fastest&&i<10?FASTEST_LAP_BONUS:0);});s.round++;return s;}
 const seasonStandings=s=>s.drivers.map(d=>({...d,points:s.totals[d.id]})).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name));
 const serializeSeason=s=>JSON.stringify(s);function parseSeason(v){try{const s=JSON.parse(v);if(!s||!Number.isInteger(s.rounds)||s.rounds<1||!Number.isInteger(s.round)||s.round<0||s.round>s.rounds||!Array.isArray(s.drivers)||!s.totals||!s.drivers.every(d=>typeof d.id==='string'&&typeof d.name==='string'&&Number.isFinite(s.totals[d.id])))return null;return s;}catch(e){return null;}}
-return {difficultyFor,POINTS,FASTEST_LAP_BONUS,pointsFor,formatLapTime,formatGap,rankRacers,timeBetween,timingTable,detectStraights,inZones,drsOpen,SLIPSTREAM,slipstreamPowerMult,TYRES,applyLapWear,tyrePowerMult,nextCompound,PIT,inPitZone,performPitStop,PENALTY,registerBarrierHit,startLights,createLapTimer,startLap,finishLap,markSector,sectorIndexOf,currentLapTime,createGhostRecorder,recordGhostSample,ghostFrameAt,planGrid,botQualiTime,createSeason,isSeasonComplete,scoreRound,seasonStandings,serializeSeason,parseSeason};})();
+
+function grip(tyre){
+ const tread=tyre.compound==='intermediate'||tyre.compound==='wet';
+ const surface=tyre.surface||'dry';
+ const wetGrip=surface==='wet'?{slick:.50,intermediate:.70,wet:.85}:
+  surface==='damp'?{slick:.74,intermediate:.93,wet:.82}:{slick:1,intermediate:.82,wet:.73};
+ const fresh=wetGrip[tread?tyre.compound:'slick']*({soft:1.07,medium:1,hard:.95}[tyre.compound]||1);
+ return fresh*(1-.43*clamp(tyre.wear,0,1)**1.55);
+}
+function lateralLimit(speed,tyre){return (100+42*clamp(speed/176,0,1)**2)*grip(tyre);}
+function yawRate(speed,input,tyre){
+ const v=Math.abs(speed);
+ const limit=lateralLimit(v,tyre)/Math.max(1,v);
+ return Math.sign(speed)*clamp(input*Math.min(v*.10,3.7),-limit,limit);
+}
+function drive(speed,target,dt,tyre,boost=false){
+ const power=tyrePowerMult(tyre.compound,tyre.wear);
+ const accel=(boost?87:73)*power*(1-.65*clamp(speed/182,0,1));
+ return speed+clamp(target-speed,-155*grip(tyre)*dt,accel*dt);
+}
+const drivers=[
+ {style:'Aggressive',attack:1.3,wear:1.10,box:.73},
+ {style:'Conservative',attack:.83,wear:.92,box:.80},
+ {style:'Strategic',attack:1,wear:.98,box:.69},
+ {style:'Defensive',attack:.97,wear:1.02,box:.75},
+ {style:'Opportunistic',attack:1.15,wear:1.04,box:.76}
+];
+function strategy(tyre,driver,remaining){
+ if(remaining<1.2||tyre.wear<driver.box||tyre.wear+remaining*TYRES[tyre.compound].wearPerLap<.95)return null;
+ if(tyre.surface==='wet')return 'wet';
+ if(tyre.surface==='damp')return 'intermediate';
+ return remaining<=6?'soft':remaining<=11?'medium':'hard';
+}
+function widthAt(u){
+ const fade=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);};
+ const straight=Math.max(1-fade(.16,.20,u),fade(.86,.94,u));
+ const chicane=fade(.45,.49,u)*(1-fade(.59,.63,u));
+ const technical=fade(.75,.78,u)*(1-fade(.84,.87,u));
+ return 36+19*straight+9*Math.max(chicane,technical);
+}
+return {circuit,widthAt,grip,lateralLimit,yawRate,drive,drivers,strategy,difficultyFor,POINTS,FASTEST_LAP_BONUS,pointsFor,formatLapTime,formatGap,rankRacers,timeBetween,timingTable,detectStraights,inZones,drsOpen,SLIPSTREAM,slipstreamPowerMult,TYRES,applyLapWear,tyrePowerMult,nextCompound,PIT,inPitZone,performPitStop,PENALTY,registerBarrierHit,startLights,createLapTimer,startLap,finishLap,markSector,sectorIndexOf,currentLapTime,createGhostRecorder,recordGhostSample,ghostFrameAt,planGrid,botQualiTime,createSeason,isSeasonComplete,scoreRound,seasonStandings,serializeSeason,parseSeason};})();
 </script>
 <script type="module">
 const _ldEarly=document.getElementById('loading');if(_ldEarly)_ldEarly.remove();
@@ -995,33 +1036,7 @@ function rebuildRoadNetwork(mode){
  occupancy.fill(0);
 
  if(mode==='f1race'){
-  // Completely new challenging F1 Grand Prix circuit ("Brickway Autodromo GP"):
-  // Long DRS main straight -> Turn 1 tight hairpin -> High-speed Maggotts/Becketts S-curves ->
-  race=road([
-   [-310, 265],
-   [-110, 265],
-   [105, 265],
-   [225, 235],
-   [255, 155],
-   [175, 105],
-   [75, 135],
-   [-25, 78],
-   [55, 12],
-   [-45, -52],
-   [75, -108],
-   [215, -125],
-   [345, -155],
-   [365, -255],
-   [310, -345],
-   [195, -355],
-   [95, -295],
-   [-15, -345],
-   [-135, -310],
-   [-245, -235],
-   [-335, -125],
-   [-360, 15],
-   [-350, 165]
-  ],42,true);
+  race=road(F1Core.circuit,38,true);
   ogTrack=race;
   coastBoulevard=race;
  }else{
@@ -1049,7 +1064,7 @@ function rebuildRoadNetwork(mode){
 
  for(let ri=0;ri<paths.length;ri++){
   const r=paths[ri],n=Math.ceil(r.length/2);
-  for(let i=0;i<=n;i++){let p=r.curve.getPointAt(i/n);samples.push({x:p.x,z:p.z,r:r.width/2+1.1,ri})}
+  for(let i=0;i<=n;i++){let p=r.curve.getPointAt(i/n);samples.push({x:p.x,z:p.z,r:mode==='f1race'?F1Core.widthAt(i/n)/2:r.width/2+1.1,ri})}
  }
  for(const p of samples){const i=Math.floor(p.x/bucketSize),j=Math.floor(p.z/bucketSize),key=bucketKey(i,j);if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(p)}
  for(let j=0;j<NZ;j++)for(let i=0;i<NX;i++){
@@ -1057,7 +1072,14 @@ function rebuildRoadNetwork(mode){
   for(const p of nearSamples(x,z)){const dx=x-p.x,dz=z-p.z;if(dx*dx+dz*dz<p.r*p.r){occupancy[idx(i,j)]=1;break}}
  }
  const vertices=[],indices=[];
- for(let j=0;j<NZ;j++)for(let i=0;i<NX;i++)if(occupied(i,j)){
+ if(mode==='f1race'){
+  const count=720;
+  for(let i=0;i<=count;i++){
+   const u=i/count,center=race.curve.getPointAt(u),t=race.curve.getTangentAt(u),half=F1Core.widthAt(u)/2;
+   for(const side of [-1,1])vertices.push(center.x+t.z*half*side,.085,center.z-t.x*half*side);
+   if(i<count){const k=2*i;indices.push(k,k+1,k+2,k+1,k+3,k+2);}
+  }
+ }else for(let j=0;j<NZ;j++)for(let i=0;i<NX;i++)if(occupied(i,j)){
   const x=MINX+i*CELL,z=MINZ+j*CELL,k=vertices.length/3;
   vertices.push(x,.085,z,x+CELL,.085,z,x+CELL,.085,z+CELL,x,.085,z+CELL);
   indices.push(k,k+2,k+1,k,k+3,k+2);
@@ -2206,7 +2228,31 @@ function createF1BotCar(spec){
  return {...spec,group:built.group,wheels:built.wheels,boostFlames:built.boostFlames,u:0,lap:1,progress:0,speed:0,x:0,z:0,yaw:0,finished:false,finishTime:0};
 }
 const f1Bots=f1BotSpecs.map(createF1BotCar);
-const F1_TOTAL_LAPS=3;
+let F1_TOTAL_LAPS=20, gpSteering=0, gpOutside=false;
+let gpFlag='',gpFlagUntil=0,gpNextIncident=0,gpFlagOrder=[];
+function incident(impact){
+ if(gpSession==='qualifying'||f1RaceTime<gpNextIncident||impact<38)return;
+ gpFlag=impact>95?'SAFETY CAR':impact>65?'VSC':'YELLOW FLAG';
+ gpFlagUntil=f1RaceTime+(gpFlag==='SAFETY CAR'?24:gpFlag==='VSC'?12:6);
+ gpNextIncident=gpFlagUntil+35;
+ gpFlagOrder=[{id:'player',progress:f1PlayerProgress},...f1Bots.filter(b=>!b.finished).map(b=>({id:b.name,progress:b.progress}))].sort((a,b)=>b.progress-a.progress).map(r=>r.id);
+ show(gpFlag+' · incident on circuit');
+}
+function neutralSpeed(id,progress){
+ if(!gpFlag)return Infinity;
+ let ahead;
+ for(let i=gpFlagOrder.indexOf(id)-1;i>=0&&!ahead;i--){
+  const other=gpFlagOrder[i];
+  if(other==='player'){
+   if(!gpPlayerDone&&!gpPitActive())ahead={progress:f1PlayerProgress,speed:Math.abs(speed)};
+  }else ahead=f1Bots.find(b=>b.name===other&&!b.finished&&!b.pit);
+ }
+ const base=gpFlag==='SAFETY CAR'?50:gpFlag==='VSC'?78:100;
+ if(ahead===undefined)return base;
+ const gap=(ahead.progress-progress)*race.length;
+ const limit=gpFlag==='SAFETY CAR'?base+35:base;
+ return Math.max(0,Math.min(limit,ahead.speed+(gap-16)*1.4));
+}
 let f1Difficulty='pro';
 const F1_DIFF_CONFIG={
  legend:{paceMult:1.30,gripAdd: 0.055,rubberMult:1.55}
@@ -2222,7 +2268,10 @@ function gpClamp(v,min,max){return Math.max(min,Math.min(max,v));}
 function gpNearestSegment(pts,x,z,near,range=10){const n=pts.length,center=Math.floor(gpIncrease(near,0,1)*n);let best=null;for(let j=-range;j<=range;j++){const k=(center+j+n)%n,a=pts[k],b=pts[(k+1)%n],dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz);if(len<1e-8)continue;const f=gpClamp(((x-a.x)*dx+(z-a.z)*dz)/(len*len),0,1),qx=a.x+dx*f,qz=a.z+dz*f,d2=(x-qx)**2+(z-qz)**2;if(!best||d2<best.d2){const tx=dx/len,tz=dz/len;best={u:gpIncrease((k+f)/n,0,1),x:qx,z:qz,tx,tz,nx:tz,nz:-tx,lat:(x-qx)*tz-(z-qz)*tx,d2};}}return best;}
 function gpResolveWall(pts,x,z,vx,vz,near,halfWidth){const pr=gpNearestSegment(pts,x,z,near),d=Math.sqrt(pr.d2);let hit=false,impact=0;if(d>halfWidth){const nx=(x-pr.x)/d,nz=(z-pr.z)/d,excess=d-halfWidth+.015;x-=nx*excess;z-=nz*excess;const vn=vx*nx+vz*nz;if(vn>0){impact=vn;vx-=nx*vn;vz-=nz*vn;}hit=true;}const proj=gpNearestSegment(pts,x,z,pr.u);return {x,z,vx,vz,hit,impact,proj,contact:pr};}
 // Actual race tuning, separate from the F1Core behavioral preset contract.
-function gpTuning(key){return ({easy:{cap:116,corner:130,min:68,accel:56,brake:112,defence:false,passRate:3.1},pro:{cap:164,corner:210,min:94,accel:84,brake:143,defence:true,passRate:4.0},legend:{cap:198,corner:290,min:117,accel:108,brake:162,defence:true,passRate:4.6}})[key]||gpTuning('pro');}
+function gpTuning(key){
+ const margin={easy:.72,pro:.88,legend:.98}[key]||.88;
+ return {cap:176,corner:112*margin,min:18,accel:55,brake:150*margin,defence:key!=='easy',passRate:3+margin};
+}
 function gpLimits(curv,ds,tune){const n=curv.length,limits=curv.map(c=>Math.min(tune.cap,Math.max(tune.min,Math.sqrt(tune.corner/Math.max(.0016,Math.abs(c))))));for(let loop=0;loop<3;loop++){for(let i=n-1;i>=0;i--)limits[i]=Math.min(limits[i],Math.sqrt(limits[(i+1)%n]**2+2*tune.brake*ds));for(let i=0;i<n;i++)limits[i]=Math.min(limits[i],Math.sqrt(limits[(i+n-1)%n]**2+2*tune.accel*ds));}return limits;}
 function gpStepSpeed(speed,target,dt,tune){return Math.max(0,gpAccelerate(speed,gpClamp((target-speed)*4,-tune.brake,tune.accel),dt));}
 function gpPassLane(leadLat,lane,bound,traffic){const candidates=[gpClamp(leadLat-13,-bound,bound),gpClamp(leadLat+13,-bound,bound)];const score=v=>Math.abs(v-leadLat)*2-Math.abs(v-lane)*.32-traffic.reduce((s,o)=>s+Math.max(0,11-Math.abs(v-o.lat))*Math.max(0,1-Math.abs(o.gap)/35)*3,0);return score(candidates[0])>=score(candidates[1])?candidates[0]:candidates[1];}
@@ -2232,28 +2281,43 @@ const GP_N=720;
 let gpProfile=null,gpCurve=null,gpDist=0,gpTimingU=0,gpWallU=0,gpWallContact=0,gpHudTime=0,gpWrongWay=0,gpCompleted=0,gpTimer=F1Core.createLapTimer(),gpTyre={compound:'medium',wear:0,stops:0},gpPenalty={},gpPitRemaining=0,gpDRS=false,gpDraft=1,gpZones=[],gpSession='race',gpQualiTime=null,gpSeason=null,gpSeasonScored=false,gpGhostRec=F1Core.createGhostRecorder(10),gpGhostFrames=[],gpGhostBest=Infinity,gpFinishRows=null,gpPlayerDone=false,gpPlayerRawFinish=0,gpReference=80;
 const gpDrivers=()=>[{id:'p',name:'YOU'},...f1Bots.map((b,i)=>({id:'b'+i,name:b.name}))];
 function gpChoice(name){return document.querySelector('input[name="'+name+'"]:checked').value;}
-function gpLoadSettings(){f1Difficulty=F1Core.difficultyFor(gpChoice('gp-difficulty')).key;try{localStorage.setItem('bw-gp-difficulty',f1Difficulty);}catch(e){}}
+function gpLoadSettings(){F1_TOTAL_LAPS=Number(document.getElementById("gp-distance").value);f1Difficulty=F1Core.difficultyFor(gpChoice('gp-difficulty')).key;try{localStorage.setItem('bw-gp-difficulty',f1Difficulty);}catch(e){}}
 function gpBuildProfile(){gpCurve=race.curve;const pts=[],tans=[],curv=[],lanes=[],ds=race.length/GP_N,tune=gpTuning(f1Difficulty);for(let i=0;i<GP_N;i++){pts.push(gpCurve.getPointAt(i/GP_N));tans.push(gpCurve.getTangentAt(i/GP_N));}for(let i=0;i<GP_N;i++){const l=tans[(i+GP_N-3)%GP_N],r=tans[(i+3)%GP_N],turn=Math.atan2(l.x*r.z-l.z*r.x,l.dot(r));curv[i]=turn/(6*ds);lanes[i]=gpClamp(-curv[i]*1150,-11,11);}const limits=gpLimits(curv,ds,tune),smooth=lanes.map((v,i)=>{let sum=0;for(let j=-10;j<=10;j++)sum+=lanes[(i+j+GP_N)%GP_N]*(11-Math.abs(j));return sum/121;});gpProfile={pts,tans,curv,lanes:smooth,limits,ds,tune};gpReference=limits.reduce((sum,v)=>sum+ds/Math.max(1,v),0);gpZones=F1Core.detectStraights(curv.map(Math.abs),.003,.065);}
 function gpSample(u){const i=gpIncrease(u,0,1)*GP_N,k=Math.floor(i),f=i-k,n=(k+1)%GP_N;return {limit:gpProfile.limits[k]*(1-f)+gpProfile.limits[n]*f,lane:gpProfile.lanes[k]*(1-f)+gpProfile.lanes[n]*f,curv:gpProfile.curv[k]};}
-function gpApplyBoundary(dt,throttle,steer,quiet=false){if(!gpProfile)return;const r=gpResolveWall(gpProfile.pts,pos.x,pos.z,velocityX,velocityZ,gpWallU,race.width*.495-4.4);pos.x=r.x;pos.z=r.z;velocityX=r.vx;velocityZ=r.vz;gpWallU=r.proj.u;if(!quiet)gpWallContact=Math.max(0,gpWallContact-dt);if(r.hit){const pr=r.proj,along=velocityX*pr.tx+velocityZ*pr.tz,forward=Math.sin(yaw)*pr.tx+Math.cos(yaw)*pr.tz;if(!quiet&&throttle!==0&&Math.abs(steer)<.15&&Math.abs(along)<12){const sg=forward>=0?1:-1,goal=Math.atan2(pr.tx*sg,pr.tz*sg);let d=goal-yaw;d=Math.atan2(Math.sin(d),Math.cos(d));yaw+=d*(1-Math.exp(-dt*4));}speed=velocityX*Math.sin(yaw)+velocityZ*Math.cos(yaw);if(!quiet&&r.impact>12&&gpWallContact===0){crashSound(Math.min(110,r.impact));gpWallContact=.3;previousRear=null;const ev=F1Core.registerBarrierHit(gpPenalty,r.impact,f1RaceTime);if(ev)show(ev==='penalty'?'RACE CONTROL: +3s penalty':'RACE CONTROL: barrier warning');}}}
+function gpApplyBoundary(dt,throttle,steer,quiet=false){if(!gpProfile)return;const r=gpResolveWall(gpProfile.pts,pos.x,pos.z,velocityX,velocityZ,gpWallU,F1Core.widthAt(gpWallU)/2+4-4.4);const outside=Math.sqrt(r.contact.d2)+2>F1Core.widthAt(r.contact.u)/2;
+ if(!quiet&&outside&&!gpOutside&&f1RaceTime-(gpPenalty.lastLimit??-10)>2){
+  gpPenalty.lastLimit=f1RaceTime;
+  gpPenalty.limits=(gpPenalty.limits||0)+1;
+  if(gpPenalty.limits%3===0){gpPenalty.penaltySec=(gpPenalty.penaltySec||0)+3;show('TRACK LIMITS · +3 seconds');}
+  else show('TRACK LIMITS · warning '+(gpPenalty.limits%3)+'/3');
+ }
+ if(!quiet)gpOutside=outside;pos.x=r.x;pos.z=r.z;velocityX=r.vx;velocityZ=r.vz;gpWallU=r.proj.u;if(!quiet)gpWallContact=Math.max(0,gpWallContact-dt);if(r.hit){const pr=r.proj,along=velocityX*pr.tx+velocityZ*pr.tz,forward=Math.sin(yaw)*pr.tx+Math.cos(yaw)*pr.tz;if(!quiet&&throttle!==0&&Math.abs(steer)<.15&&Math.abs(along)<12){const sg=forward>=0?1:-1,goal=Math.atan2(pr.tx*sg,pr.tz*sg);let d=goal-yaw;d=Math.atan2(Math.sin(d),Math.cos(d));yaw+=d*(1-Math.exp(-dt*4));}speed=velocityX*Math.sin(yaw)+velocityZ*Math.cos(yaw);if(!quiet&&r.impact>12&&gpWallContact===0){incident(r.impact);crashSound(Math.min(110,r.impact));gpWallContact=.3;previousRear=null;const ev=F1Core.registerBarrierHit(gpPenalty,r.impact,f1RaceTime);if(ev)show(ev==='penalty'?'RACE CONTROL: +3s penalty':'RACE CONTROL: barrier warning');}}}
 function gpBuildMarkers(){const markers=new T.Group();f1TrackProps.add(markers);const white=new T.MeshBasicMaterial({color:0xf4f6fb}),red=new T.MeshBasicMaterial({color:0xe34435}),green=new T.MeshBasicMaterial({color:0x20985d}),labels={};function label(n){if(labels[n])return labels[n];const c=document.createElement('canvas');c.width=128;c.height=64;const x=c.getContext('2d');x.fillStyle='#f8fafc';x.fillRect(0,0,128,64);x.fillStyle='#111827';x.font='bold 36px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(n,64,32);return labels[n]=new T.MeshBasicMaterial({map:new T.CanvasTexture(c),side:T.DoubleSide});}
-function board(u,text,side=1){const q=gpCurve.getPointAt(u),t=gpCurve.getTangentAt(u),off=race.width*.5+5,g=new T.Group();g.position.set(q.x+t.z*side*off,0,q.z-t.x*side*off);g.rotation.y=Math.atan2(t.x,t.z);markers.add(g);box(0,1.2,0,.3,2.4,.3,white,g);const m=new T.Mesh(new T.PlaneGeometry(5,2.5),label(text));m.position.y=3.2;g.add(m);}
+function board(u,text,side=1){const q=gpCurve.getPointAt(u),t=gpCurve.getTangentAt(u),off=F1Core.widthAt(u)*.5+7,g=new T.Group();g.position.set(q.x+t.z*side*off,0,q.z-t.x*side*off);g.rotation.y=Math.atan2(t.x,t.z);markers.add(g);box(0,1.2,0,.3,2.4,.3,white,g);const m=new T.Mesh(new T.PlaneGeometry(5,2.5),label(text));m.position.y=3.2;g.add(m);}
 let last=-1000;for(let i=0;i<GP_N;i++){const c=Math.abs(gpProfile.curv[i]),prev=Math.abs(gpProfile.curv[(i+GP_N-1)%GP_N]);if(c>.006&&prev<=.006&&i-last>40){last=i;for(const d of [150,100,50])board(gpIncrease(i/GP_N,-d/race.length,1),String(d),-Math.sign(gpProfile.curv[i]||1));}}
 for(const [u] of gpZones)board(u,'DRS');board(.91,'PIT');board(.955,'BOX');board(.985,'EXIT');gpBuildPitLane(markers);
-for(let i=0;i<GP_N;i+=6){const s=gpProfile.curv[i];if(Math.abs(s)<.004)continue;const q=gpProfile.pts[i],t=gpProfile.tans[i],side=-Math.sign(s),off=race.width*.5-2.8,m=box(q.x+t.z*side*off,.13,q.z-t.x*side*off,1.7,.08,gpProfile.ds*4.8,(i%12===0?white:red),markers);m.rotation.y=Math.atan2(t.x,t.z);const run=box(q.x-t.z*side*(race.width*.5+3),.06,q.z+t.x*side*(race.width*.5+3),4.5,.06,gpProfile.ds*5.6,green,markers);run.rotation.y=m.rotation.y;}}
+for(let i=0;i<GP_N;i+=6){const s=gpProfile.curv[i];if(Math.abs(s)<.004)continue;const q=gpProfile.pts[i],t=gpProfile.tans[i],side=-Math.sign(s),off=F1Core.widthAt(i/GP_N)*.5-2.8,m=box(q.x+t.z*side*off,.13,q.z-t.x*side*off,1.7,.08,gpProfile.ds*4.8,(i%12===0?white:red),markers);m.rotation.y=Math.atan2(t.x,t.z);const run=box(q.x-t.z*side*(F1Core.widthAt(i/GP_N)*.5+2),.06,q.z+t.x*side*(F1Core.widthAt(i/GP_N)*.5+2),4.5,.06,gpProfile.ds*5.6,green,markers);run.rotation.y=m.rotation.y;}}
 // v51: visible, assisted pit lane, service and release; no immediate tyre reset.
-const GP_PIT_ENTRY=.91,GP_PIT_LAST_ENTRY=.938,GP_PIT_BOX=.955,GP_PIT_EXIT=.985;
+const GP_PIT_ENTRY=.91,GP_PIT_LAST_ENTRY=.915,GP_PIT_BOX=.955,GP_PIT_EXIT=.985;
 let gpPitPhase='idle',gpPitU=0,gpPitLat=0,gpPitSpeed=0,gpPitStartU=0,gpPitStartLat=0,gpPitCrew=[],gpPitGrace=0,gpPitJack=null,gpPitLift=0;
-function gpPitLaneLat(){return race.width*.37;}
+function gpPitLaneLat(){return F1Core.widthAt(GP_PIT_BOX)/2+13;}
 function gpPitPoint(u,lat){const q=gpCurve.getPointAt(u),t=gpCurve.getTangentAt(u);return {x:q.x+t.z*lat,z:q.z-t.x*lat,t};}
 function gpPitSmooth(x){x=gpClamp(x,0,1);return x*x*(3-2*x);}
+function pitOffset(u){
+ const enter=gpPitSmooth((u-GP_PIT_ENTRY)/.018);
+ const exit=1-gpPitSmooth((u-.969)/(GP_PIT_EXIT-.969));
+ return gpPitLaneLat()*enter*exit;
+}
 function gpBuildPitLane(parent){
  gpPitCrew=[];const lane=new T.Group();parent.add(lane);
  const asphalt=new T.MeshBasicMaterial({color:0x253d48}),yellow=new T.MeshBasicMaterial({color:0xffd34b}),white=new T.MeshBasicMaterial({color:0xf8fafc}),suit=new T.MeshStandardMaterial({color:0xec3049}),skin=new T.MeshStandardMaterial({color:0xffce46}),rubber=new T.MeshStandardMaterial({color:0x171a22});
  const lat=gpPitLaneLat(),n=90,step=(GP_PIT_EXIT-GP_PIT_ENTRY)/n;
- for(let i=0;i<n;i++){const u=GP_PIT_ENTRY+(i+.5)*step,q=gpPitPoint(u,lat),length=race.length*step*1.08;
-  const slab=box(q.x,.20,q.z,10,.06,length,asphalt,lane);slab.rotation.y=Math.atan2(q.t.x,q.t.z);
-  for(const off of [-5,5]){const p=gpPitPoint(u,lat+off),m=box(p.x,.25,p.z,.34,.05,length,yellow,lane);m.rotation.y=slab.rotation.y;}
+ for(let i=0;i<n;i++){
+  const u=GP_PIT_ENTRY+i*step,v=u+step,a=gpPitPoint(u,pitOffset(u)),b=gpPitPoint(v,pitOffset(v));
+  const dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz),x=(a.x+b.x)/2,z=(a.z+b.z)/2;
+  const angle=Math.atan2(dx,dz);
+  box(x,.20,z,11,.06,len+.25,asphalt,lane).rotation.y=angle;
+  for(const edge of [-5.5,5.5])box(x+dz/len*edge,.25,z-dx/len*edge,.34,.05,len+.25,yellow,lane).rotation.y=angle;
  }
  const b=gpPitPoint(GP_PIT_BOX,lat),g=new T.Group();g.position.set(b.x,.28,b.z);g.rotation.y=Math.atan2(b.t.x,b.t.z);lane.add(g);
  for(const x of [-4.5,4.5])box(x,0,0,.45,.07,12,white,g);for(const z of [-6,6])box(0,0,z,9,.07,.45,white,g);
@@ -2310,18 +2374,18 @@ function gpPitTick(dt){
  if(gpPitPhase==='queued'&&gpWallU>=GP_PIT_ENTRY&&gpWallU<=GP_PIT_LAST_ENTRY&&speed>=0){gpPitPhase='entry';gpPitU=gpPitStartU=gpWallU;const p=gpPitPoint(gpPitU,0);gpPitLat=gpPitStartLat=(pos.x-p.x)*p.t.z-(pos.z-p.z)*p.t.x;gpPitSpeed=Math.max(12,Math.hypot(velocityX,velocityZ));show('PIT ENTRY · automatic speed limiter');}
  if(!gpPitActive())return false;
  const lane=gpPitLaneLat();
- if(gpPitPhase==='entry'){const remaining=Math.max(0,(GP_PIT_BOX-gpPitU)*race.length),target=Math.min(38,Math.sqrt(2*65*remaining));gpPitSpeed=Math.max(0,gpPitSpeed+gpClamp(target-gpPitSpeed,-125*dt,55*dt));gpPitU=Math.min(GP_PIT_BOX,gpPitU+Math.max(.5,gpPitSpeed)*dt/race.length);gpPitLat=gpPitStartLat+(lane-gpPitStartLat)*gpPitSmooth((gpPitU-gpPitStartU)/Math.min(.014,(GP_PIT_BOX-gpPitStartU)*.7));gpPitPlace(dt,gpPitLat);
+ if(gpPitPhase==='entry'){const remaining=Math.max(0,(GP_PIT_BOX-gpPitU)*race.length),target=Math.min(38,Math.sqrt(2*65*remaining));gpPitSpeed=Math.max(0,gpPitSpeed+gpClamp(target-gpPitSpeed,-125*dt,55*dt));gpPitU=Math.min(GP_PIT_BOX,gpPitU+Math.max(.5,gpPitSpeed)*dt/race.length);gpPitLat=pitOffset(gpPitU)+(gpPitStartLat-pitOffset(gpPitStartU))*(1-gpPitSmooth((gpPitU-gpPitStartU)/.014));gpPitPlace(dt,gpPitLat);
   if(gpPitU>=GP_PIT_BOX-1e-6){gpPitPhase='service';gpPitRemaining=F1Core.PIT.stopSec;gpPitSpeed=0;speed=velocityX=velocityZ=0;show('PIT STOP · changing tyres');}
- }else if(gpPitPhase==='service'){gpPitSpeed=0;gpPitPlace(dt,lane);speed=velocityX=velocityZ=0;gpPitRemaining=Math.max(0,gpPitRemaining-dt);const t=F1Core.PIT.stopSec-gpPitRemaining;gpPitAnimate(t);if(gpPitRemaining<=0){gpPitResetVisual();F1Core.performPitStop(gpTyre);gpPitPhase='exit';show('FRESH '+gpTyre.compound.toUpperCase()+' TYRES · GO!');}}
+ }else if(gpPitPhase==='service'){gpPitSpeed=0;gpPitPlace(dt,lane);speed=velocityX=velocityZ=0;gpPitRemaining=Math.max(0,gpPitRemaining-dt);const t=F1Core.PIT.stopSec-gpPitRemaining;gpPitAnimate(t);if(gpPitRemaining<=0){gpPitResetVisual();F1Core.performPitStop(gpTyre,document.getElementById('gp-next').value);gpPitPhase='exit';show('FRESH '+gpTyre.compound.toUpperCase()+' TYRES · GO!');}}
  else{gpPitSpeed=Math.min(65,gpPitSpeed+55*dt);gpPitU=Math.min(GP_PIT_EXIT,gpPitU+gpPitSpeed*dt/race.length);gpPitLat=lane*(1-gpPitSmooth((gpPitU-.969)/(GP_PIT_EXIT-.969)));gpPitPlace(dt,gpPitLat);if(gpPitU>=GP_PIT_EXIT-1e-6){gpPitPhase='idle';gpPitGrace=.8;show('PIT EXIT · control restored');}}
  return true;
 }
 function gpPitHUD(){const h=document.getElementById('gp-pit-status');if(!h)return;h.hidden=gpPitPhase==='idle';const label={queued:'PIT REQUESTED · approach yellow pit entry',entry:'PIT ENTRY · automatic limiter',service:(gpPitRemaining>2.25?'JACKING CAR':gpPitRemaining>1.58?'REMOVING TYRES':gpPitRemaining>.93?'FITTING FRESH TYRES':'RELEASE CHECK')+' · '+gpPitRemaining.toFixed(1)+'s',exit:'PIT EXIT · rejoining circuit'};h.textContent=label[gpPitPhase]||'';}
-function gpRaceAssist(){gpDRS=false;gpDraft=1;if(gpSession==='qualifying'||gpPlayerDone)return;let gap=Infinity;for(const b of f1Bots){if(b.finished)continue;const d=(b.progress-f1PlayerProgress)*race.length,dx=b.x-pos.x,dz=b.z-pos.z;if(d>8&&d<220&&Math.abs(dx*Math.cos(yaw)-dz*Math.sin(yaw))<12)gap=Math.min(gap,d/Math.max(35,b.speed));}gpDraft=F1Core.slipstreamPowerMult(gap);gpDRS=F1Core.drsOpen({inZone:F1Core.inZones(gpWallU,gpZones),lap:f1PlayerLap,gapAheadSec:gap});}
-function gpResetSession(){gpPitResetVisual();gpDist=0;gpTimingU=0;gpWallU=0;gpWallContact=0;gpHudTime=0;gpWrongWay=0;gpCompleted=0;gpTimer=F1Core.createLapTimer();F1Core.startLap(gpTimer,0);gpTyre={compound:gpChoice('gp-compound'),wear:0,stops:0};gpPenalty={};gpPitRemaining=0;gpPitPhase='idle';gpPitGrace=0;gpPitHUD();gpDRS=false;gpDraft=1;gpPlayerDone=false;gpPlayerRawFinish=0;gpSeasonScored=false;gpFinishRows=null;gpGhostRec=F1Core.createGhostRecorder(10);displayKmh=0;ghostGroup.visible=false;try{const g=JSON.parse(localStorage.getItem('bw-gp-ghost-v1')||'null');gpGhostFrames=g&&Array.isArray(g.frames)?g.frames:[];gpGhostBest=g&&Number.isFinite(g.time)?g.time:Infinity;}catch(e){gpGhostFrames=[];gpGhostBest=Infinity;}}
+function gpRaceAssist(){gpDRS=false;gpDraft=1;if(gpSession==='qualifying'||gpPlayerDone||gpFlag)return;let gap=Infinity;for(const b of f1Bots){if(b.finished||b.pit)continue;const d=(b.progress-f1PlayerProgress)*race.length,dx=b.x-pos.x,dz=b.z-pos.z;if(d>8&&d<220&&Math.abs(dx*Math.cos(yaw)-dz*Math.sin(yaw))<12)gap=Math.min(gap,d/Math.max(35,b.speed));}gpDraft=F1Core.slipstreamPowerMult(gap);gpDRS=F1Core.drsOpen({inZone:F1Core.inZones(gpWallU,gpZones),lap:f1PlayerLap,gapAheadSec:gap});}
+function gpResetSession(){gpPitResetVisual();gpSteering=0;gpOutside=false;gpFlag='';gpNextIncident=0;gpDist=0;gpTimingU=0;gpWallU=0;gpWallContact=0;gpHudTime=0;gpWrongWay=0;gpCompleted=0;gpTimer=F1Core.createLapTimer();F1Core.startLap(gpTimer,0);gpTyre={compound:gpChoice('gp-compound'),surface:document.getElementById('gp-surface').value,wear:0,stops:0};document.getElementById('gp-next').value=gpTyre.compound;gpPenalty={};gpPitRemaining=0;gpPitPhase='idle';gpPitGrace=0;gpPitHUD();gpDRS=false;gpDraft=1;gpPlayerDone=false;gpPlayerRawFinish=0;gpSeasonScored=false;gpFinishRows=null;gpGhostRec=F1Core.createGhostRecorder(10);displayKmh=0;ghostGroup.visible=false;try{const g=JSON.parse(localStorage.getItem('bw-gp-ghost-grandprix-v54')||'null');gpGhostFrames=g&&Array.isArray(g.frames)?g.frames:[];gpGhostBest=g&&Number.isFinite(g.time)?g.time:Infinity;}catch(e){gpGhostFrames=[];gpGhostBest=Infinity;}}
 function gpSelectNew(){gpLoadSettings();gpSession=gpChoice('gp-session');gpQualiTime=null;if(gpSession==='championship'){try{gpSeason=F1Core.parseSeason(localStorage.getItem('bw-gp-season-'+f1Difficulty)||'');}catch(e){gpSeason=null;}if(!gpSeason||F1Core.isSeasonComplete(gpSeason))gpSeason=F1Core.createSeason(5,gpDrivers());}else gpSeason=null;keys={};selectGameMode('f1race');}
 function gpGrid(){return F1Core.planGrid([{id:'p',qualiTime:gpQualiTime??undefined},...f1Bots.map((b,j)=>({id:'b'+j,qualiTime:F1Core.botQualiTime(b.pace,126,gpReference)}))]);}
-function gpFinishLap(){const r=F1Core.finishLap(gpTimer,f1RaceTime);if(r.isBest&&r.time<gpGhostBest&&gpGhostRec.frames.length>3&&!(gpPenalty.penaltySec||0)){gpGhostFrames=gpGhostRec.frames.slice();gpGhostBest=r.time;try{localStorage.setItem('bw-gp-ghost-v1',JSON.stringify({time:r.time,frames:gpGhostFrames}));}catch(e){}}gpTyre.wear=F1Core.applyLapWear(gpTyre.wear,gpTyre.compound);F1Core.startLap(gpTimer,f1RaceTime);gpGhostRec=F1Core.createGhostRecorder(10);}
+function gpFinishLap(){const r=F1Core.finishLap(gpTimer,f1RaceTime);if(r.isBest&&r.time<gpGhostBest&&gpGhostRec.frames.length>3&&!(gpPenalty.penaltySec||0)){gpGhostFrames=gpGhostRec.frames.slice();gpGhostBest=r.time;try{localStorage.setItem('bw-gp-ghost-grandprix-v54',JSON.stringify({time:r.time,frames:gpGhostFrames}));}catch(e){}}F1Core.startLap(gpTimer,f1RaceTime);gpGhostRec=F1Core.createGhostRecorder(10);}
 function gpFinishUI(rows){if(gpFinishRows)return;gpFinishRows=rows;f1RaceFinished=true;ghostGroup.visible=false;const rank=rows.findIndex(r=>r.id==='p')+1,fin=document.getElementById('f1-finish-overlay'),replay=document.getElementById('f1-replay-btn');document.getElementById('f1-finish-title').textContent=gpSession==='qualifying'?'QUALIFYING COMPLETE · P'+rank:rank===1?'🏆 P1 · RACE WINNER!':'🏁 FINISHED P'+rank+'!';document.getElementById('f1-finish-sub').textContent='TIME '+F1Core.formatLapTime(f1PlayerFinishTime)+' · BEST '+F1Core.formatLapTime(gpTimer.bestLap)+(gpPenalty.penaltySec?' · +'+gpPenalty.penaltySec+'s penalty':'');
 let content=rows.map((r,i)=>'<div class="'+(r.id==='p'?'me':'')+'"><span><b>P'+(i+1)+'</b> · '+r.name+'</span><span>'+F1Core.formatLapTime(r.finishTime)+'</span></div>').join('');
 if(gpSeason&&!gpSeasonScored){gpSeasonScored=true;const fastest=rows.filter(r=>Number.isFinite(r.best)).sort((a,b)=>a.best-b.best)[0];F1Core.scoreRound(gpSeason,rows.map(r=>r.id),fastest?.id);try{localStorage.setItem('bw-gp-season-'+f1Difficulty,F1Core.serializeSeason(gpSeason));}catch(e){}content+='<div><b>CHAMPIONSHIP · '+gpSeason.round+'/'+gpSeason.rounds+'</b></div>'+F1Core.seasonStandings(gpSeason).map(r=>'<div><span>'+r.name+'</span><b>'+r.points+' PTS</b></div>').join('');}replay.textContent=gpSession==='qualifying'?'START GRAND PRIX':gpSeason&&!F1Core.isSeasonComplete(gpSeason)?'NEXT ROUND':'RACE AGAIN';document.getElementById('f1-standings').innerHTML=content;fin.classList.add('open');}
@@ -2653,9 +2717,10 @@ function buildF1CircuitProps(){
   const segLen=Math.max(0.5,p0.distanceTo(p1));
   const nx=tg.z,nz=-tg.x;
   const yawWall=Math.atan2(tg.x,tg.z);
-  const edgeOff=race.width*0.495;
-  const curbOff=race.width*0.452;
+  const edgeOff=F1Core.widthAt(uMid)/2+4;
+  const curbOff=F1Core.widthAt(uMid)/2-1;
   for(const side of [-1,1]){
+   if(side===1&&uMid>=GP_PIT_ENTRY-.003&&uMid<=GP_PIT_EXIT+.003)continue;
    const wx=midP.x+nx*side*edgeOff;
    const wz=midP.z+nz*side*edgeOff;
    const cx=midP.x+nx*side*curbOff;
@@ -2797,7 +2862,7 @@ function setupF1RaceGrid(){
   bot.finishTime=0;
   bot.wasBehindPlayer=false;
   bot.overtakeBoost=0;
-  bot.overtakeCount=0;bot.lane=lat;bot.passTarget=null;bot.passLane=lat;bot.passTimer=0;bot.defendTimer=0;bot.defendCooldown=0;bot.defendLane=lat;bot.boosting=false;bot.driftAmt=0;bot.contactTimer=0;bot.tyre={compound:i%3===0?'soft':i%3===1?'medium':'hard',wear:0,stops:0};bot.lapStart=0;bot.best=Infinity;bot.progress=uStart;if(bot.boostFlames)for(const flame of bot.boostFlames)flame.visible=false;
+  bot.pit=null;bot.driver=F1Core.drivers[i];bot.overtakeCount=0;bot.lane=lat;bot.passTarget=null;bot.passLane=lat;bot.passTimer=0;bot.defendTimer=0;bot.defendCooldown=0;bot.defendLane=lat;bot.boosting=false;bot.driftAmt=0;bot.contactTimer=0;bot.tyre={surface:gpTyre.surface,compound:gpTyre.surface==='wet'?'wet':gpTyre.surface==='damp'?'intermediate':i%3===0?'soft':i%3===1?'medium':'hard',wear:0,stops:0};bot.lapStart=0;bot.best=Infinity;bot.progress=uStart;if(bot.boostFlames)for(const flame of bot.boostFlames)flame.visible=false;
   bot.x=gp.x+gt.z*lat;
   bot.z=gp.z-gt.x*lat;
   bot.yaw=Math.atan2(gt.x,gt.z);
@@ -2817,37 +2882,60 @@ function ordinalSuffix(n){
 }
 
 function updateF1Race(dt){
- if(gameMode!=='f1race'||f1CountdownActive||!gpProfile||f1RaceFinished)return;f1RaceTime+=dt;
+ if(gameMode!=='f1race'||f1CountdownActive||!gpProfile||f1RaceFinished)return;f1RaceTime+=dt;if(gpFlag&&f1RaceTime>=gpFlagUntil){gpFlag='';show('GREEN FLAG');}
  const qualifying=gpSession==='qualifying',laps=qualifying?1:F1_TOTAL_LAPS;
- if(!gpPlayerDone){const bestU=gpWallU,du=gpSignedDelta(bestU,gpTimingU),maxStep=Math.max(.0035,(Math.hypot(velocityX,velocityZ)*dt+gpProfile.ds*1.3)/race.length);if(gpPitActive()||gpPitGrace>0||Math.abs(du)<=maxStep)gpDist=gpClamp(gpDist+du,-.05,laps+.01);gpTimingU=bestU;f1PlayerPrevU=bestU;f1PlayerProgress=gpClamp(gpDist,0,laps);const completed=Math.floor(f1PlayerProgress);
+ if(!gpPlayerDone){const bestU=gpWallU,du=gpSignedDelta(bestU,gpTimingU),maxStep=Math.max(.0035,(Math.hypot(velocityX,velocityZ)*dt+gpProfile.ds*1.3)/race.length);if(gpPitActive()||gpPitGrace>0||Math.abs(du)<=maxStep)gpDist=gpClamp(gpDist+du,-.05,laps+.01);if(!gpPitActive())gpTyre.wear=Math.min(1,gpTyre.wear+Math.max(0,Math.min(maxStep,du))*F1Core.TYRES[gpTyre.compound].wearPerLap);
+ gpTimingU=bestU;f1PlayerPrevU=bestU;f1PlayerProgress=gpClamp(gpDist,0,laps);const completed=Math.floor(f1PlayerProgress);
  if(completed>gpCompleted){gpFinishLap();gpCompleted=completed;}else{F1Core.markSector(gpTimer,f1PlayerProgress%1,f1RaceTime);F1Core.recordGhostSample(gpGhostRec,dt,F1Core.currentLapTime(gpTimer,f1RaceTime),pos.x,pos.z,yaw);}
  f1PlayerLap=Math.min(laps,Math.floor(f1PlayerProgress)+1);
  const tv=gpCurve.getTangentAt(gpTimingU);gpWrongWay=(velocityX*tv.x+velocityZ*tv.z)<-7?gpWrongWay+dt:Math.max(0,gpWrongWay-dt*3);
  if(f1PlayerProgress>=laps){gpPlayerDone=true;gpPlayerRawFinish=f1RaceTime;f1PlayerFinishTime=f1RaceTime+(gpPenalty.penaltySec||0);speed=velocityX=velocityZ=0;if(qualifying){gpQualiTime=f1PlayerFinishTime;const rows=gpGrid().map(r=>({...r,name:r.id==='p'?'YOU':f1Bots[Number(r.id.slice(1))].name,finishTime:r.qualiTime}));gpFinishUI(rows);return;}}}
  if(qualifying){const ghost=F1Core.ghostFrameAt(gpGhostFrames,F1Core.currentLapTime(gpTimer,f1RaceTime));ghostGroup.visible=!!ghost;if(ghost){ghostGroup.position.set(ghost.x,.15,ghost.z);ghostGroup.rotation.y=ghost.yaw+Math.PI;}}
  else for(let bi=0;bi<f1Bots.length;bi++){
- const b=f1Bots[bi],sample=gpSample(b.u),future=gpSample(gpIncrease(b.u,Math.max(10,b.speed*.17)/race.length,1)),straight=Math.abs(sample.curv)<.0035&&Math.abs(future.curv)<.0035,tune=gpProfile.tune,bound=race.width*.31;
- const pack=[...f1Bots.filter(o=>o!==b&&!o.finished).map(o=>({id:o.name,progress:o.progress,speed:o.speed,x:o.x,z:o.z})),...(!gpPlayerDone&&!gpPitActive()?[{id:'player',progress:f1PlayerProgress,speed:Math.hypot(velocityX,velocityZ),x:pos.x,z:pos.z}]:[])],trackP=gpCurve.getPointAt(b.u),trackT=gpCurve.getTangentAt(b.u);
+ const b=f1Bots[bi],sample=gpSample(b.u),future=gpSample(gpIncrease(b.u,Math.max(10,b.speed*.17)/race.length,1)),straight=Math.abs(sample.curv)<.0035&&Math.abs(future.curv)<.0035,tune=gpProfile.tune,bound=F1Core.widthAt(b.u)*.5-5.2;
+ const pack=[...f1Bots.filter(o=>o!==b&&!o.finished&&!o.pit).map(o=>({id:o.name,progress:o.progress,speed:o.speed,x:o.x,z:o.z})),...(!gpPlayerDone&&!gpPitActive()?[{id:'player',progress:f1PlayerProgress,speed:Math.hypot(velocityX,velocityZ),x:pos.x,z:pos.z}]:[])],trackP=gpCurve.getPointAt(b.u),trackT=gpCurve.getTangentAt(b.u);
  const traffic=pack.map(o=>({...o,gap:(o.progress-b.progress)*race.length,lat:(o.x-trackP.x)*trackT.z-(o.z-trackP.z)*trackT.x}));
  const ahead=traffic.filter(o=>o.gap>0&&o.gap<200).sort((a,b)=>a.gap-b.gap),leader=ahead[0],follower=traffic.filter(o=>o.gap<0&&o.gap>-75).sort((a,b)=>b.gap-a.gap)[0];
  // Fixed bounded pace; no progress-based teleport, no infinite catch-up boost.
- const pace=.975+(b.pace-116)*.0025;let targetSpd=Math.min(sample.limit,future.limit+10)*pace*F1Core.tyrePowerMult(b.tyre.compound,b.tyre.wear);
+ let targetSpd=Math.min(sample.limit,future.limit+10)*Math.sqrt(F1Core.grip(b.tyre));
  let targetLane=sample.lane+b.offset*.38;
  b.passTimer=Math.max(0,b.passTimer-dt);b.defendTimer=Math.max(0,b.defendTimer-dt);b.defendCooldown=Math.max(0,b.defendCooldown-dt);b.contactTimer=Math.max(0,b.contactTimer-dt);
- const aligned=leader&&Math.abs(b.lane-leader.lat)<12,gapSec=aligned?leader.gap/Math.max(35,leader.speed):Infinity,drs=F1Core.drsOpen({inZone:F1Core.inZones(b.u,gpZones),lap:b.lap,gapAheadSec:gapSec});b.boosting=!!(!b.finished&&straight&&(drs||gapSec<1.2));if(b.boosting)targetSpd=Math.min(tune.cap*1.09,targetSpd*(drs?1.08:F1Core.slipstreamPowerMult(gapSec)));
+ const aligned=leader&&Math.abs(b.lane-leader.lat)<12,gapSec=aligned?leader.gap/Math.max(35,leader.speed):Infinity,drs=F1Core.drsOpen({inZone:F1Core.inZones(b.u,gpZones),lap:b.lap,gapAheadSec:gapSec});b.boosting=!!(!gpFlag&&!b.finished&&straight&&(drs||gapSec<1.2));if(b.boosting)targetSpd=Math.min(tune.cap*1.09,targetSpd*(drs?1.08:F1Core.slipstreamPowerMult(gapSec)));
  // Commit to one clear passing lane until the target has been passed by 15 units.
  if(b.passTarget){const target=traffic.find(o=>o.id===b.passTarget);if(!target||target.gap < -15||target.gap>180||b.passTimer<=0){b.passTarget=null;}else targetLane=b.passLane;}
- if(!b.finished&&!b.passTarget&&leader&&aligned&&leader.gap<Math.max(32,b.speed*.65)&&targetSpd>leader.speed+2){b.passTarget=leader.id;b.passLane=gpPassLane(leader.lat,b.lane,bound,traffic);b.passTimer=4.0;targetLane=b.passLane;}
+ if(gpFlag){b.passTarget=null;b.defendTimer=0;}
+ if(!gpFlag&&!b.finished&&!b.passTarget&&leader&&aligned&&leader.gap<Math.max(32,b.speed*.65*b.driver.attack)&&targetSpd>leader.speed+(b.driver.style==='Opportunistic'?0:2)){b.passTarget=leader.id;b.passLane=gpPassLane(leader.lat,b.lane,bound,traffic);b.passTimer=4.0;targetLane=b.passLane;}
  // Brake only for actual traffic in the current lane, not merely for a car in another lane.
  for(const o of ahead){if(Math.abs(b.lane-o.lat)>9.5)continue;const closing=Math.max(0,b.speed-o.speed);if(o.gap<12+closing*.38){targetSpd=Math.min(targetSpd,Math.max(8,o.speed+Math.max(0,o.gap-10)*2));break;}}
- if(tune.defence&&!b.finished&&!b.passTarget&&straight&&follower&&-follower.gap>18&&-follower.gap<70&&follower.speed>b.speed+4&&!b.defendCooldown){b.defendLane=gpClamp(follower.lat,-race.width*.23,race.width*.23);b.defendTimer=1.5;b.defendCooldown=4.5;}if(b.defendTimer>0&&!b.passTarget)targetLane=b.defendLane;
- if(b.finished){targetSpd=95;targetLane=bound;b.boosting=false;}if(b.u>.900&&b.u<.990)targetLane=Math.min(targetLane,race.width*.13);b.lane+=(gpClamp(targetLane,-bound,bound)-b.lane)*(1-Math.exp(-dt*(b.passTarget?tune.passRate:2.8)));b.speed=gpStepSpeed(b.speed,targetSpd,dt,tune);const prevU=b.u;b.u=gpIncrease(b.u,b.speed*dt/race.length,1);
- if(!b.finished&&b.u<prevU){if(b.lap>1)b.best=Math.min(b.best,f1RaceTime-b.lapStart);b.lapStart=f1RaceTime;b.tyre.wear=F1Core.applyLapWear(b.tyre.wear,b.tyre.compound);b.lap++;if(b.lap>laps){b.finished=true;b.finishTime=f1RaceTime;b.lap=laps+1;}}b.progress=b.finished?laps:(b.lap-1)+b.u;
+ if(!gpFlag&&tune.defence&&!b.finished&&!b.passTarget&&straight&&follower&&-follower.gap>18&&-follower.gap<70&&follower.speed>b.speed+4&&!b.defendCooldown){b.defendLane=gpClamp(follower.lat,-race.width*.23,race.width*.23);b.defendTimer=b.driver.style==='Defensive'?2.6:1.5;b.defendCooldown=4.5;}if(b.defendTimer>0&&!b.passTarget)targetLane=b.defendLane;
+ if(b.finished){targetSpd=95;targetLane=bound;b.boosting=false;}if(b.u>.900&&b.u<.990)targetLane=Math.min(targetLane,race.width*.13);b.lane+=(gpClamp(targetLane,-bound,bound)-b.lane)*(1-Math.exp(-dt*(b.passTarget?tune.passRate:2.8)));if(!b.pit){
+ const turnLimit=Math.sqrt(F1Core.lateralLimit(b.speed,b.tyre)/Math.max(.0001,Math.abs(sample.curv)));
+ const power=F1Core.tyrePowerMult(b.tyre.compound,b.tyre.wear);
+ const cap=(b.boosting?176:160)*power*(drs?1.08:1)*F1Core.slipstreamPowerMult(gapSec);
+ b.speed=F1Core.drive(b.speed,Math.min(targetSpd,turnLimit,cap,neutralSpeed(b.name,b.progress)),dt,b.tyre,b.boosting);
+ }const prevU=b.u;
+ if(!b.finished&&!b.pit&&b.u>=GP_PIT_ENTRY&&b.u<=GP_PIT_LAST_ENTRY){
+  const compound=F1Core.strategy(b.tyre,b.driver,laps-b.progress);
+  if(compound){b.pit={compound,service:3,done:false,from:b.lane,start:b.u};show(b.name+' · BOX '+compound.toUpperCase());}
+ }
+ if(b.pit){
+  const pit=b.pit,dist=(GP_PIT_BOX-b.u)*race.length;
+  b.speed=F1Core.drive(b.speed,pit.done?65:Math.min(38,Math.sqrt(130*Math.max(0,dist))),dt,b.tyre);
+  if(!pit.done&&dist<.1){
+   b.speed=0;pit.service-=dt;
+   if(pit.service<=0){F1Core.performPitStop(b.tyre,pit.compound);pit.done=true;}
+  }
+  b.u=Math.min(pit.done?GP_PIT_EXIT:GP_PIT_BOX,b.u+b.speed*dt/race.length);
+  b.lane=pitOffset(b.u)+(pit.from-pitOffset(pit.start))*(1-gpPitSmooth((b.u-pit.start)/.014));
+  if(b.u>=GP_PIT_EXIT)b.pit=null;
+ }else b.u=gpIncrease(b.u,b.speed*dt/race.length,1);
+ if(!b.finished&&!b.pit)b.tyre.wear=Math.min(1,b.tyre.wear+gpIncrease(b.u,-prevU,1)*F1Core.TYRES[b.tyre.compound].wearPerLap*b.driver.wear);
+ if(!b.finished&&b.u<prevU){if(b.lap>1)b.best=Math.min(b.best,f1RaceTime-b.lapStart);b.lapStart=f1RaceTime;b.lap++;if(b.lap>laps){b.finished=true;b.finishTime=f1RaceTime;b.lap=laps+1;}}b.progress=b.finished?laps:(b.lap-1)+b.u;
  const q=gpCurve.getPointAt(b.u),t=gpCurve.getTangentAt(b.u);b.x=q.x+t.z*b.lane;b.z=q.z-t.x*b.lane;b.yaw+=Math.atan2(Math.sin(Math.atan2(t.x,t.z)-b.yaw),Math.cos(Math.atan2(t.x,t.z)-b.yaw))*Math.min(1,dt*11.5);b.group.position.set(b.x,.15,b.z);b.group.rotation.set(0,b.yaw+Math.PI,0);for(const w of b.wheels)w.rotation.x+=b.speed*dt*.5;if(b.boostFlames)for(const fg of b.boostFlames)fg.visible=b.boosting;
- if(!b.finished&&!gpPlayerDone&&!gpPitActive()&&!gpPitGrace){const dx=pos.x-b.x,dz=pos.z-b.z,dist=Math.hypot(dx,dz);if(dist<9.4&&dist>.001){const nx=dx/dist,nz=dz/dist,pen=9.4-dist,tx=Math.sin(b.yaw),tz=Math.cos(b.yaw);pos.x+=nx*pen*.7;pos.z+=nz*pen*.7;b.lane=gpClamp(b.lane-(nx*tz-nz*tx)*pen*.3,-bound,bound);const rel=(velocityX-tx*b.speed)*nx+(velocityZ-tz*b.speed)*nz,imp=Math.max(0,-rel)*.55;velocityX+=nx*imp;velocityZ+=nz*imp;b.speed=gpClamp(b.speed-(tx*nx+tz*nz)*imp*.55,0,tune.cap*1.09);speed=velocityX*Math.sin(yaw)+velocityZ*Math.cos(yaw);if(imp>6&&!b.contactTimer){crashSound(Math.min(110,imp*1.8));b.contactTimer=.25;}}}}
- if(!qualifying){for(let i=0;i<f1Bots.length;i++)for(let j=i+1;j<f1Bots.length;j++){const b=f1Bots[i],o=f1Bots[j];if(b.finished||o.finished)continue;const dx=b.x-o.x,dz=b.z-o.z,d=Math.hypot(dx,dz);if(d>=9.4)continue;const t=gpCurve.getTangentAt(b.u),lat=dx*t.z-dz*t.x,sg=Math.abs(lat)>.01?Math.sign(lat):(i%2?1:-1),sep=(9.4-d)*.65;b.lane=gpClamp(b.lane+sg*sep,-race.width*.31,race.width*.31);o.lane=gpClamp(o.lane-sg*sep,-race.width*.31,race.width*.31);const rear=b.progress<o.progress?b:o,front=rear===b?o:b;if(rear.speed>front.speed&&!rear.contactTimer){rear.speed=front.speed+(rear.speed-front.speed)*.35;rear.contactTimer=.25;}}for(const b of f1Bots){const q=gpCurve.getPointAt(b.u),t=gpCurve.getTangentAt(b.u);b.x=q.x+t.z*b.lane;b.z=q.z-t.x*b.lane;b.group.position.set(b.x,.15,b.z);}if(!gpPlayerDone&&!gpPitActive()&&!gpPitGrace){gpApplyBoundary(dt,0,0,true);player.position.x=pos.x;player.position.z=pos.z;}}
+ if(!b.finished&&!b.pit&&!gpPlayerDone&&!gpPitActive()&&!gpPitGrace){const dx=pos.x-b.x,dz=pos.z-b.z,dist=Math.hypot(dx,dz);if(dist<9.4&&dist>.001){const nx=dx/dist,nz=dz/dist,pen=9.4-dist,tx=Math.sin(b.yaw),tz=Math.cos(b.yaw);pos.x+=nx*pen*.7;pos.z+=nz*pen*.7;b.lane=gpClamp(b.lane-(nx*tz-nz*tx)*pen*.3,-bound,bound);const rel=(velocityX-tx*b.speed)*nx+(velocityZ-tz*b.speed)*nz,imp=Math.max(0,-rel)*.55;velocityX+=nx*imp;velocityZ+=nz*imp;b.speed=gpClamp(b.speed-(tx*nx+tz*nz)*imp*.55,0,tune.cap*1.09);speed=velocityX*Math.sin(yaw)+velocityZ*Math.cos(yaw);if(imp>6&&!b.contactTimer){incident(imp*1.8);crashSound(Math.min(110,imp*1.8));b.contactTimer=.25;}}}}
+ if(!qualifying){for(let i=0;i<f1Bots.length;i++)for(let j=i+1;j<f1Bots.length;j++){const b=f1Bots[i],o=f1Bots[j];if(b.finished||o.finished||b.pit||o.pit)continue;const dx=b.x-o.x,dz=b.z-o.z,d=Math.hypot(dx,dz);if(d>=9.4)continue;const t=gpCurve.getTangentAt(b.u),lat=dx*t.z-dz*t.x,sg=Math.abs(lat)>.01?Math.sign(lat):(i%2?1:-1),sep=(9.4-d)*.65;b.lane=gpClamp(b.lane+sg*sep,-race.width*.31,race.width*.31);o.lane=gpClamp(o.lane-sg*sep,-race.width*.31,race.width*.31);const rear=b.progress<o.progress?b:o,front=rear===b?o:b;if(rear.speed>front.speed&&!rear.contactTimer){incident(rear.speed-front.speed);rear.speed=front.speed+(rear.speed-front.speed)*.35;rear.contactTimer=.25;}}for(const b of f1Bots){const q=gpCurve.getPointAt(b.u),t=gpCurve.getTangentAt(b.u);b.x=q.x+t.z*b.lane;b.z=q.z-t.x*b.lane;b.group.position.set(b.x,.15,b.z);}if(!gpPlayerDone&&!gpPitActive()&&!gpPitGrace){gpApplyBoundary(dt,0,0,true);player.position.x=pos.x;player.position.z=pos.z;}}
  const rows=F1Core.timingTable(F1Core.rankRacers([{id:'p',name:'YOU (PINK GT)',progress:f1PlayerProgress,finished:gpPlayerDone,finishTime:f1PlayerFinishTime,best:gpTimer.bestLap},...(!qualifying?f1Bots.map((b,i)=>({id:'b'+i,name:b.name,progress:b.progress,finished:b.finished,finishTime:b.finishTime,best:b.best})):[])]),gpReference);
- const me=rows.find(r=>r.id==='p');if(f1RaceTime>=gpHudTime||gpPlayerDone){gpHudTime=f1RaceTime+.12;document.getElementById('f1-pos').textContent=qualifying?'QUALIFYING':'POS: '+me.position+' / 6';document.getElementById('f1-lap').textContent='LAP: '+f1PlayerLap+' / '+laps;document.getElementById('f1-timer').textContent=F1Core.formatLapTime(gpPlayerDone?gpPlayerRawFinish:f1RaceTime);document.getElementById('f1-rk-diff').textContent=f1Difficulty.toUpperCase();document.getElementById('f1-telemetry').textContent=(gpPlayerDone?'FINISHED · WAITING FOR FIELD':gpWrongWay>.6?'WRONG WAY':'S'+(F1Core.sectorIndexOf(f1PlayerProgress%1)+1)+' · '+F1Core.formatLapTime(F1Core.currentLapTime(gpTimer,f1RaceTime)))+' · BEST '+F1Core.formatLapTime(gpTimer.bestLap)+' · '+F1Core.formatGap(me.gapToAhead);document.getElementById('gp-tyres').textContent=gpTyre.compound.toUpperCase()+' · TYRE LIFE '+Math.round((1-gpTyre.wear)*100)+'%'+(gpPenalty.penaltySec?' · +'+gpPenalty.penaltySec+'s':'');const dr=document.getElementById('gp-drs');dr.textContent=gpDRS?'DRS OPEN':F1Core.inZones(gpWallU,gpZones)?'DRS ZONE':gpDraft>1?'SLIPSTREAM':'DRS OFF';dr.classList.toggle('active',gpDRS);const pit=document.getElementById('gp-pit');pit.disabled=!gpPitAvailable();pit.textContent=gpPitPhase==='queued'?'CANCEL PIT':gpPitPhase==='service'?'PIT '+gpPitRemaining.toFixed(1)+'s':gpPitActive()?'PIT ACTIVE':'REQUEST PIT (P)';gpPitHUD();document.getElementById('f1-live-ranks-list').innerHTML=rows.map(r=>'<div class="f1-rk-row'+(r.id==='p'?' me':'')+'"><span class="rk-pos">P'+r.position+'</span><span>'+r.name+'</span><span>'+(r.finished?'FIN':F1Core.formatGap(r.gapToLeader))+'</span></div>').join('');}
+ const me=rows.find(r=>r.id==='p');if(f1RaceTime>=gpHudTime||gpPlayerDone){gpHudTime=f1RaceTime+.12;document.getElementById('f1-pos').textContent=qualifying?'QUALIFYING':'POS: '+me.position+' / 6';document.getElementById('f1-lap').textContent='LAP: '+f1PlayerLap+' / '+laps;document.getElementById('f1-timer').textContent=F1Core.formatLapTime(gpPlayerDone?gpPlayerRawFinish:f1RaceTime);document.getElementById('f1-rk-diff').textContent=f1Difficulty.toUpperCase();document.getElementById('f1-telemetry').textContent=(gpPlayerDone?'FINISHED · WAITING FOR FIELD':gpWrongWay>.6?'WRONG WAY':'S'+(F1Core.sectorIndexOf(f1PlayerProgress%1)+1)+' · '+F1Core.formatLapTime(F1Core.currentLapTime(gpTimer,f1RaceTime)))+' · BEST '+F1Core.formatLapTime(gpTimer.bestLap)+' · AHEAD '+F1Core.formatGap(me.gapToAhead)+' · LEAD '+F1Core.formatGap(me.gapToLeader)+(gpTimer.splits.length?' · S'+gpTimer.splits.length+' '+F1Core.formatLapTime(gpTimer.splits.at(-1)):'');document.getElementById('gp-tyres').textContent=(gpTyre.surface!=='dry'?gpTyre.surface.toUpperCase()+' · ':'')+gpTyre.compound.toUpperCase()+' · TYRE LIFE '+Math.round((1-gpTyre.wear)*100)+'%'+(gpTyre.wear>.8?' · BOX SOON':'')+' · STOPS '+gpTyre.stops+(gpFlag?' · '+gpFlag:'')+(gpPenalty.penaltySec?' · +'+gpPenalty.penaltySec+'s':'');const dr=document.getElementById('gp-drs');dr.textContent=gpDRS?'DRS OPEN':F1Core.inZones(gpWallU,gpZones)?'DRS ZONE':gpDraft>1?'SLIPSTREAM':'DRS OFF';dr.classList.toggle('active',gpDRS);const pit=document.getElementById('gp-pit');pit.disabled=!gpPitAvailable();pit.textContent=gpPitPhase==='queued'?'CANCEL PIT':gpPitPhase==='service'?'PIT '+gpPitRemaining.toFixed(1)+'s':gpPitActive()?'PIT ACTIVE':'REQUEST PIT (P)';gpPitHUD();document.getElementById('f1-live-ranks-list').innerHTML=rows.map(r=>'<div class="f1-rk-row'+(r.id==='p'?' me':'')+'"><span class="rk-pos">P'+r.position+'</span><span>'+r.name+'</span><span>'+(r.finished?'FIN':r.id!=='p'&&f1Bots[Number(r.id.slice(1))].pit?'PIT':F1Core.formatGap(r.gapToLeader))+'</span></div>').join('');}
  if(gpPlayerDone&&f1Bots.every(b=>b.finished))gpFinishUI(rows);
 }
 
@@ -3891,6 +3979,9 @@ function reset(){
 function selectGameMode(mode){
  gpPitResetVisual();
  gameMode=mode;
+ const brakeLabel=mode==='f1race'?'BRAKE':'DRIFT';
+ document.querySelector('#mc-pedal-drift span:last-child').textContent=brakeLabel;
+ document.getElementById('mc-drift').textContent=brakeLabel;
  f1RaceFinished=false;f1CountdownActive=false;
  gameStarted=true;
  document.body.classList.toggle('mode-f1-race',mode==='f1race');
@@ -3902,6 +3993,7 @@ function selectGameMode(mode){
  ghostGroup.visible=false;
 
  // Rebuild road network for chosen mode
+ roadMat.roughness=mode!=='f1race'?.78:({dry:.78,damp:.50,wet:.30}[document.getElementById('gp-surface').value]??.78);
  rebuildRoadNetwork(mode);
  buildF1CircuitProps();
  if(mode==='f1race'){gpBuildProfile();gpBuildMarkers();}else{gpProfile=null;gpCurve=null;gpPitPhase='idle';gpPitRemaining=0;gpPitHUD();}
@@ -3958,7 +4050,12 @@ function returnToStartScreen(){
 
 document.getElementById('btn-mode-openworld').addEventListener('click',()=>selectGameMode('openworld'));
 const btnModeF1Race=document.getElementById('btn-mode-f1race');
-function gpMenuSummary(){const s=gpChoice('gp-session'),d=gpChoice('gp-difficulty'),c=gpChoice('gp-compound');const cap=v=>v[0].toUpperCase()+v.slice(1);document.getElementById('gp-summary').textContent=({race:'Grand Prix',qualifying:'Qualifying + GP',championship:'Championship'}[s])+' · '+cap(d)+' · '+cap(c);document.getElementById('gp-launch').firstChild.nodeValue=s==='qualifying'?'START QUALIFYING ':'GO TO GRID ';}
+function gpMenuSummary(){const surface=document.getElementById('gp-surface').value;
+ for(const label of document.querySelectorAll('.gp-weather-tyre')){
+  label.hidden=surface==='dry';
+  if(label.hidden&&label.firstElementChild.checked)document.querySelector('[name="gp-compound"][value="medium"]').checked=true;
+ }
+ const s=gpChoice('gp-session'),d=gpChoice('gp-difficulty'),c=gpChoice('gp-compound');const cap=v=>v[0].toUpperCase()+v.slice(1);document.getElementById('gp-summary').textContent=({race:'Grand Prix',qualifying:'Qualifying + GP',championship:'Championship'}[s])+' · '+cap(d)+' · '+cap(c)+' · '+cap(surface)+' · '+document.getElementById('gp-distance').value+' laps';document.getElementById('gp-launch').firstChild.nodeValue=s==='qualifying'?'START QUALIFYING ':'GO TO GRID ';}
 function gpShowSetup(open,focus=true){const root=document.getElementById('start-screen'),main=document.getElementById('gp-main-menu'),setup=document.getElementById('gp-setup-screen');main.hidden=!!open;setup.hidden=!open;root.classList.toggle('gp-config-open',!!open);root.setAttribute('aria-label',open?'Grand Prix race setup':'Choose Game Mode');if(open){gpMenuSummary();setup.scrollTop=0;if(focus)document.getElementById('gp-setup-title').focus({preventScroll:true});}else if(focus)document.getElementById('btn-mode-f1race').focus({preventScroll:true});}
 function gpWireSetup(){const root=document.getElementById('gp-setup-screen');try{const saved=F1Core.difficultyFor(localStorage.getItem('bw-gp-difficulty')).key;root.querySelector('input[name="gp-difficulty"][value="'+saved+'"]').checked=true;}catch(e){}root.addEventListener('change',gpMenuSummary);document.getElementById('btn-mode-f1race').addEventListener('click',()=>gpShowSetup(true));document.getElementById('gp-back').addEventListener('click',()=>gpShowSetup(false));document.getElementById('gp-launch').addEventListener('click',()=>{if(gameStarted||root.hidden)return;gpSelectNew();});root.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();gpShowSetup(false);}});gpMenuSummary();}
 
@@ -4250,9 +4347,9 @@ let clutch=1,shiftTorquePunch=0;
 shiftTimer=0;
 shiftKick=0;
 shiftJerk=0;
-const shiftHeld=true;
+const shiftHeld=gameMode!=='f1race'||keys.ShiftLeft||keys.ShiftRight;
 
-const boosting=!f1Brake&&shiftHeld&&(throttle>0||speed>2);
+const boosting=!(gameMode==='f1race'&&gpFlag)&&!f1Brake&&shiftHeld&&(throttle>0||speed>2);
 playerBoostActive=boosting;
 playerBoostCooldown=0;
 if(boosting&&!shiftWasDown){
@@ -4265,11 +4362,15 @@ const pitAssist=gameMode==='f1race'&&!holdingStartCountdown&&gpPitTick(dt);if(ga
 if(throttle>0)acceleration=(gameMode==='f1race'?(boosting?163:78)*F1Core.tyrePowerMult(gpTyre.compound,gpTyre.wear)*gpDraft*(gpDRS?1.08:1):(boosting?195:78)*(preferences.power/100))*gearTorque*clutch+shiftTorquePunch;
 else if(throttle<0)acceleration=speed>1?-155:-52;
 if(throttle>0&&speed<0)acceleration=Math.max(acceleration,130);
-if(!pitAssist){speed+=acceleration*dt;if(f1Brake){const before=Math.abs(speed);speed=Math.sign(speed)*Math.max(0,before-190*dt);const ratio=before>0?Math.abs(speed)/before:0;velocityX*=ratio;velocityZ*=ratio;}}
+if(gameMode==='f1race'&&!pitAssist){
+ const pace=F1Core.tyrePowerMult(gpTyre.compound,gpTyre.wear);
+ const target=f1Brake?0:throttle<0?(speed>1?0:-18):throttle>0?Math.min(neutralSpeed('player',f1PlayerProgress),(boosting?176:160)*pace*gpDraft*(gpDRS?1.08:1)):Math.min(neutralSpeed('player',f1PlayerProgress),speed*Math.exp(-dt*.25));
+ speed=F1Core.drive(speed,target,dt,gpTyre,boosting);
+}else if(!pitAssist){speed+=acceleration*dt;if(f1Brake){const before=Math.abs(speed);speed=Math.sign(speed)*Math.max(0,before-190*dt);const ratio=before>0?Math.abs(speed)/before:0;velocityX*=ratio;velocityZ*=ratio;}}
 const aeroDrag=1-Math.min(.006,(speed*speed)/2400000);
-if(!pitAssist)speed*=Math.pow((driftInput?(onRoad?.986:.966):(onRoad?.995:.981))*aeroDrag,dt*60);
-if(boosting&&throttle>0&&speed>4){let extra=38,cap=182,push=22;if(gameMode==='f1race'){extra=(gpDRS?36:20)*gpDraft;push=gpDRS?22:12;cap=gpDRS?194:182;}speed=Math.min(cap,speed+extra*dt);velocityX+=Math.sin(yaw)*push*dt;velocityZ+=Math.cos(yaw)*push*dt;}
-speed=Math.max(-42,Math.min(gameMode==='f1race'&&gpDRS?194:boosting?182:114,speed));
+if(!pitAssist&&gameMode!=='f1race')speed*=Math.pow((driftInput?(onRoad?.986:.966):(onRoad?.995:.981))*aeroDrag,dt*60);
+if(gameMode!=='f1race'&&boosting&&throttle>0&&speed>4){let extra=38,cap=182,push=22;if(gameMode==='f1race'){extra=(gpDRS?36:20)*gpDraft;push=gpDRS?22:12;cap=gpDRS?194:182;}speed=Math.min(cap,speed+extra*dt);velocityX+=Math.sin(yaw)*push*dt;velocityZ+=Math.cos(yaw)*push*dt;}
+if(gameMode!=='f1race')speed=Math.max(-42,Math.min(boosting?182:114,speed));
 if(Math.abs(speed)<.08)speed=0;
 updateSound(dt,speed,gear,throttle,steer,boosting,driftRequested,shiftTimer);
 for(const wheel of sports.wheels){wheel.rotation.y=0;wheel.rotation.z=0;wheel.rotation.x+=speed*dt*.48;}
@@ -4277,7 +4378,11 @@ for(const wheel of sports.wheels){wheel.rotation.y=0;wheel.rotation.z=0;wheel.ro
 const steerStrength=gameMode==='f1race'&&throttle!==0?Math.max(.28,Math.min(1,Math.abs(speed)/15)):Math.min(1,Math.abs(speed)/15);
 const driftYawMult=activelyDrifting?((phoneDrift?2.2:1.95)+Math.min(0.45,driftAmount*0.35)):1.72;
 const keyboardSteerScale=Math.abs(joySteerValue)>.01?1:((keys.KeyA||keys.KeyD)?.5:1);
-yaw-=steer*keyboardSteerScale*steerStrength*driftYawMult*dt*Math.sign(speed||1)*(preferences.steering/100);
+if(gameMode==='f1race'){
+ const command=steer*keyboardSteerScale*(preferences.steering/100);
+ gpSteering+=(command-gpSteering)*(1-Math.exp(-dt*(command?7:10)));
+ if(!pitAssist)yaw-=F1Core.yawRate(speed,gpSteering,gpTyre)*dt;
+}else yaw-=steer*keyboardSteerScale*steerStrength*driftYawMult*dt*Math.sign(speed||1)*(preferences.steering/100);
 const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw);
 const targetVX=forwardX*speed,targetVZ=forwardZ*speed;
 const driftScale=Math.max(0.3,Number(preferences.drift||100)/100);
@@ -4285,7 +4390,7 @@ const driftScale=Math.max(0.3,Number(preferences.drift||100)/100);
 if(activelyDrifting&&speed>14){
  speed=Math.max(14,speed-(5.2+Math.abs(steer)*4.5)*dt);
 }
-const grip=activelyDrifting?Math.max(.42,1.25/driftScale):(driftRequested?2.6:8.6);
+const grip=gameMode==='f1race'?(14+Math.abs(speed)*.035)*F1Core.grip(gpTyre)*(boosting&&Math.abs(gpSteering)>.45&&speed<55?.80:1):activelyDrifting?Math.max(.42,1.25/driftScale):(driftRequested?2.6:8.6);
 const follow=1-Math.exp(-grip*dt);
 if(!pitAssist){velocityX+=(targetVX-velocityX)*follow;velocityZ+=(targetVZ-velocityZ)*follow;}
 if(gameMode==='f1race'&&!pitAssist){const cap=gpLimitVelocity(velocityX,velocityZ,gpDRS?194:182);velocityX=cap.vx;velocityZ=cap.vz;}
