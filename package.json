@@ -1,0 +1,12 @@
+{
+  "name": "brickway",
+  "private": true,
+  "scripts": {
+    "test": "node --test f1core.test.js",
+    "test:browser": "node competitive-regression.js"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1",
+    "three": "0.160.0"
+  }
+}

@@ -345,3 +345,26 @@ describe('championship', () => {
     assert.equal(F.parseSeason('{"foo":1}'), null);
   });
 });
+
+describe('rival profiles and energy recovery', () => {
+  test('gives Hamilton the most powerful car, Verstappen the most corner speed and Leclerc the longest defence', () => {
+    const [hamilton, verstappen, leclerc] = F.drivers;
+    assert.equal(hamilton.number, 44);
+    assert.equal(verstappen.number, 1);
+    assert.equal(leclerc.number, 16);
+    assert.equal(Math.max(...F.drivers.map(driver => driver.power)), hamilton.power);
+    assert.equal(Math.max(...F.drivers.map(driver => driver.corner)), verstappen.corner);
+    assert.equal(Math.max(...F.drivers.map(driver => driver.defence)), leclerc.defence);
+    assert.ok(verstappen.power > leclerc.power);
+    assert.ok(hamilton.wear < verstappen.wear);
+  });
+
+  test('drains boost under deployment, regenerates under braking and clamps at both limits', () => {
+    const deploy = F.energyStep(.5, 1, true, false);
+    const regen = F.energyStep(.5, 1, false, true);
+    assert.ok(deploy < .5);
+    assert.ok(regen > F.energyStep(.5, 1, false, false));
+    assert.equal(F.energyStep(.01, 1, true, false), 0);
+    assert.equal(F.energyStep(.99, 1, false, true), 1);
+  });
+});
