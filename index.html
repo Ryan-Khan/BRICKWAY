@@ -714,7 +714,7 @@ body.phone-device .mc-pedal-drift-btn{
  <button data-tab="audio">🔊 AUDIO</button><button data-tab="hud">📺 HUD</button><button data-tab="controls">🎮 CONTROLS</button>
  </div>
  <div class="settings-page active" data-page="graphics">
- <label class="setting"><span>Graphics quality<small>Resolution scaling for smoother performance</small></span><select id="set-quality"><option value="low">Low · Faster</option><option value="medium">Medium</option><option value="high">High · Sharper</option></select></label>
+ <label class="setting"><span>Graphics quality<small>Resolution scaling for smoother performance</small></span><select id="set-quality"><option value="low">Low · Faster</option><option value="medium">Medium · Balanced</option><option value="high">High · Sharper</option></select></label>
  
  <label class="setting"><span>Render distance<small>How far buildings remain visible</small></span><input type="range" id="set-distance" min="300" max="1000" step="50"><output id="val-distance"></output></label>
  <label class="setting"><span>Brightness<small>Overall scene exposure</small></span><input type="range" id="set-brightness" min="75" max="160" step="5"><output id="val-brightness"></output></label>
@@ -4201,7 +4201,7 @@ function applyPreferences(){
   const output=document.getElementById('val-'+key);
   if(output)output.textContent=key==='distance'?v+' m':key==='brightness'?Math.round(v/100*100)+'%':v+'%';
  }
- const scale={low:.75,medium:1.15,high:Math.min(devicePixelRatio,1.8)}[preferences.quality]||1.15;
+ const scale={low:.75,medium:.85,high:1.8}[preferences.quality]??.85;
  const pixelRatio=Math.min(devicePixelRatio,scale);
  const shadowsOn=preferences.quality!=='low';
  renderer.shadowMap.enabled=shadowsOn;sun.castShadow=shadowsOn;
