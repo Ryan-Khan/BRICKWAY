@@ -1,0 +1,1218 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Brickway | Open World Racing</title>
+<style>*{box-sizing:border-box}body{margin:0;overflow:hidden;background:#9ed9f1;color:#fff;font-family:system-ui,Arial}canvas{display:block}#ui{pointer-events:none;position:fixed;inset:0}#header{position:absolute;top:14px;left:225px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.panel{background:#10141cd9;border:1px solid #ffffff45;border-radius:13px;padding:12px 16px;box-shadow:0 8px 25px #0003;backdrop-filter:blur(8px)}h1{font-size:23px;margin:0;font-weight:950;letter-spacing:-1px}h1 span{color:#ffda4d}.small{font-size:10px;letter-spacing:1.5px;color:#bcd0dd}#speed{font-size:25px;font-weight:900}#footer{position:absolute;bottom:14px;left:14px;right:14px;display:flex;justify-content:space-between;gap:10px;align-items:end}#footer .panel{font-size:12px;line-height:1.8}kbd{background:#ffffff24;border:1px solid #ffffff55;padding:1px 5px;border-radius:4px}#map{position:absolute;left:25px;top:24px;width:180px;height:180px;background:#a1d48a;border:5px solid #fffd;border-radius:50%;box-shadow:0 6px 25px #0004}#message{position:absolute;top:23%;left:50%;transform:translateX(-50%);border-radius:20px;padding:12px 22px;background:#15283ee8;font-weight:800;opacity:0;transition:opacity .3s;white-space:nowrap}#loading{position:fixed;inset:0;background:#16283a;display:grid;place-content:center;text-align:center;font-size:23px;font-weight:900;z-index:5}#loading small{font-size:12px;margin-top:10px;font-weight:400}@media(max-width:680px){#header{top:7px;left:122px;right:7px}.panel{padding:8px}h1{font-size:16px}#speed{font-size:17px}#map{width:110px;height:110px;top:70px;left:7px}#footer{left:7px;right:7px;bottom:7px}#footer .panel{font-size:10px}#footer .tip{display:none}}
+/* Color grading applies only to the live 3D scene, not the HUD. */
+canvas:not(#map){filter:saturate(1.18) contrast(1.08) brightness(1.04);transition:filter .25s ease}
+body.cinematic-off canvas:not(#map){filter:none}
+#grade-tag{position:fixed;left:50%;top:13px;transform:translateX(-50%);background:#142b41d9;color:#f9e7a8;border:1px solid #ffffff66;border-radius:10px;padding:8px 12px;font:700 12px system-ui;z-index:3;pointer-events:none}
+@media(max-width:680px){#grade-tag{top:64px}}
+
+#audio-toggle{position:fixed;z-index:8;right:17px;bottom:105px;background:#10283fe8;border:1px solid #ffffff6b;color:white;padding:10px 14px;font:bold 12px system-ui;border-radius:10px;cursor:pointer;box-shadow:0 8px 24px #0005}
+#audio-toggle:hover{background:#2d5168}
+@media(max-width:680px){#audio-toggle{right:8px;bottom:102px;font-size:10px;padding:7px}}
+ 
+/* Reference-inspired cinematic LEGO Racer interface */
+#header{pointer-events:none;left:auto;right:28px;top:23px;display:block}
+#header .brand{text-align:right;filter:drop-shadow(3px 4px 0 #07090d)}
+.brand h1{font-size:42px;font-weight:1000;font-style:italic;letter-spacing:-2.8px;color:white;text-shadow:-3px -3px #090b12,3px -3px #090b12,-3px 3px #090b12,3px 3px #090b12}
+.brand h1 span{color:white;font-size:28px}
+.brand>div{background:#080b11;color:#ffda19;font-size:14px;font-weight:1000;font-style:italic;letter-spacing:1px;display:inline-block;padding:1px 18px;border-bottom:4px solid #ffc800;transform:skew(-12deg)}
+#map{top:25px;left:25px;width:200px;height:200px;background:#26323b;border:5px solid #f9f9f9;box-shadow:0 0 0 4px #0b0c0f,0 7px 15px #0007}
+#footer{left:25px;bottom:25px;right:auto}
+.controls{font-weight:850;font-size:14px;text-shadow:1px 2px 4px #000,0 0 5px #000}
+.controls>div{margin:6px 0;display:flex;align-items:center;gap:4px}
+.controls kbd{display:inline-block;text-align:center;min-width:36px;border:2px solid white;border-radius:7px;background:#13161acc;padding:1px 7px;font-weight:950;box-shadow:0 2px 3px #0008}
+.controls .extras{font-size:11px;color:#eee;margin-top:13px}
+#gauge{position:fixed;right:25px;bottom:22px;width:250px;height:250px;border-radius:50%;border:5px solid #f4f4f4;box-shadow:0 0 0 4px #151821,0 9px 26px #0009;background:radial-gradient(circle at 40% 45%,#30343e,#0c0e14 72%);text-align:center;padding-top:86px;overflow:visible}
+#gauge:before{content:"";position:absolute;inset:13px;border-radius:50%;border:11px dashed #e4e4e4;opacity:.72;clip-path:polygon(0 0,100% 0,100% 63%,82% 63%,82% 100%,0 100%)}
+#gauge-ticks{position:absolute;top:32px;left:10px;right:10px;font-size:12px;font-weight:900;word-spacing:1px;color:white;transform:rotate(-10deg)}
+#gauge .needle{position:absolute;right:42px;top:66px;width:75px;height:5px;background:#ff2731;transform:rotate(-49deg);transform-origin:7px center;box-shadow:0 0 5px #f33}
+#gauge #speed{font-size:56px;line-height:1;font-weight:1000;letter-spacing:-3px;position:relative;text-shadow:0 2px 3px #000}
+#gauge .kmh{font-size:15px;font-weight:850}
+.gear-box{position:absolute;right:-4px;bottom:-4px;background:#25272e;border:4px solid #e5e5e5;border-radius:25px;width:83px;height:95px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gear-box b{font-size:52px;line-height:1}.gear-box small{font-weight:900}
+.gauge-meta{position:absolute;bottom:23px;left:28px;font-size:9px;color:#aeb4bd}
+#audio-toggle{bottom:auto;top:102px;right:28px;opacity:.75}
+#grade-tag{display:none}
+@media(max-width:700px){#header{right:12px;top:9px}.brand h1{font-size:25px}.brand>div{font-size:10px}#map{width:112px;height:112px;left:12px;top:12px}#gauge{transform:scale(.57);transform-origin:bottom right;right:9px;bottom:9px}#footer{left:10px;bottom:9px}.controls{font-size:10px}.controls>div{margin:2px 0}.controls kbd{min-width:25px;padding:1px 3px}.controls .extras{display:none}#audio-toggle{top:58px;right:8px;font-size:9px;padding:5px}}
+
+#settings-open{position:fixed;top:110px;right:26px;z-index:22;border:2px solid #ffffffbb;border-radius:10px;background:#171c29e8;color:#fff;font:900 13px system-ui;padding:10px 15px;cursor:pointer;box-shadow:0 5px 15px #0008}
+#settings-open:hover{background:#353c51}
+#settings-overlay{position:fixed;inset:0;z-index:40;background:#090e18c9;backdrop-filter:blur(9px);display:none;align-items:center;justify-content:center;padding:18px;color:white;font-family:system-ui}
+#settings-overlay.open{display:flex}
+.settings-panel{background:linear-gradient(145deg,#222b3e,#101725);border:2px solid #65748d;border-radius:19px;box-shadow:0 25px 90px #000c;width:min(820px,98vw);max-height:94vh;overflow:auto;padding:23px}
+.settings-top{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #ffffff30;padding-bottom:14px}
+.settings-top h2{margin:0;font-size:26px;font-weight:1000;font-style:italic}
+.settings-top h2 span{color:#ffdb36}
+.settings-top button,.settings-actions button{border:1px solid #aab8cc;border-radius:8px;background:#29384c;color:#fff;padding:9px 15px;font-weight:850;cursor:pointer}
+.settings-tabs{display:flex;flex-wrap:wrap;gap:7px;margin:17px 0}
+.settings-tabs button{background:#1d2b3d;border:1px solid #516076;border-radius:9px;color:#fff;font:800 12px system-ui;padding:9px 12px;cursor:pointer}
+.settings-tabs button.active{background:#ffcc34;color:#171d27;border-color:#ffed9e}
+.settings-page{display:none}.settings-page.active{display:block}
+.setting{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 2px;border-bottom:1px solid #ffffff17;font-size:14px;font-weight:650}
+.setting small{display:block;color:#9eb1ca;font-size:11px;font-weight:400;margin-top:3px}
+.setting input[type=range]{width:min(200px,37vw);accent-color:#ffce33}
+.setting input[type=checkbox]{accent-color:#ffce33;width:19px;height:19px}
+.setting select{background:#1b283b;color:white;border:1px solid #7e8da4;border-radius:7px;padding:8px}
+.settings-actions{display:flex;justify-content:space-between;gap:12px;margin-top:20px}
+.controls-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.controls-grid>div{padding:12px;border-radius:9px;background:#ffffff0e}
+.controls-grid kbd{display:inline-block;min-width:31px;text-align:center;border:1px solid #fff9;border-radius:5px;padding:3px 7px;margin:3px;background:#131a2d;font-weight:900}
+#fps-meter{position:fixed;top:165px;right:28px;z-index:18;background:#101722c9;color:#c8ffbc;border-radius:7px;padding:6px 9px;font:800 12px monospace;display:none;pointer-events:none}
+body.hide-controls .controls,body.hide-controls #footer{display:none}
+body.hide-minimap #map{display:none}
+body.hide-speedometer #gauge{display:none}
+body.hide-logo #header .brand{display:none}
+body.hide-audio-button #audio-toggle{display:none}
+@media(max-width:700px){#settings-open{right:9px;top:80px;padding:6px 9px;font-size:10px}.settings-panel{padding:12px}.controls-grid{grid-template-columns:1fr}.settings-tabs button{padding:7px;font-size:11px}#fps-meter{right:9px;top:115px}}
+
+/* Minimal in-game HUD: icon-only settings, controls hidden by default. */
+#settings-open{top:100px;right:24px;width:46px;height:46px;padding:0;display:grid;place-items:center;border-radius:50%;font-size:27px;line-height:1;background:#171c29db;border:2px solid #fff9;box-shadow:0 4px 15px #0007}
+#settings-open:hover{background:#30394d;transform:scale(1.06)}
+@media(max-width:700px){#settings-open{top:64px;right:9px;width:36px;height:36px;font-size:22px;padding:0}}
+/* Left-middle settings icon; hide the separate on-screen mute control. */
+#settings-open{left:18px!important;right:auto!important;top:50%!important;transform:translateY(-50%);width:46px;height:46px}
+#settings-open:hover{transform:translateY(-50%) scale(1.06)}
+#audio-toggle{display:none!important}
+@media(max-width:700px){#settings-open{left:10px!important;top:50%!important;width:38px;height:38px}}
+</style></head>
+<body>
+<button id="settings-open" aria-label="Open settings" title="Settings (Esc)">⚙</button>
+<div id="fps-meter">60 FPS</div>
+<div id="settings-overlay" role="dialog" aria-modal="true" aria-label="Game settings">
+ <div class="settings-panel">
+  <div class="settings-top"><div><h2>⚙ BRICK<span>WAY</span> SETTINGS</h2><small>Paused · Customize your driving experience</small></div><button id="settings-close">✕ RESUME</button></div>
+  <div class="settings-tabs">
+   <button data-tab="graphics" class="active">🎨 GRAPHICS</button><button data-tab="driving">🏎️ DRIVING</button>
+   <button data-tab="audio">🔊 AUDIO</button><button data-tab="hud">📺 HUD</button><button data-tab="controls">🎮 CONTROLS</button>
+  </div>
+  <div class="settings-page active" data-page="graphics">
+   <label class="setting"><span>Graphics quality<small>Resolution scaling for smoother performance</small></span><select id="set-quality"><option value="low">Low · Faster</option><option value="medium">Medium</option><option value="high">High · Sharper</option></select></label>
+   <label class="setting"><span>Vivid LEGO filter<small>More vibrant colors and contrast</small></span><input type="checkbox" id="set-vivid"></label>
+   <label class="setting"><span>Render distance<small>How far buildings remain visible</small></span><input type="range" id="set-distance" min="300" max="1000" step="50"><output id="val-distance"></output></label>
+   <label class="setting"><span>Brightness<small>Overall scene exposure</small></span><input type="range" id="set-brightness" min="75" max="160" step="5"><output id="val-brightness"></output></label>
+   <label class="setting"><span>Show FPS counter</span><input type="checkbox" id="set-fps"></label>
+  </div>
+  <div class="settings-page" data-page="driving">
+   <label class="setting"><span>Steering sensitivity<small>How quickly the car turns</small></span><input type="range" id="set-steering" min="50" max="150" step="5"><output id="val-steering"></output></label>
+   <label class="setting"><span>Drift strength<small>How much the rear wheels slide</small></span><input type="range" id="set-drift" min="30" max="160" step="5"><output id="val-drift"></output></label>
+   <label class="setting"><span>Engine power<small>Acceleration strength, including boost</small></span><input type="range" id="set-power" min="60" max="150" step="5"><output id="val-power"></output></label>
+   <label class="setting"><span>Drift smoke</span><input type="checkbox" id="set-smoke"></label>
+   <label class="setting"><span>Rear tire skid marks</span><input type="checkbox" id="set-skids"></label>
+   <label class="setting"><span>Camera view</span><select id="set-camera"><option value="0">Chase camera</option><option value="1">Close camera</option><option value="2">High camera</option></select></label>
+  </div>
+  <div class="settings-page" data-page="audio">
+   <label class="setting"><span>Sound enabled<small>Engine, gear changes, drift and wind</small></span><input type="checkbox" id="set-sound"></label>
+   <label class="setting"><span>Master volume</span><input type="range" id="set-volume" min="0" max="100" step="5"><output id="val-volume"></output></label>
+   <small style="color:#9fb1c9">Audio starts after you interact with the game. Press M to mute at any time.</small>
+  </div>
+  <div class="settings-page" data-page="hud">
+   <label class="setting"><span>Minimap</span><input type="checkbox" id="set-minimap"></label>
+   <label class="setting"><span>Speedometer & gear indicator</span><input type="checkbox" id="set-speedometer"></label>
+   <label class="setting"><span>Controls legend</span><input type="checkbox" id="set-controls"></label>
+   <label class="setting"><span>BRICKWAY logo</span><input type="checkbox" id="set-logo"></label>
+
+  </div>
+  <div class="settings-page" data-page="controls">
+   <p style="color:#c2d1e3;font-size:13px">These are the current controls. The A/D steering swap is preserved.</p>
+   <div class="controls-grid">
+    <div><kbd>W</kbd><kbd>↑</kbd> Accelerate</div><div><kbd>S</kbd><kbd>↓</kbd> Brake / reverse</div>
+    <div><kbd>A</kbd><kbd>→</kbd> Steer right</div><div><kbd>D</kbd><kbd>←</kbd> Steer left</div>
+    <div><kbd>W</kbd> + <kbd>SPACE</kbd> + steer: Drift</div><div><kbd>SHIFT</kbd> Boost</div>
+    <div><kbd>C</kbd> Change camera</div><div><kbd>R</kbd> Reset car</div>
+    <div><kbd>M</kbd> Mute / unmute</div><div><kbd>F</kbd> Vivid filter</div>
+    <div><kbd>ENTER</kbd> Start / stop race</div><div><kbd>ESC</kbd> Open / close settings</div>
+   </div>
+  </div>
+  <div class="settings-actions"><button id="settings-defaults">↺ RESTORE DEFAULTS</button><button id="settings-done">✓ SAVE & RESUME</button></div>
+ </div>
+</div>
+<button id="audio-toggle" title="Enable audio or press M">🔊 SOUND · PRESS ANY KEY</button><div id="grade-tag">✨ VIVID LEGO FILTER ON · Press F to compare</div><div id="loading">BUILDING THE LEGO COAST...<small>CUSTOM SUPERCAR • ENGINE AUDIO • 6 SPEED AUTO</small></div><div id="ui"><div id="header"><div class="brand"><h1>BRICKWAY<span>🏁</span></h1><div>LEGO RACER</div></div><div id="gauge"><div id="gauge-ticks">0　 1　 2　 3　 4　 5　 6　 7</div><div class="needle"></div><div id="speed">0</div><div class="kmh">km/h</div><div class="gear-box"><b id="gear">1</b><small>AUTO</small></div><div class="gauge-meta"><span id="race">FREE ROAM</span> · <span id="police">OFF</span></div></div></div><canvas id="map" width="250" height="250"></canvas><div id="message"></div><div id="footer"><div class="controls"><div><kbd>W</kbd><kbd>↑</kbd> Accelerate</div><div><kbd>S</kbd><kbd>↓</kbd> Brake / Reverse</div><div><kbd>A</kbd><kbd>→</kbd> Steer Right</div><div><kbd>D</kbd><kbd>←</kbd> Steer Left</div><div><kbd>SPACE</kbd> Drift / Handbrake</div><div><kbd>SHIFT</kbd> Boost</div><div class="extras">C Camera · R Reset · M Sound · Enter Race</div></div></div></div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script><script type="module">
+import * as THREE from "three";
+(()=>{'use strict';
+const T=THREE,scene=new T.Scene();scene.background=new T.Color(0x82c6ff);scene.fog=new T.Fog(0x82c6ff,1250,2900);
+const camera=new T.PerspectiveCamera(66,innerWidth/innerHeight,.1,4000),renderer=new T.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.15));renderer.shadowMap.enabled=false;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.34;document.body.prepend(renderer.domElement);
+scene.add(new T.HemisphereLight(0xffffff,0x8495ad,1.65));let sun=new T.DirectionalLight(0xfff4de,2.15);sun.position.set(-130,230,100);sun.castShadow=false;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-150;sun.shadow.camera.right=150;sun.shadow.camera.top=150;sun.shadow.camera.bottom=-150;sun.shadow.normalBias=.05;scene.add(sun);
+const material=(color)=>new T.MeshStandardMaterial({color,roughness:.58}),m={grass:material(0x59b64e),road:material(0x717983),shoulder:material(0x59616c),white:material(0xfaf9f2),red:material(0xe33e38),yellow:material(0xffd65a),black:material(0x242b35),pave:material(0xc5c6c2),trunk:material(0x7b4b31),leaves:material(0x329343),leaves2:material(0x65ba4e),window:material(0x80c9e4),fence:material(0xe7e6da),water:material(0x58a8d2)};
+const palette=[0xe8c777,0xe95e4d,0x7ab8dc,0xf1e9d4,0x8dc3a8,0xf1a75e,0xbba6d7].map(material),cube=new T.BoxGeometry(1,1,1),cylinderGeo=new T.CylinderGeometry(1,1,1,12);
+function box(x,y,z,w,h,d,mat,parent=scene){let o=new T.Mesh(cube,mat);o.position.set(x,y,z);o.scale.set(w,h,d);o.castShadow=false;o.receiveShadow=false;parent.add(o);return o}
+function cyl(x,y,z,r,h,mat,parent=scene){let o=new T.Mesh(cylinderGeo,mat);o.position.set(x,y,z);o.scale.set(r,h,r);o.castShadow=false;parent.add(o);return o}
+box(0,-1.1,0,3900,2,3900,m.grass);
+const studGeo=new T.CylinderGeometry(.72,.72,.24,10);
+function studs(x,y,z,w,d,mat,spacing=4){let nx=Math.floor(w/spacing),nz=Math.floor(d/spacing);if(nx*nz>120)return;let inst=new T.InstancedMesh(studGeo,mat,nx*nz),dummy=new T.Object3D(),idx=0;for(let i=0;i<nx;i++)for(let j=0;j<nz;j++){dummy.position.set(x+(i-(nx-1)/2)*spacing,y,z+(j-(nz-1)/2)*spacing);dummy.updateMatrix();inst.setMatrixAt(idx++,dummy.matrix)}scene.add(inst)}
+function brick(x,y,z,w,h,d,mat){box(x,y,z,w,h,d,mat);studs(x,y+h/2+.13,z,w-1,d-1,mat)}
+const WORLD_SCALE=2.15;
+const paths=[];
+function road(points,width,closed=false){
+ const curve=new T.CatmullRomCurve3(points.map(p=>new T.Vector3(p[0]*WORLD_SCALE,0,p[1]*WORLD_SCALE)),closed,'centripetal',.45);
+ const route={curve,width:width*1.18,closed,length:curve.getLength()};paths.push(route);return route;
+}
+const race=road([[-220,35],[-185,-112],[-95,-162],[15,-115],[55,-28],[150,-8],[215,-82],[243,-180],[160,-240],[36,-245],[-65,-245],[-125,-325],[-240,-315],[-292,-215],[-280,-95]],24,true);
+road([[-235,35],[-145,110],[-35,145],[95,105],[195,145],[275,220],[220,305],[65,310],[-80,260],[-205,295],[-290,225],[-235,35]],20,true);
+road([[-235,35],[-110,40],[5,65],[120,55],[185,82],[202,113],[195,145]],17);
+road([[-100,-160],[-85,-60],[-95,60],[-80,260]],17);
+road([[155,-240],[120,-115],[95,15],[95,110],[65,310]],16);
+road([[-295,-215],[-350,-105],[-350,65],[-290,225]],18);
+// Coastal boulevard: a continuous curved road that connects back to the city
+// at both ends, running beside the eastern beach and waterfront.
+road([[275,220],[300,244],[335,225],[355,185],[369,130],[373,75],[374,12],[372,-54],[363,-111],[345,-157],[310,-191],[270,-197],[243,-180]],32);
+
+// Long scenic coastline drive: a broad continuous loop around the island.
+// It joins the existing street network on the east and northern districts.
+road([[275,220],[250,305],[160,346],[50,350],[-90,340],[-205,305],[-290,225],[-335,135],[-350,0],[-345,-135],[-292,-215],[-250,-320],[-125,-325],[15,-345],[155,-325],[270,-197]],27);
+// New neighborhoods and scenic connected ring roads, inside the beach perimeter.
+road([[-290,225],[-355,260],[-355,335],[-280,360],[-185,365],[-90,340]],23);
+road([[-292,-215],[-345,-265],[-345,-340],[-255,-365],[-125,-325]],23);
+road([[65,310],[125,365],[220,380],[310,340],[350,260],[275,220]],24);
+road([[155,-325],[235,-360],[320,-320],[365,-240],[310,-191]],24);
+road([[-350,0],[-260,-25],[-150,-30],[-95,60]],19);
+road([[50,350],[15,250],[95,110]],19);
+road([[15,-345],[25,-265],[120,-115]],19);
+// A single road mesh for the UNION of all routes. Grid cells are owned by the
+// network, never by individual routes, so intersections cannot z-fight.
+const CELL=2.0,MINX=-870,MINZ=-835,MAXX=850,MAXZ=760;
+const NX=Math.ceil((MAXX-MINX)/CELL),NZ=Math.ceil((MAXZ-MINZ)/CELL);
+const occupancy=new Uint8Array(NX*NZ);
+const idx=(i,j)=>j*NX+i;
+const samples=[];
+for(let ri=0;ri<paths.length;ri++){
+ const r=paths[ri],n=Math.ceil(r.length/2);
+ for(let i=0;i<=n;i++){let p=r.curve.getPointAt(i/n);samples.push({x:p.x,z:p.z,r:r.width/2+1.1,ri})}
+}
+// Spatial buckets keep the union computation quick on ordinary laptops.
+const bucketSize=28,buckets=new Map();
+function bucketKey(i,j){return i+','+j}
+for(const p of samples){const i=Math.floor(p.x/bucketSize),j=Math.floor(p.z/bucketSize),key=bucketKey(i,j);if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(p)}
+function nearSamples(x,z){let i=Math.floor(x/bucketSize),j=Math.floor(z/bucketSize),out=[];for(let a=-2;a<=2;a++)for(let b=-2;b<=2;b++){const q=buckets.get(bucketKey(i+a,j+b));if(q)out.push(...q)}return out}
+for(let j=0;j<NZ;j++)for(let i=0;i<NX;i++){
+ const x=MINX+(i+.5)*CELL,z=MINZ+(j+.5)*CELL;
+ for(const p of nearSamples(x,z)){const dx=x-p.x,dz=z-p.z;if(dx*dx+dz*dz<p.r*p.r){occupancy[idx(i,j)]=1;break}}
+}
+function occupied(i,j){return i>=0&&j>=0&&i<NX&&j<NZ&&occupancy[idx(i,j)]===1}
+// Smooth continuous spline ribbons replace the stair-stepped marching-squares
+// boundary. Each road is sampled at fine intervals and its two edges are
+// offset perpendicular to the spline tangent (no grid-cell curb artifacts).
+const roadSurfaceMaterial=new T.MeshStandardMaterial({color:0x454c59,roughness:.42,metalness:.075,side:T.DoubleSide,depthWrite:true,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1});
+const roadCurbRed=material(0xe6463d),roadCurbWhite=material(0xf7f6f0);
+function ribbonGeometry(route,sideOffset,stripWidth,y,step=1.45){
+ const n=Math.max(24,Math.ceil(route.length/step));
+ const verts=[],indices=[];
+ for(let i=0;i<=n;i++){
+  const t=i/n,p=route.curve.getPointAt(t),dir=route.curve.getTangentAt(t).normalize();
+  const nx=dir.z,nz=-dir.x;
+  for(const off of [sideOffset-stripWidth/2,sideOffset+stripWidth/2])verts.push(p.x+nx*off,y,p.z+nz*off);
+  if(i<n){const k=i*2;indices.push(k,k+2,k+1,k+1,k+2,k+3)}
+ }
+ const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(verts,3));g.setIndex(indices);g.computeVertexNormals();return g;
+}
+// Main asphalt is a continuous road surface with no square cell boundaries.
+for(const r of paths){
+ const mesh=new T.Mesh(ribbonGeometry(r,0,r.width+2.2,.086),roadSurfaceMaterial);
+ mesh.renderOrder=2;scene.add(mesh);
+}
+// Road paint is segmented and intersection-aware: no crossing stripes, no
+// overlapping outline ribbons, and no painted triangles in junctions.
+const edgePaint=new T.MeshBasicMaterial({color:0xf9f8f4,side:T.DoubleSide,depthWrite:false});
+const dashPaint=new T.MeshBasicMaterial({color:0xf9f8f4,side:T.DoubleSide,depthWrite:false});
+const curbGeo=new T.BoxGeometry(1,1,1),curbMat=[material(0xe6463d),material(0xf7f6f0)];
+// Use the precomputed spatial buckets rather than a quadratic all-road scan.
+function withinOtherRoad(x,z,owner,extra=0){
+ const nearby=nearSamples(x,z);
+ for(const p of nearby){
+  if(p.ri===owner)continue;
+  const dx=x-p.x,dz=z-p.z;
+  if(dx*dx+dz*dz<(p.r+extra)*(p.r+extra))return true;
+ }
+ return false;
+}
+function stripMesh(verts,indices,mat,yOrder){
+ if(!indices.length)return;
+ const geom=new T.BufferGeometry();
+ geom.setAttribute('position',new T.Float32BufferAttribute(verts,3));
+ geom.setIndex(indices);geom.computeVertexNormals();
+ const mesh=new T.Mesh(geom,mat);mesh.renderOrder=yOrder;scene.add(mesh);
+}
+const curbPositions=[[],[]],laneDashPositions=[];
+for(let ri=0;ri<paths.length;ri++){
+ const r=paths[ri],n=Math.ceil(r.length/1.65);
+ // Each continuous edge segment is broken at an intersection. Never join
+ // across a gap, which previously caused the long white crossing lines.
+ for(const side of [-1,1]){
+  let verts=[],indices=[],lastValid=false;
+  for(let i=0;i<=n;i++){
+   const t=i/n,p=r.curve.getPointAt(t),tan=r.curve.getTangentAt(t).normalize();
+   const normalX=tan.z,normalZ=-tan.x,offset=side*(r.width/2+.28);
+   const x=p.x+normalX*offset,z=p.z+normalZ*offset;
+   const valid=!withinOtherRoad(x,z,ri,4.0);
+   if(!valid){lastValid=false;continue;}
+   const k=verts.length/3;
+   for(const delta of [-.16,.16])verts.push(x+normalX*delta,.132,z+normalZ*delta);
+   if(lastValid){indices.push(k-2,k,k-1,k-1,k,k+1)}
+   lastValid=true;
+  }
+  stripMesh(verts,indices,edgePaint,5);
+ }
+ // Curbs are deliberately inset from the junction and only placed on exposed
+ // boundaries. Their short segments also follow the spline tangent.
+ for(let d=4;d<r.length-4;d+=4.8){
+  const t=d/r.length,p=r.curve.getPointAt(t),tan=r.curve.getTangentAt(t).normalize();
+  for(const side of [-1,1]){
+   const offset=side*(r.width/2+1.05);
+   const x=p.x+tan.z*offset,z=p.z-tan.x*offset;
+   if(withinOtherRoad(x,z,ri,5.5))continue;
+   curbPositions[Math.floor(d/4.8)%2].push([x,z,Math.atan2(tan.x,tan.z)]);
+  }
+ }
+ // White center dashes stop before every junction and restart after it.
+ // Test the entire dash, not just its midpoint, to prevent white crosshatching.
+ for(let d=9;d<r.length-8;d+=15.5){
+  let safe=true;
+  for(const delta of [-5,-2.5,0,2.5,5]){
+   const t=Math.max(0,Math.min(1,(d+delta)/r.length));
+   const p=r.curve.getPointAt(t);
+   if(withinOtherRoad(p.x,p.z,ri,8)){safe=false;break;}
+  }
+  if(!safe)continue;
+  const p=r.curve.getPointAt(d/r.length),tan=r.curve.getTangentAt(d/r.length);
+  laneDashPositions.push([p.x,p.z,Math.atan2(tan.x,tan.z)]);
+ }
+}
+const curbDummy=new T.Object3D();
+for(let k=0;k<2;k++){
+ const arr=curbPositions[k],inst=new T.InstancedMesh(curbGeo,curbMat[k],arr.length);
+ for(let i=0;i<arr.length;i++){
+  const [x,z,ang]=arr[i];curbDummy.position.set(x,.13,z);curbDummy.rotation.set(0,ang,0);
+  curbDummy.scale.set(1.08,.09,4.65);curbDummy.updateMatrix();inst.setMatrixAt(i,curbDummy.matrix);
+ }
+ inst.instanceMatrix.needsUpdate=true;scene.add(inst);
+}
+const laneDashGeo=new T.BoxGeometry(1,1,1),laneDash=new T.InstancedMesh(laneDashGeo,dashPaint,laneDashPositions.length);
+const laneDummy=new T.Object3D();
+for(let i=0;i<laneDashPositions.length;i++){
+ const [x,z,ang]=laneDashPositions[i];laneDummy.position.set(x,.165,z);
+ laneDummy.rotation.set(0,ang,0);laneDummy.scale.set(.80,.048,7.5);
+ laneDummy.updateMatrix();laneDash.setMatrixAt(i,laneDummy.matrix);
+}
+laneDash.instanceMatrix.needsUpdate=true;scene.add(laneDash);
+// Stable, static LEGO architecture: no animated buildings and no coplanar brick layers.
+const lots=[],placedHomes=[];
+const walls=[0xf2eee2,0xe7c18c,0xc85c51,0x9ac6d6,0xe5d4a7,0x9fb99a,0xd6b4a2].map(material);
+const roofs=[0x243d65,0x943e36,0x454b55,0x6b4a3d].map(material);
+const windowGlass=new T.MeshStandardMaterial({color:0x85b7c9,metalness:.28,roughness:.13,emissive:0x273c46,emissiveIntensity:.14}),windowTrim=material(0xf7f4e9),doorMat=material(0xb13d33),plantMat=material(0x348a45),flowerMat=material(0xe9b64e);
+// Procedural LEGO masonry shader: staggered brick joints and subtle molded-plastic
+// shading are evaluated in object space, so the bricks remain correctly sized
+// on tall and wide buildings without large texture downloads.
+const buildingWallCache=new Map();
+function moldedBrickMaterial(base,w,h,d){
+ const key=[base.color.getHex(),Math.round(w/4),Math.round(h/4),Math.round(d/4)].join(':');
+ if(buildingWallCache.has(key))return buildingWallCache.get(key);
+ const mat=base.clone();
+ mat.roughness=.37;mat.metalness=.025;
+ mat.onBeforeCompile=shader=>{
+  shader.uniforms.brickWidth={value:5.0};
+  shader.uniforms.brickHeight={value:2.8};
+  shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vBrickPosition;');
+  shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvBrickPosition=position*vec3('+w.toFixed(2)+','+h.toFixed(2)+','+d.toFixed(2)+');');
+  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vBrickPosition;');
+  shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+    vec3 ap=abs(normalize(vNormal));
+    vec2 uvBrick=ap.z>ap.x?vBrickPosition.xy:vBrickPosition.zy;
+    float row=floor(uvBrick.y/2.8);
+    uvBrick.x+=mod(row,2.0)*2.5;
+    vec2 f=fract(uvBrick/vec2(5.0,2.8));
+    float mortar=max(step(f.x,.018),step(f.y,.035));
+    mortar=max(mortar,step(.982,f.x));
+    float plastic=0.96+0.04*sin(uvBrick.x*1.7+uvBrick.y*.63);
+    diffuseColor.rgb*=mix(vec3(plastic),vec3(.63),mortar*.42);
+  `);
+ };
+ mat.customProgramCacheKey=()=> 'lego-masonry-v2';
+ buildingWallCache.set(key,mat);return mat;
+}
+const buildingGlass=new T.MeshPhysicalMaterial({color:0x72a7bc,metalness:.15,roughness:.09,clearcoat:.9,clearcoatRoughness:.09,emissive:0x24394a,emissiveIntensity:.22});
+const warmShopGlass=new T.MeshPhysicalMaterial({color:0x9f9e84,metalness:.05,roughness:.13,transmission:0,clearcoat:.85,emissive:0xffb24b,emissiveIntensity:.18});
+const moldedTrim=new T.MeshStandardMaterial({color:0xe8e7e0,roughness:.36,metalness:.02});
+// Cache road samples once. This also prevents heavy repeated spline calculations.
+function clearance(x,z){let best=Infinity;for(const p of samples){const d=Math.hypot(p.x-x,p.z-z)-p.r;if(d<best)best=d}return best}
+function legoBuilding(x,z,w,d,h,kind,index){
+ const g=new T.Group();g.position.set(x,0,z);g.userData.cityBuilding=true;scene.add(g);
+ const wall=moldedBrickMaterial(walls[index%walls.length],w,h,d),roof=roofs[(index+Math.floor(index/3))%roofs.length];
+ function part(x,y,z,w,h,d,mat){let o=box(x,y,z,w,h,d,mat,g);o.castShadow=false;return o}
+ // raised baseplate and a single uninterrupted wall shell avoid flicker
+ part(0,.25,0,w+9,.5,d+10,m.grass);
+ part(0,h/2+.6,0,w,h,d,wall);
+ part(0,1.1,d/2+.8,w,2,1.4,m.pave);
+ // inset window details are spaced apart, not coplanar with wall
+ const floors=Math.max(1,Math.floor((h-6)/10)),cols=Math.max(2,Math.floor((w-5)/11));
+ for(let f=0;f<floors;f++)for(let c=0;c<cols;c++){
+  const xx=(c-(cols-1)/2)*(w-7)/cols,yy=8+f*9.8;
+  if(f===0&&Math.abs(xx)<4.8)continue;
+  part(xx,yy,d/2+.42,6.7,6.6,.7,windowTrim);
+  part(xx,yy,d/2+.86,5.2,5.1,.25,buildingGlass);
+  part(xx,yy,d/2+1.03,.35,5.2,.23,windowTrim);
+  part(xx,yy-3.6,d/2+1.12,7.8,.7,1,windowTrim);
+  // Window sills and shallow dark reveals give façades more depth.
+  part(xx,yy+3.65,d/2+1.0,7.8,.6,.95,roof);
+  part(xx-3.8,yy,d/2+.95,.55,7.2,.85,roof);
+  part(xx+3.8,yy,d/2+.95,.55,7.2,.85,roof);
+ }
+ // Windows on the exposed side elevation, with dark recessed frames.
+ for(let f=0;f<floors;f++){
+  const yy=8+f*9.8;
+  for(const side of [-1,1]){
+   for(let k=-1;k<=1;k++){
+    const zz=k*(d*.25);
+    part(side*(w/2+.22),yy,zz,.55,5.9,5.4,roof);
+    part(side*(w/2+.56),yy,zz,.18,4.8,4.2,buildingGlass);
+    part(side*(w/2+.69),yy-2.8,zz,.6,.45,5.6,moldedTrim);
+   }
+  }
+ }
+ part(0,4.4,d/2+.65,6.6,8.3,.8,doorMat);
+ // Recessed glass shop windows, realistic dark interiors and LEGO mullions.
+ if(kind!==0){
+  const inside=material(0x4b3d32),warm=material(0xffd889);
+  part(0,6.2,d/2+.93,w*.80,9,.35,inside);
+  for(let c=0;c<5;c++){
+   const xx=-w*.36+c*w*.18;
+   part(xx,6.4,d/2+1.24,w*.16,7.6,.16,warmShopGlass);
+   part(xx+w*.085,6.4,d/2+1.35,.27,8.1,.24,windowTrim);
+   part(xx,9.8,d/2+1.5,w*.15,.3,.3,warm);
+  }
+  part(0,2,d/2+1.65,w*.85,.5,.6,windowTrim);
+ }
+ // Simplified roof coping for smoother frame rates.
+ // Every second floor has a real raised balcony with a railing.
+ if(kind===2&&h>27){
+  for(let level=18;level<h-2;level+=19){
+   part(0,level-3,d/2+3,w*.7,.9,6,roof);
+   part(0,level-.3,d/2+5.6,w*.7,.65,.5,windowTrim);
+   for(let k=0;k<7;k++)part(-w*.34+k*w*.11,level-1.6,d/2+5.6,.4,2.7,.45,windowTrim);
+  }
+ }
+ part(2.1,4,d/2+1.2,.6,.6,.3,flowerMat);
+ part(0,9.3,d/2+2.2,12,1.1,4,roof);
+ // Pitched LEGO roofs: staggered stepped brick courses with clean vertical gaps.
+ if(kind===0){for(let i=0;i<5;i++){
+  const ww=w+4-i*(w*.15);part(0,h+1.1+i*1.7,0,Math.max(5,ww),1.62,d+3,roof);
+ }}else{
+  part(0,h+1,0,w+3,2,d+3,roof);
+  part(0,h+2.8,-d/2,w+3,2,1.6,roof);
+  part(0,h+2.8,d/2,w+3,2,1.6,roof);
+  if(kind===2){part(-w*.28,h+8,0,10,13,10,wall);part(-w*.28,h+15.2,0,13,2,13,roof)}
+ }
+ // A visible LEGO studded parapet and molded top caps, instanced per building.
+ const studCount=Math.max(4,Math.floor(w/3.6));
+ const studsOnRoof=new T.InstancedMesh(new T.CylinderGeometry(.55,.55,.20,8),roof,studCount*2);
+ const dummy=new T.Object3D();
+ for(let i=0;i<studCount;i++)for(let side=0;side<2;side++){
+  dummy.position.set(-w/2+(i+.5)*w/studCount,h+3.12,side?d/2-1:-d/2+1);
+  dummy.scale.set(1,1,1);dummy.updateMatrix();studsOnRoof.setMatrixAt(i*2+side,dummy.matrix);
+ }
+ g.add(studsOnRoof);
+ // Extra building-block seams and a thicker projecting roof cornice.
+ part(0,h-.4,d/2+1.1,w+2.2,1.35,2.5,moldedTrim);
+ // Contrasting LEGO corner bricks and thick masonry bands.
+ for(let yy=4;yy<h;yy+=5){
+  for(const side of [-1,1]){
+   part(side*(w/2+.25),yy,d/2+.28,1.6,4.6,1.2,windowTrim);
+   part(side*(w/2+.25),yy,-d/2-.28,1.6,4.6,1.2,windowTrim);
+  }
+ }
+ // Brick courses and staggered joints across each facade.
+ const jointMat=material(0xb8b3ad);
+ for(let yy=5;yy<h-2;yy+=3.8){
+  part(0,yy,d/2+.105,w,.10,.14,jointMat);
+  for(let k=0;k<Math.floor(w/8);k++){
+   const xx=-w/2+(k+.5)*8+(Math.floor(yy/3.8)%2)*3;
+   if(xx<w/2-1)part(xx,yy+1.8,d/2+.12,.13,3.45,.18,jointMat);
+  }
+ }
+ // Stronger cornice and layered masonry, visible from driving distance.
+ part(0,h-1,d/2+.65,w+1.7,1.4,2.1,roof);
+ part(0,h-3,d/2+.32,w+1.0,.75,1.2,windowTrim);
+ // Storefronts, awnings, flower boxes, and LEGO garden shrubs.
+ if(kind===1){
+  const awnRed=material(0xe23c3e),awnWhite=material(0xfbf4e6);
+  for(let k=0;k<8;k++)part(-w/2+(k+.5)*w/8,10,d/2+2.6,w/8,2.3,5,k%2?awnWhite:awnRed);
+  part(0,6,d/2+1.4,w*.78,7,.22,windowGlass);
+ }
+ for(let side of [-1,1]){
+  part(side*(w/2+2),1.5,d/2-4,3,3,3,plantMat);
+  part(side*(w/2+2),3.2,d/2-4,2,1,2,flowerMat);
+ }
+ g.updateMatrix();g.matrixAutoUpdate=false;
+ return g;
+}
+let citySeed=4301;function cityRnd(){citySeed=(citySeed*1664525+1013904223)>>>0;return citySeed/4294967296}
+function canPlace(x,z,w,d){
+ const radius=Math.hypot(w,d)*.56;
+ if(clearance(x,z)<radius+17)return false;
+ return !lots.some(q=>Math.abs(q.x-x)<(q.w+w)/2+10&&Math.abs(q.z-z)<(q.d+d)/2+10);
+}
+function placeLot(x,z,w,d,h,kind){if(!canPlace(x,z,w,d))return false;
+ legoBuilding(x,z,w,d,h,kind,lots.length);lots.push({x,z,w,d});placedHomes.push([x,z]);return true}
+// Intentional city blocks: fewer, better buildings and guaranteed road clearance.
+for(let z=-730;z<=730;z+=72)for(let x=-810;x<=810;x+=74){
+ const xx=x+(cityRnd()-.5)*12,zz=z+(cityRnd()-.5)*12;
+ if(cityRnd()<.30)continue;
+ const center=xx>220&&xx<710&&zz>-450&&zz<290;
+ const w=center?32+cityRnd()*10:28+cityRnd()*10;
+ const d=center?32+cityRnd()*9:28+cityRnd()*10;
+ const h=center?34+Math.floor(cityRnd()*4)*8:26+Math.floor(cityRnd()*3)*9;
+ const kind=center?(cityRnd()<.55?1:2):(cityRnd()<.55?1:(cityRnd()<.55?2:0));
+ placeLot(xx,zz,w,d,h,kind);
+}
+// Tiny brick trees and planted studded lawns.
+function tree(x,z,s=1){
+ box(x,4*s,z,3*s,8*s,3*s,m.trunk);
+ for(const [xx,yy,zz,ww] of [[0,11,0,11],[-4,15,0,8],[4,15,0,8],[0,19,0,9],[-2,17,-4,8],[2,17,4,8]]){
+  brick(x+xx*s,yy*s,z+zz*s,ww*s,4*s,ww*s,(yy%2)?m.leaves2:m.leaves);
+ }
+}
+let seed=1021;function rand(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
+for(let i=0;i<95;i++){let x=(rand()-.5)*1800,z=(rand()-.5)*1700;if(clearance(x,z)<27||lots.some(p=>Math.abs(p.x-x)<p.w/2+13&&Math.abs(p.z-z)<p.d/2+13))continue;tree(x,z,.7+rand()*.6)}
+// Park and construction scenery placed in road-free zones.
+for(const [x,z] of [[-830,580],[810,510],[790,-630],[-750,-690]]){
+ if(clearance(x,z)<90)continue;
+ brick(x,.7,z,92,1.4,76,palette[5]);
+ for(let i=0;i<5;i++)brick(x-25+(i%3)*24,4+(i%2)*2,z-18+Math.floor(i/3)*26,17,8+(i%2)*4,15,palette[(i+1)%7]);
+}
+// Coastal LEGO district details: glossy studded promenade, lamp posts,
+ // seaside water and a distant striped lighthouse.
+ const seaMat=new T.MeshStandardMaterial({color:0x2c9fd8,roughness:.21,metalness:.12});
+ box(870,-.37,-160,420,.32,1900,seaMat);
+ const sandMat=material(0xf5d16e);
+ box(853,.04,-160,35,.08,1900,sandMat);
+ const lampPost=material(0x222a30);
+ const glow=new T.MeshStandardMaterial({color:0xffeb9e,emissive:0xffbb55,emissiveIntensity:1.7});
+ for(let z=-620;z<=390;z+=90){
+  const x=758;
+  if(clearance(x,z)<22||nearSamples(x,z).some(p=>(p.x-x)**2+(p.z-z)**2<(p.r+13)**2))continue;
+  cyl(x,6,z,.45,12,lampPost);
+  box(x,12.4,z,2.7,2.5,2.7,glow);
+  box(x,14,z,3.5,.55,3.5,lampPost);
+ }
+ const lighthouse=new T.Group();lighthouse.position.set(930,0,-650);scene.add(lighthouse);
+ const lighthouseWhite=material(0xf7f3e6),lighthouseRed=material(0xd83435);
+ for(let j=0;j<7;j++){
+  const ring=new T.Mesh(new T.CylinderGeometry(7.8-j*.5,8.2-j*.5,8,12),j%2?lighthouseRed:lighthouseWhite);
+  ring.position.y=4+j*8;lighthouse.add(ring);
+ }
+ box(930,61,-650,14,3,14,lighthouseRed);
+ // Removed floating white sidewalk studs from the grass and road edges.
+ // Puffy block clouds.
+ const cloudMat=material(0xffffff);
+ for(const [x,y,z] of [[-450,150,-400],[200,185,-650],[500,160,220],[-650,175,340]]){
+  box(x,y,z,56,14,25,cloudMat);box(x-12,y+10,z,22,18,23,cloudMat);
+  box(x+15,y+6,z,27,20,25,cloudMat);
+ }
+ // Rebuild the streetscape with pavement, lamps, café seating and flowers.
+const sidewalk=material(0xcbd0d3),brickEdge=material(0xe8e8e1),iron=material(0x252b33);
+const warmLight=new T.MeshStandardMaterial({color:0xffe8a4,emissive:0xffc45d,emissiveIntensity:2.1});
+const pinkFlower=material(0xf94d9f),green=material(0x35a347);
+function safeFurniture(x,z,dist=5){return clearance(x,z)>dist&&!lots.some(q=>Math.abs(x-q.x)<q.w/2+4&&Math.abs(z-q.z)<q.d/2+4)}
+function streetLamp(x,z){
+ cyl(x,6,z,.36,12,iron);box(x,12.3,z,2.5,2.7,2.5,warmLight);box(x,14.2,z,3.3,.65,3.3,iron);
+}
+function flowerPot(x,z){
+ cyl(x,1.1,z,1.9,2.1,material(0x9d5a34));box(x,2.8,z,3.5,1.3,3.5,green);
+ for(let k=0;k<4;k++)box(x+(k%2?1:-1),3.65,z+(k<2?1:-1),1.5,.85,1.5,pinkFlower);
+}
+function cafe(x,z){
+ const wood=material(0xd3a14c);
+ cyl(x,2.2,z,.34,4.4,iron);box(x,4.3,z,7,.35,7,wood);
+ for(const side of [-1,1]){box(x+side*6,1.5,z,3,3,3,iron)}
+ const umbrella=material(0xf5f2e6);
+ cyl(x+11,5,z,.2,10,iron);box(x+11,10,z,11,.55,10,umbrella);
+}
+let furnishing=0;
+for(let ri=0;ri<paths.length;ri++){
+ const r=paths[ri];
+ for(let d=18;d<r.length-20;d+=43){
+  const p=r.curve.getPointAt(d/r.length),t=r.curve.getTangentAt(d/r.length);
+  for(const side of [-1,1]){
+   const offset=r.width/2+13;
+   const x=p.x+t.z*offset*side,z=p.z-t.x*offset*side;
+   if(!safeFurniture(x,z,5))continue;
+   if((furnishing++%3)===0)streetLamp(x,z);
+   else if(furnishing%4===0)flowerPot(x,z);
+   else if(furnishing%7===0)cafe(x,z);
+  }
+ }
+}
+// Brick-topped sea wall, railing, and lighthouse facing the coast.
+for(let z=-660;z<=430;z+=18){
+ const x=817;
+ box(x,.5,z,5,.5,17,brickEdge);
+ if(z%36===0){box(x-3,3,z,1,5,1,iron);box(x-3,4.8,z,1,1,18,iron)}
+}
+// Coastal perimeter: beaches and blue sea on all four map edges.
+// Shared geometries and instancing keep the additional shoreline inexpensive.
+const ocean=new T.MeshStandardMaterial({color:0x268fc8,metalness:.08,roughness:.32});
+const shallow=new T.MeshStandardMaterial({color:0x51bfd5,metalness:.04,roughness:.38});
+const beach=new T.MeshStandardMaterial({color:0xeed48a,roughness:.9});
+const foam=new T.MeshBasicMaterial({color:0xdaf6f3,transparent:true,opacity:.66,depthWrite:false});
+const seawall=new T.MeshStandardMaterial({color:0xc4c8c8,roughness:.67});
+const railing=new T.MeshStandardMaterial({color:0x343b43,roughness:.54});
+const shoreLimit=835,waterStart=900,seaEnd=1950;
+// East side retains its lighthouse, piers and seaside stalls; the other three
+// sides now also have beaches and water rather than endless grass.
+for(const side of [-1,1]){
+ box(side*1395,-.16,0,1110,.28,3900,ocean);
+ box(0,-.16,side*1395,3900,.28,1110,ocean);
+ box(side*922,-.008,0,85,.08,1900,shallow);
+ box(0,-.008,side*922,1900,.08,85,shallow);
+ box(side*858,.06,0,78,.23,1880,beach);
+ box(0,.06,side*858,1880,.23,78,beach);
+ // Thin irregular surf line, assembled as batches of lightweight segments.
+ const foamGeo=new T.BoxGeometry(1,1,1);
+ const segments=100,inst=new T.InstancedMesh(foamGeo,foam,segments*2);
+ const dummy=new T.Object3D();
+ for(let k=0;k<segments;k++){
+  const t=-900+k*18;
+  const wobble=Math.sin(k*.87)*2.5+Math.sin(k*.23)*3;
+  dummy.position.set(side*(898+wobble),.052,t);
+  dummy.scale.set(3.8,.04,11+3*Math.sin(k));dummy.updateMatrix();inst.setMatrixAt(k,dummy.matrix);
+  dummy.position.set(t,.052,side*(898+wobble));
+  dummy.scale.set(11+3*Math.sin(k),.04,3.8);dummy.updateMatrix();inst.setMatrixAt(segments+k,dummy.matrix);
+ }
+ scene.add(inst);
+}
+// A coastal walkway and guardrail along the north, south and west shores.
+// Leave the existing detailed eastern promenade undisturbed.
+const pierTop=new T.MeshStandardMaterial({color:0xc9cbd0,roughness:.66});
+const coastPosts=[],coastBars=[];
+for(let k=-820;k<=820;k+=26){
+ coastPosts.push([-818,k],[k,-818],[k,818]);
+ if(k<800)coastBars.push([-818,k+13,0],[k+13,-818,1],[k+13,818,1]);
+}
+const postGeo=new T.BoxGeometry(1,1,1),postMesh=new T.InstancedMesh(postGeo,railing,coastPosts.length);
+const dummy=new T.Object3D();
+coastPosts.forEach(([x,z],i)=>{dummy.position.set(x,2.2,z);dummy.scale.set(.75,4.4,.75);dummy.rotation.set(0,0,0);dummy.updateMatrix();postMesh.setMatrixAt(i,dummy.matrix)});
+scene.add(postMesh);
+const railMesh=new T.InstancedMesh(postGeo,railing,coastBars.length*2);
+coastBars.forEach(([x,z,axis],i)=>{
+ for(let h=0;h<2;h++){
+  dummy.position.set(x,2.2+h*1.4,z);
+  dummy.scale.set(axis?26:.55,.46,axis?.55:26);
+  dummy.rotation.set(0,0,0);dummy.updateMatrix();railMesh.setMatrixAt(i*2+h,dummy.matrix);
+ }
+});
+scene.add(railMesh);
+for(const z of [-818,818])box(0,.1,z,1640,.26,12,pierTop);
+box(-818,.1,0,12,.26,1640,pierTop);
+// Scenic eastern coastal boulevard: raised grey LEGO promenade, warm lamps,
+// flowerpots and a safety rail, alongside the newly connected curving road.
+const coastalStone=new T.MeshStandardMaterial({color:0xbec5ca,roughness:.43,metalness:.03});
+const coastalDark=new T.MeshStandardMaterial({color:0x303943,roughness:.48});
+const coastalGold=new T.MeshStandardMaterial({color:0xffefb3,emissive:0xffc36a,emissiveIntensity:1.3});
+const coastBoulevard=paths[6];
+const coastLampLocations=[];
+for(let d=28;d<coastBoulevard.length-24;d+=43){
+ const p=coastBoulevard.curve.getPointAt(d/coastBoulevard.length);
+ const t=coastBoulevard.curve.getTangentAt(d/coastBoulevard.length);
+ // Ocean is to the east; lamp posts are placed outside the drivable road.
+ const x=p.x+t.z*(coastBoulevard.width/2+13);
+ const z=p.z-t.x*(coastBoulevard.width/2+13);
+ if(x>838||x<610||withinOtherRoad(x,z,6,10))continue;
+ coastLampLocations.push([x,z]);
+}
+const coastLampPole=new T.CylinderGeometry(.25,.32,10,8),coastLampCap=new T.BoxGeometry(2.6,2.5,2.6);
+const lampPosts=new T.InstancedMesh(coastLampPole,coastalDark,coastLampLocations.length);
+const lampGlow=new T.InstancedMesh(coastLampCap,coastalGold,coastLampLocations.length);
+const lampDummy=new T.Object3D();
+coastLampLocations.forEach(([x,z],i)=>{
+ lampDummy.position.set(x,5.1,z);lampDummy.scale.set(1,1,1);lampDummy.updateMatrix();lampPosts.setMatrixAt(i,lampDummy.matrix);
+ lampDummy.position.set(x,10.7,z);lampDummy.updateMatrix();lampGlow.setMatrixAt(i,lampDummy.matrix);
+});
+scene.add(lampPosts,lampGlow);
+// The sea-facing promenade runs outside the road, without obscuring driving.
+// Removed raised straight promenade slab that cut across the curved beach road.
+const promenadeRail=new T.InstancedMesh(new T.BoxGeometry(1,1,1),coastalDark,120);
+for(let i=0;i<60;i++){
+ const z=-700+i*23.5;
+ lampDummy.position.set(816,2.2,z);lampDummy.scale.set(.75,4.2,.75);lampDummy.updateMatrix();promenadeRail.setMatrixAt(i*2,lampDummy.matrix);
+ lampDummy.position.set(816,4.0,z+11.5);lampDummy.scale.set(.5,.55,23.5);lampDummy.updateMatrix();promenadeRail.setMatrixAt(i*2+1,lampDummy.matrix);
+}
+// Do not render the old straight railing through the curved boulevard.
+// Detailed ocean-side scenery, batched to avoid dozens of draw calls.
+const scenicWhite=new T.MeshStandardMaterial({color:0xece8dc,roughness:.48});
+const scenicGold=new T.MeshStandardMaterial({color:0xffd56e,emissive:0xffb65c,emissiveIntensity:.65});
+const scenicPalm=new T.MeshStandardMaterial({color:0x2b9856,roughness:.72});
+const scenicWood=new T.MeshStandardMaterial({color:0x986b42,roughness:.85});
+const scenicGeo=new T.BoxGeometry(1,1,1);
+function instancedBlocks(mat,items){
+ const mesh=new T.InstancedMesh(scenicGeo,mat,items.length),d=new T.Object3D();
+ items.forEach((v,i)=>{d.position.set(v[0],v[1],v[2]);d.scale.set(v[3],v[4],v[5]);d.rotation.y=v[6]||0;d.updateMatrix();mesh.setMatrixAt(i,d.matrix)});
+ scene.add(mesh);
+}
+const curbPlates=[],warmBollards=[],palmTrunks=[],palmLeaves=[],coastPlanters=[];
+for(let d=36;d<coastBoulevard.length-28;d+=17){
+ const p=coastBoulevard.curve.getPointAt(d/coastBoulevard.length);
+ const t=coastBoulevard.curve.getTangentAt(d/coastBoulevard.length);
+ const off=coastBoulevard.width/2+4;
+ // The seaward side is east of the road, so use the positive x offset.
+ const x=p.x+t.z*(off+13),z=p.z-t.x*(off+13);
+ if(x>875||x<650||clearance(x,z)<coastBoulevard.width/2+11)continue;
+ curbPlates.push([x,.22,z,5,.27,3,Math.atan2(t.x,t.z)]);
+ if(Math.floor(d/17)%3===0){warmBollards.push([x+4,2,z,1.5,3.7,1.5]);}
+ if(Math.floor(d/17)%5===0){
+  const px=x+10,pz=z;
+  if(px<832){palmTrunks.push([px,4.2,pz,1.9,8.4,1.9]);
+   for(let k=0;k<4;k++){let a=k*Math.PI/2;palmLeaves.push([px+Math.cos(a)*4.4,9.5,pz+Math.sin(a)*4.4,8,1.2,3.0,a])}
+   coastPlanters.push([px,1.1,pz,5,1.6,5]);}
+ }
+}
+// Removed floating curb plates; the road boundary now owns all curb markings.
+instancedBlocks(scenicGold,warmBollards);
+instancedBlocks(scenicWood,palmTrunks);
+instancedBlocks(scenicPalm,palmLeaves);
+instancedBlocks(scenicWhite,coastPlanters);
+// Long reflective water highlights, well below road level and without expensive lights.
+const glintMat=new T.MeshBasicMaterial({color:0xc4f8ff,transparent:true,opacity:.17,depthWrite:false});
+const glints=[];
+for(let i=0;i<115;i++){
+ const z=-780+i*13.5;
+ const x=944+Math.sin(i*.91)*13;
+ glints.push([x,.025,z,2.3,.015,4.2+Math.sin(i)*2]);
+}
+instancedBlocks(glintMat,glints);
+// Beach furniture: lifeguard huts, colorful umbrellas, benches and palm trees.
+// Kept well away from the road and batched to avoid additional draw calls.
+const beachRed=material(0xf05b48),beachBlue=material(0x3aa7dc),beachYellow=material(0xffdb58);
+const beachWood=material(0xa46c3b),palmGreen=material(0x2a9656);
+for(let i=0;i<23;i++){
+ const z=-720+i*63,x=864+((i*37)%19);
+ const canopy=i%3===0?beachRed:i%3===1?beachBlue:beachYellow;
+ cyl(x,3.5,z,.24,7,beachWood);box(x,7.3,z,10,.55,9,canopy);
+ if(i%3===0){box(x+9,.65,z,8,1.3,3,beachWood);box(x+9,2,z,8,.55,3,beachWood)}
+ if(i%5===0){
+  box(x+14,5,z+10,2.0,10,2.0,beachWood);
+  for(let j=0;j<4;j++){
+   const leaf=box(x+14+Math.cos(j*Math.PI/2)*5,10,z+10+Math.sin(j*Math.PI/2)*5,10,1.5,4,palmGreen);
+   leaf.rotation.y=-j*Math.PI/2;
+  }
+ }
+}
+// Additional parks, benches and kiosks along the expanded city ring.
+for(let i=0;i<22;i++){
+ const a=i*Math.PI*2/22,x=Math.cos(a)*685,z=Math.sin(a)*685;
+ if(clearance(x,z)<28)continue;
+ box(x,1,z,10,2,4,beachWood);
+ box(x,2.7,z-1.8,10,2.5,.7,beachWood);
+ if(i%3===0)flowerPot(x+11,z);
+}
+// Drifting smoke rendered as translucent, expanding LEGO-style puffs.
+const smokeMat=new T.MeshBasicMaterial({color:0xe9e9ed,transparent:true,opacity:.32,depthWrite:false});
+const smokeGeo=new T.SphereGeometry(1,7,6),smokePool=[];
+for(let i=0;i<36;i++){
+ const m=new T.Mesh(smokeGeo,smokeMat.clone());m.visible=false;scene.add(m);
+ smokePool.push({mesh:m,life:0,max:1});
+}
+let smokeIndex=0,smokeTime=0;
+function updateSmoke(dt,active){
+ smokeTime+=dt;
+ if(active&&smokeTime>.055){
+  smokeTime=0;
+  const fx=Math.sin(yaw),fz=Math.cos(yaw),sx=Math.cos(yaw),sz=-Math.sin(yaw);
+  for(const side of [-1,1]){
+   const p=smokePool[smokeIndex++%smokePool.length];
+   p.mesh.position.set(pos.x-fx*5.7+sx*side*4.3,1.1,pos.z-fz*5.7+sz*side*4.3);
+   p.mesh.scale.set(2.4,1.3,2.4);p.mesh.visible=true;p.life=0;p.max=1.05;
+  }
+ }
+ for(const p of smokePool)if(p.mesh.visible){
+  p.life+=dt;p.mesh.position.y+=dt*2.8;
+  p.mesh.scale.multiplyScalar(1+dt*.7);
+  p.mesh.material.opacity=.29*Math.max(0,1-p.life/p.max);
+  if(p.life>=p.max)p.mesh.visible=false;
+ }
+}
+// Rocky brick island under the striped lighthouse, with yellow grass plates.
+const rock=material(0x767b82),rockLight=material(0xa7a7a1),island=material(0xb6a44b);
+for(let ring=0;ring<5;ring++){
+ const rr=53-ring*7;
+ const islandRing=new T.Mesh(new T.CylinderGeometry(rr-3,rr,7,12),ring%2?rock:rockLight);
+ islandRing.position.set(930,3.5+ring*7,-650);scene.add(islandRing);
+}
+const topIsland=new T.Mesh(new T.CylinderGeometry(27,29,2,12),island);
+topIsland.position.set(930,36,-650);scene.add(topIsland);
+// Seaside kiosks are placed entirely beyond the fenced driving area.
+// The old 45x32 pier platforms crossed the highway and blocked the player.
+const umbrellaRed=material(0xf24940),umbrellaYellow=material(0xf9cf35),pierWood=material(0x9d7960);
+for(const z of [-340,-220,-100,20,140]){
+ const x=943;
+ box(x,.32,z,18,.5,17,pierWood);
+ cyl(x,4.0,z,.32,7.5,material(0x252b33));
+ const canopy=new T.Mesh(new T.ConeGeometry(9,2,8),z%3===0?umbrellaRed:umbrellaYellow);
+ canopy.position.set(x,8.5,z);scene.add(canopy);
+}
+// Brick-built performance supercar: low wedge body, swept greenhouse, LED lights,
+// deep intakes, detailed rims and aerodynamic wing. Front of car points toward -Z.
+function sportsCar(){
+ const g=new T.Group();g.name='Brickway Pink Turbo GT — redesigned';
+ const paint=new T.MeshPhysicalMaterial({color:0xf72591,metalness:.10,roughness:.24,clearcoat:.95,clearcoatRoughness:.12});
+ const highlight=new T.MeshStandardMaterial({color:0xff71c0,metalness:.08,roughness:.25});
+ const shadowPink=new T.MeshStandardMaterial({color:0xb50c60,metalness:.13,roughness:.34});
+ const black=new T.MeshStandardMaterial({color:0x141720,metalness:.16,roughness:.34});
+ const carbon=new T.MeshStandardMaterial({color:0x232630,metalness:.22,roughness:.32});
+ const rim=new T.MeshStandardMaterial({color:0xd4d9df,metalness:.73,roughness:.21});
+ const chrome=new T.MeshStandardMaterial({color:0xf4f5f5,metalness:.70,roughness:.18});
+ const tireMat=new T.MeshStandardMaterial({color:0x111216,roughness:.93});
+ const glass=new T.MeshPhysicalMaterial({color:0x9fd3ea,metalness:.06,roughness:.08,transparent:true,opacity:.47,side:T.DoubleSide,depthWrite:false});
+ const light=new T.MeshStandardMaterial({color:0xffffff,emissive:0xc8e9ff,emissiveIntensity:1.6});
+ const brake=new T.MeshStandardMaterial({color:0xff304a,emissive:0xff1630,emissiveIntensity:1.1});
+ const skin=new T.MeshStandardMaterial({color:0xffd12d,roughness:.55});
+ const hair=new T.MeshStandardMaterial({color:0x47221a,roughness:.7});
+ const white=new T.MeshStandardMaterial({color:0xf4e8ec,roughness:.62});
+ const sharedBox=new T.BoxGeometry(1,1,1);
+ function part(x,y,z,w,h,d,mat,angle=0){
+  const m=new T.Mesh(sharedBox,mat);m.position.set(x,y,z);m.scale.set(w,h,d);m.rotation.y=angle;g.add(m);return m;
+ }
+ function cylinder(x,y,z,r,depth,mat,segments=16){
+  const m=new T.Mesh(new T.CylinderGeometry(r,r,depth,segments),mat);
+  m.position.set(x,y,z);g.add(m);return m;
+ }
+ function wedge(sections,mat){
+  const v=[],ids=[];
+  for(const [z,width,low,high] of sections)v.push([-width/2,low,z],[width/2,low,z],[width/2,high,z],[-width/2,high,z]);
+  for(let i=0;i<sections.length-1;i++)for(let j=0;j<4;j++){
+   let x=i*4+j,y=i*4+(j+1)%4,z=(i+1)*4+(j+1)%4,w=(i+1)*4+j;
+   ids.push(x,y,z,x,z,w);
+  }
+  ids.push(0,3,2,0,2,1);
+  const n=(sections.length-1)*4;ids.push(n,n+1,n+2,n,n+2,n+3);
+  const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(v.flat(),3));geo.setIndex(ids);geo.computeVertexNormals();
+  const m=new T.Mesh(geo,mat);m.material.side=T.DoubleSide;g.add(m);return m;
+ }
+ // Properly proportioned LEGO GT convertible: low front, long hood, wide rear.
+ wedge([[-8.7,6.8,1.15,1.55],[-7.6,7.45,.94,2.10],[-5.0,8.0,.95,2.52],[-2.9,8.3,1.0,2.72],[2.8,8.4,1.0,2.73],[6.1,8.5,1.0,2.62],[8.0,7.8,1.15,2.14]],paint);
+ part(0,1.18,-8.42,6.55,.25,.75,carbon);
+ part(0,1.23,8.12,6.8,.42,.52,carbon);
+ // Angular bonnet, recessed center detail and properly spaced molded studs.
+ part(0,2.58,-5.22,4.8,.12,3.7,paint);
+ part(0,2.66,-5.72,2.7,.08,2.1,highlight);
+ const studGeo=new T.CylinderGeometry(.34,.34,.17,12);
+ for(const z of [-6.75,-5.5,-4.28,5.35,6.35]){
+  for(const x of [-2.45,-1.22,0,1.22,2.45]){
+   const stud=new T.Mesh(studGeo,paint);
+   stud.position.set(x,z<0?2.67:2.77,z);g.add(stud);
+  }
+ }
+ // Black cockpit cavity, pink door caps and contoured two-seat interior.
+ part(0,2.75,-.12,6.2,.20,7.6,black);
+ for(const side of [-1,1]){
+  part(side*3.55,2.80,.1,1.05,.40,7.7,paint);
+  part(side*3.95,1.27,.4,.37,.39,8.9,carbon);
+  part(side*4.23,1.89,2.6,.13,.64,2.8,black);
+  part(side*3.15,2.73,-4.5,1.15,.24,3.1,highlight);
+  part(side*3.82,2.25,3.75,.40,.54,2.8,shadowPink);
+  // inset LEGO door with sculpted trim
+  part(side*4.17,2.30,.2,.19,.10,4.5,shadowPink);
+  part(side*4.20,2.34,-.1,.20,.12,1.5,highlight);
+  part(side*1.55,2.94,1.55,2.12,.52,2.5,black);
+  part(side*1.55,3.43,2.63,2.15,1.25,.52,black);
+  part(side*1.55,3.0,-1.0,1.7,.45,1.4,carbon);
+ }
+ // Yellow LEGO minifigure with bun hairstyle.
+ part(-1.55,3.62,-.55,1.46,1.18,1.05,white);
+ cylinder(-1.55,4.63,-.58,.69,.94,skin);
+ const cap=new T.Mesh(new T.SphereGeometry(.75,12,8),hair);
+ cap.position.set(-1.55,5.04,-.57);cap.scale.set(1,.58,1);g.add(cap);
+ const bun=new T.Mesh(new T.SphereGeometry(.42,10,8),hair);
+ bun.position.set(-1.55,5.22,.06);g.add(bun);
+ for(const x of [-2.37,-.73])part(x,3.59,-.98,.42,.90,.43,skin);
+ const steering=new T.Mesh(new T.TorusGeometry(.64,.11,7,18),black);
+ steering.position.set(-1.55,3.63,-2.20);steering.rotation.x=.46;g.add(steering);
+ // Sloped windshield with transparent glazing and rigid dark A pillars.
+ const windGeo=new T.BufferGeometry();
+ windGeo.setAttribute('position',new T.Float32BufferAttribute([-3.07,2.88,-4.25,3.07,2.88,-4.25,2.76,4.15,-2.55,-2.76,4.15,-2.55],3));
+ windGeo.setIndex([0,1,2,0,2,3]);windGeo.computeVertexNormals();
+ g.add(new T.Mesh(windGeo,glass));
+ for(const side of [-1,1]){
+  const pillar=part(side*2.96,3.55,-3.43,.20,1.53,.23,chrome);
+  pillar.rotation.x=-.53;
+  part(side*4.24,2.91,-3.22,.91,.37,1.32,paint);
+  part(side*4.77,2.91,-3.22,.09,.25,.86,chrome);
+ }
+ part(0,4.12,-2.55,5.7,.14,.18,chrome);
+ // Distinctive slim headlights, front mesh grille, pink front lip.
+ part(0,1.65,-8.75,4.2,.39,.12,black);
+ for(const side of [-1,1]){
+  part(side*2.77,2.07,-8.48,1.6,.22,.17,light);
+  part(side*3.4,1.82,-8.43,.60,.19,.18,light);
+  part(side*2.74,1.39,8.17,2.0,.32,.17,brake);
+  part(side*3.36,1.52,-8.53,.47,.23,.18,carbon);
+ }
+ for(let x=-1.55;x<=1.55;x+=.55)part(x,1.64,-8.84,.12,.29,.13,chrome);
+ // Wide multi-level rear wing with vertical struts and endplates.
+ for(const x of [-3.05,3.05]){
+  part(x,3.36,6.52,.48,1.5,.63,carbon);
+  part(x,4.16,6.83,.40,.62,1.7,paint);
+ }
+ part(0,4.14,6.81,8.35,.36,1.52,paint);
+ part(0,4.40,6.79,7.55,.13,.89,highlight);
+ part(0,2.66,7.88,7.05,.25,.4,shadowPink);
+ part(0,1.2,8.36,5.6,.39,.23,carbon);
+ for(const x of [-2.18,2.18]){
+  const exhaust=new T.Mesh(new T.CylinderGeometry(.35,.35,.46,14),chrome);
+  exhaust.rotation.x=Math.PI/2;exhaust.position.set(x,1.14,8.49);g.add(exhaust);
+ }
+ // High-quality wheels: dark tires, machined rims, spokes and brake discs.
+ const wheels=[];
+ const tireGeo=new T.CylinderGeometry(1.58,1.58,1.03,32);
+ const rimGeo=new T.CylinderGeometry(1.08,1.08,1.09,32);
+ const discGeo=new T.CylinderGeometry(.79,.79,1.11,24);
+ for(const x of [-4.23,4.23])for(const z of [-5.53,5.43]){
+  const pivot=new T.Group();pivot.position.set(x,1.48,z);g.add(pivot);
+  const tire=new T.Mesh(tireGeo,tireMat);tire.rotation.z=Math.PI/2;pivot.add(tire);
+  const disc=new T.Mesh(discGeo,carbon);disc.rotation.z=Math.PI/2;pivot.add(disc);
+  const face=new T.Mesh(rimGeo,rim);face.rotation.z=Math.PI/2;pivot.add(face);
+  const hub=new T.Mesh(new T.CylinderGeometry(.24,.24,1.16,14),black);hub.rotation.z=Math.PI/2;pivot.add(hub);
+  for(let i=0;i<10;i++){
+   const angle=i*Math.PI/5;
+   const spoke=new T.Mesh(new T.BoxGeometry(.11,1.56,.14),chrome);
+   spoke.position.set((x>0?1:-1)*.58,Math.sin(angle)*.14,Math.cos(angle)*.14);
+   spoke.rotation.x=angle;pivot.add(spoke);
+  }
+  wheels.push(pivot);
+ }
+ g.scale.set(.98,.98,.98);
+ scene.add(g);return {group:g,wheels};
+}
+const sports=sportsCar(),player=sports.group;
+let pos=new T.Vector3(-220*WORLD_SCALE,0,35*WORLD_SCALE),yaw=2.85,speed=0,camMode=0,keys={},raceOn=false,checkpoint=0,lap=0,wanted=0,noticeUntil=0,redLightTimer=0;
+// Handbrake drift uses world-space inertia: the car rotates before its travel
+// direction catches up. Skid marks are traced from actual rear tire positions.
+let driftAmount=0,skidClock=0,velocityX=0,velocityZ=0,previousRear=null;
+const skidMarks=[],skidGeometry=new T.BoxGeometry(1,1,1);
+function createSkid(x,z,angle,length,opacity){
+ const mesh=new T.Mesh(skidGeometry,new T.MeshBasicMaterial({
+  color:0x111111,transparent:true,opacity,depthWrite:false,
+  polygonOffset:true,polygonOffsetFactor:-3
+ }));
+ mesh.scale.set(.62,.012,length);mesh.rotation.y=angle;mesh.position.set(x,.105,z);
+ mesh.renderOrder=5;scene.add(mesh);skidMarks.push({mesh,life:0,initial:opacity});
+}
+function updateSkids(dt){
+ for(let i=skidMarks.length-1;i>=0;i--){
+  const mark=skidMarks[i];mark.life+=dt;
+  mark.mesh.material.opacity=mark.initial*Math.max(0,1-mark.life/18);
+  if(mark.life>=18){scene.remove(mark.mesh);mark.mesh.material.dispose();skidMarks.splice(i,1);}
+ }
+}
+function rearTires(){
+ const fx=Math.sin(yaw),fz=Math.cos(yaw),sx=Math.cos(yaw),sz=-Math.sin(yaw);
+ return [-1,1].map(side=>({x:pos.x-fx*5.52+sx*side*4.29,z:pos.z-fz*5.52+sz*side*4.29}));
+}
+function leaveTireMarks(dt,drifting){
+ const current=rearTires();
+ // The first frame only establishes the tire contact positions.
+ if(!previousRear){previousRear=current;return}
+ skidClock+=dt;
+ if(drifting&&skidClock>=.035){
+  for(let i=0;i<2;i++){
+   const old=previousRear[i],next=current[i];
+   const dx=next.x-old.x,dz=next.z-old.z,dist=Math.hypot(dx,dz);
+   // Never draw marks until that exact rear wheel has actually travelled.
+   if(dist<.13||dist>9)continue;
+   const mx=(old.x+next.x)/2,mz=(old.z+next.z)/2;
+   if(onRoadAt(old.x,old.z)&&onRoadAt(next.x,next.z)&&onRoadAt(mx,mz)){
+    createSkid(mx,mz,Math.atan2(dx,dz),dist+.18,.72);
+   }
+  }
+  skidClock=0;
+ }
+ previousRear=current;
+ while(skidMarks.length>220){
+  const old=skidMarks.shift();scene.remove(old.mesh);old.mesh.material.dispose();
+ }
+}
+function onRoadAt(x,z){
+ const i=Math.floor((x-MINX)/CELL),j=Math.floor((z-MINZ)/CELL);
+ return occupied(i,j);
+}
+
+const checkpoints=[.03,.13,.23,.34,.45,.55,.66,.77,.89,.98],markers=[];
+for(let i=0;i<checkpoints.length;i++){let p=race.curve.getPointAt(checkpoints[i]),t=race.curve.getTangentAt(checkpoints[i]),g=new T.Group();g.position.set(p.x,0,p.z);g.rotation.y=Math.atan2(t.x,t.z);let ring=new T.Mesh(new T.TorusGeometry(11,1.2,8,28),new T.MeshBasicMaterial({color:0xffdb54,transparent:true,opacity:.7}));ring.rotation.y=Math.PI/2;ring.position.y=9;g.add(ring);scene.add(g);g.visible=false;markers.push(g)}
+// Traffic light and red-light penalty
+const lights=[];for(let [x,z] of [[-95*WORLD_SCALE,60*WORLD_SCALE],[95*WORLD_SCALE,55*WORLD_SCALE],[-235*WORLD_SCALE,35*WORLD_SCALE],[120*WORLD_SCALE,-115*WORLD_SCALE]]){let best=null;for(const r of paths){for(let i=0;i<=150;i++){let p=r.curve.getPointAt(i/150),d=Math.hypot(p.x-x,p.z-z);if(!best||d<best.d)best={r,t:i/150,d,p}}}if(best){let v=best.r.curve.getTangentAt(best.t),n=new T.Vector3(-v.z,0,v.x).normalize();x=best.p.x+n.x*(best.r.width/2+7);z=best.p.z+n.z*(best.r.width/2+7)}box(x,7,z,1,14,1,m.black);box(x,14,z,3,6,2,m.black);for(let j=0;j<3;j++){let bulb=cyl(x,16-j*2,z+1.3,.65,.2,[m.red,m.yellow,m.leaves][j]);bulb.rotation.x=Math.PI/2}lights.push({x,z})}
+// Fully procedural Web Audio effects: no files, no downloads, no copyrighted recordings.
+// Browsers require a user keypress or click before sound can begin.
+const audio={ctx:null,muted:false,master:null,voices:[],tireGain:null,windGain:null,exhaustFilter:null,driftNoise:null,driftTone:null,driftFilter:null,
+             gearDip:0};
+const soundButton=document.getElementById('audio-toggle');
+function initSound(){
+ if(audio.ctx){if(audio.ctx.state==='suspended')audio.ctx.resume().catch(()=>{});return}
+ try{
+  const C=window.AudioContext||window.webkitAudioContext;if(!C){soundButton.textContent='AUDIO NOT SUPPORTED';return}
+  const ctx=audio.ctx=new C(),compress=ctx.createDynamicsCompressor();
+  compress.threshold.value=-18;compress.knee.value=10;compress.ratio.value=3.5;
+  compress.attack.value=.004;compress.release.value=.15;
+  audio.master=ctx.createGain();audio.master.gain.value=audio.muted?0:.29;
+  audio.master.connect(compress);compress.connect(ctx.destination);
+  const lowpass=ctx.createBiquadFilter();lowpass.type='lowpass';lowpass.frequency.value=1200;lowpass.Q.value=.6;lowpass.connect(audio.master);audio.exhaustFilter=lowpass;
+  for(const [type,initial] of [['sine',.16],['sawtooth',.18],['triangle',.085],['sawtooth',.035],['triangle',.018]]){
+   const o=ctx.createOscillator(),gain=ctx.createGain();o.type=type;gain.gain.value=0;
+   o.connect(gain);gain.connect(lowpass);o.start();audio.voices.push({o,gain,initial});
+  }
+  // One repeating white-noise loop filtered separately for tires and rushing air.
+  const buf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate),data=buf.getChannelData(0);
+  for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;
+  function noise(filterType,frequency){const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
+    src.buffer=buf;src.loop=true;filter.type=filterType;filter.frequency.value=frequency;gain.gain.value=0;
+    src.connect(filter);filter.connect(gain);gain.connect(audio.master);src.start();return gain}
+  audio.tireGain=noise('bandpass',1050);audio.windGain=noise('highpass',2200);
+  // Separate high-pitched tire squeal: filtered rubber hiss and a soft
+  // resonant whistle, driven by actual sideways wheel slip.
+  const squealSource=ctx.createBufferSource(),squealFilter=ctx.createBiquadFilter();
+  const squealGain=ctx.createGain();
+  squealSource.buffer=buf;squealSource.loop=true;
+  squealFilter.type='bandpass';squealFilter.frequency.value=1750;squealFilter.Q.value=3.4;
+  squealGain.gain.value=0;
+  squealSource.connect(squealFilter);squealFilter.connect(squealGain);
+  squealGain.connect(audio.master);squealSource.start();
+  audio.driftNoise=squealGain;audio.driftFilter=squealFilter;
+  const squealOsc=ctx.createOscillator(),squealOscGain=ctx.createGain();
+  squealOsc.type='triangle';squealOsc.frequency.value=710;squealOscGain.gain.value=0;
+  squealOsc.connect(squealOscGain);squealOscGain.connect(audio.master);
+  squealOsc.start();audio.driftTone={osc:squealOsc,gain:squealOscGain};
+  ctx.resume().catch(()=>{});
+  soundButton.textContent='🔊 SOUND ON · M MUTE';
+ }catch(err){console.warn('Audio init unavailable',err);soundButton.textContent='SOUND UNAVAILABLE'}
+}
+function setSoundMuted(m){audio.muted=m;
+ if(audio.master&&audio.ctx)audio.master.gain.setTargetAtTime(m?0:.29*preferences.volume/100,audio.ctx.currentTime,.03);preferences.sound=!m;
+ soundButton.textContent=m?'🔇 SOUND OFF · M UNMUTE':'🔊 SOUND ON · M MUTE';
+}
+// Smooth drivetrain audio: engine harmonics, filtered exhaust, road noise and gear whine.
+let engineRPM=950, audibleRPM=950, shiftBlend=0;
+function gearChangeSound(){
+ if(!audio.ctx||audio.muted)return;
+ const c=audio.ctx,t=c.currentTime;
+ // A subdued mechanical transmission click, not a loud electronic beep.
+ const osc=c.createOscillator(),filter=c.createBiquadFilter(),gain=c.createGain();
+ osc.type='triangle';filter.type='lowpass';filter.frequency.value=500;
+ osc.frequency.setValueAtTime(220,t);osc.frequency.exponentialRampToValueAtTime(95,t+.075);
+ gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(.028,t+.008);
+ gain.gain.exponentialRampToValueAtTime(.0001,t+.11);
+ osc.connect(filter);filter.connect(gain);gain.connect(audio.master);osc.start(t);osc.stop(t+.12);
+}
+function updateDriftSqueal(slide,drifting,speed){
+ if(!audio.ctx||!audio.driftNoise)return;
+ const t=audio.ctx.currentTime;
+ const strength=drifting?Math.min(1,Math.max(0,(slide-.10)/.65)):0;
+ const velocity=Math.min(1,Math.abs(speed)/85);
+ const amount=strength*(.55+.45*velocity);
+ // Rubber squeal rises as the rear tires lose grip, not just on Space.
+ audio.driftNoise.gain.setTargetAtTime(.23*amount,t,amount>.02?.045:.17);
+ audio.driftFilter.frequency.setTargetAtTime(1250+1100*strength+350*velocity,t,.08);
+ audio.driftTone.osc.frequency.setTargetAtTime(640+280*strength+90*velocity,t,.075);
+ audio.driftTone.gain.gain.setTargetAtTime(.024*amount,t,amount>.02?.06:.16);
+}
+function updateSound(dt,speed,gear,throttle,steer,boosting,handbrake,shiftTimer){
+ if(!audio.ctx)return;
+ const c=audio.ctx,t=c.currentTime,kmh=Math.abs(speed)*2.6;
+ const ratios=[0,3.65,2.45,1.75,1.34,1.08,.86];
+ const wheelRPM=kmh*10.5;
+ const targetRPM=Math.min(7600,Math.max(850,850+wheelRPM*ratios[gear]+Math.max(0,throttle)*320));
+ // During a shift the engine revs fall gradually rather than suddenly cutting out.
+ const shiftRPM=shiftTimer>0?Math.max(1050,engineRPM-450*dt):targetRPM;
+ engineRPM+=(shiftRPM-engineRPM)*(1-Math.exp(-dt*(shiftTimer>0?3.5:5.5)));
+ audibleRPM+=(engineRPM-audibleRPM)*(1-Math.exp(-dt*8));
+ const hz=audibleRPM/60,load=Math.max(0,throttle),intensity=.27+load*.42+Math.min(.20,kmh/800);
+ const multipliers=[.50,1,2.02,3.03,4.02];
+ for(let i=0;i<audio.voices.length;i++){
+  const v=audio.voices[i];
+  v.o.frequency.setTargetAtTime(Math.max(22,hz*multipliers[i]),t,.065);
+  const weight=[.16,.18,.085,.035,.018][i];
+  v.gain.gain.setTargetAtTime(weight*intensity*(shiftTimer>0?.78:1),t,.085);
+ }
+ if(audio.exhaustFilter)audio.exhaustFilter.frequency.setTargetAtTime(420+load*1400+audibleRPM*.16,t,.08);
+ const slip=Math.min(1,Math.abs(steer)*Math.max(0,kmh-55)/190);
+ audio.tireGain.gain.setTargetAtTime(handbrake&&kmh>22?.045:.025*slip,t,.08);
+ audio.windGain.gain.setTargetAtTime(Math.min(.15,kmh/2400+(boosting?.045:0)),t,.11);
+}
+soundButton.addEventListener('click',()=>{if(!audio.ctx){initSound();setSoundMuted(false)}else setSoundMuted(!audio.muted)});
+window.addEventListener('pointerdown',()=>{initSound();if(!preferences.sound)setSoundMuted(true)},{once:true});
+
+
+// Live settings are persisted locally; the menu pauses simulation while open.
+const settingDefaults={quality:'medium',vivid:true,distance:610,brightness:132,fps:false,steering:100,drift:100,power:100,smoke:true,skids:true,camera:'0',sound:true,volume:100,minimap:true,speedometer:true,controls:false,logo:true,audiobutton:true};
+let preferences={...settingDefaults};
+try{const saved=JSON.parse(localStorage.getItem('brickway-settings-v2')||'{}');preferences={...preferences,...saved}}catch(e){}
+let settingsOpen=false,settingsPrevTime=performance.now(),fpsFrames=0,fpsElapsed=0;
+const settingsOverlay=document.getElementById('settings-overlay');
+const settingsControls={};
+for(const key of Object.keys(settingDefaults)){
+ const el=document.getElementById('set-'+key);if(!el)continue;settingsControls[key]=el;
+ el.addEventListener('input',()=>{
+  preferences[key]=el.type==='checkbox'?el.checked:el.type==='range'?Number(el.value):el.value;
+  applyPreferences();try{localStorage.setItem('brickway-settings-v2',JSON.stringify(preferences))}catch(e){}
+ });
+}
+function applyPreferences(){
+ for(const [key,el] of Object.entries(settingsControls)){
+  const v=preferences[key];if(el.type==='checkbox')el.checked=!!v;else el.value=String(v);
+  const output=document.getElementById('val-'+key);
+  if(output)output.textContent=key==='distance'?v+' m':key==='brightness'?Math.round(v/100*100)+'%':v+'%';
+ }
+ const scale={low:.75,medium:1.15,high:Math.min(devicePixelRatio,1.8)}[preferences.quality]||1.15;
+ renderer.setPixelRatio(Math.min(devicePixelRatio,scale));
+ document.body.classList.toggle('cinematic-off',!preferences.vivid);
+ renderer.toneMappingExposure=preferences.brightness/100;
+ document.getElementById('fps-meter').style.display=preferences.fps?'block':'none';
+ for(const [key,cl] of [['controls','hide-controls'],['minimap','hide-minimap'],['speedometer','hide-speedometer'],['logo','hide-logo'],['audiobutton','hide-audio-button']]){
+  document.body.classList.toggle(cl,!preferences[key]);
+ }
+ if(audio.ctx)setSoundMuted(!preferences.sound);
+ if(audio.master&&audio.ctx)audio.master.gain.setTargetAtTime(preferences.sound?.29*preferences.volume/100:0,audio.ctx.currentTime,.035);
+ try{camMode=Number(preferences.camera)}catch(e){}
+}
+function openSettings(){
+ settingsOpen=true;settingsOverlay.classList.add('open');keys={};
+}
+function closeSettings(){
+ settingsOpen=false;settingsOverlay.classList.remove('open');keys={};settingsPrevTime=performance.now();
+}
+document.getElementById('settings-open').addEventListener('click',openSettings);
+document.getElementById('settings-close').addEventListener('click',closeSettings);
+document.getElementById('settings-done').addEventListener('click',closeSettings);
+document.getElementById('settings-defaults').addEventListener('click',()=>{
+ preferences={...settingDefaults};applyPreferences();
+ try{localStorage.setItem('brickway-settings-v2',JSON.stringify(preferences))}catch(e){}
+});
+document.querySelectorAll('.settings-tabs button').forEach(btn=>btn.addEventListener('click',()=>{
+ document.querySelectorAll('.settings-tabs button').forEach(b=>b.classList.toggle('active',b===btn));
+ document.querySelectorAll('.settings-page').forEach(p=>p.classList.toggle('active',p.dataset.page===btn.dataset.tab));
+}));
+window.addEventListener('keydown',e=>{
+ if(e.code==='Escape'){e.preventDefault();settingsOpen?closeSettings():openSettings()}
+ if(settingsOpen&&['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
+},true);
+applyPreferences();
+
+// No AI traffic cars: player vehicle only.
+function show(s){let el=document.getElementById('message');el.textContent=s;el.style.opacity=1;noticeUntil=performance.now()+2700}
+function reset(){pos.set(-220*WORLD_SCALE,0,35*WORLD_SCALE);yaw=2.85;speed=0;velocityX=0;velocityZ=0;previousRear=null;driftAmount=0;gear=1;requestedGear=1;shiftTimer=0;shiftKick=0;shiftCooldown=0;engineRPM=950;audibleRPM=950;wanted=0;show('Back on the starting road!')}
+window.addEventListener('keydown',e=>{if(settingsOpen)return;if(!e.repeat){initSound();if(e.code==='KeyM')setSoundMuted(!audio.muted)}keys[e.code]=true;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(e.repeat)return;if(e.code==='KeyC'){camMode=(camMode+1)%3;preferences.camera=String(camMode)}if(e.code==='KeyR')reset();if(e.code==='Enter'){raceOn=!raceOn;checkpoint=0;lap=0;markers.forEach((o,i)=>o.visible=raceOn&&i===0);show(raceOn?'Race started — follow the glowing rings!':'Free roam mode')}});window.addEventListener('keyup',e=>keys[e.code]=false);
+const minimap=document.getElementById('map'),ctx=minimap.getContext('2d');function map(){let w=250;ctx.clearRect(0,0,w,w);const scale=.14,tx=x=>125+(x-pos.x)*scale,tz=z=>125+(z-pos.z)*scale;
+// Coastal minimap matches the playable world: blue open water, cyan shallows,
+// sandy beach, gray waterfront promenade and green city interior.
+const rect=(x1,z1,x2,z2,color)=>{ctx.fillStyle=color;ctx.fillRect(tx(x1),tz(z1),(x2-x1)*scale,(z2-z1)*scale)};
+ctx.fillStyle='#237fae';ctx.fillRect(0,0,w,w);
+rect(-960,-960,960,960,'#58c5d5');
+rect(-902,-902,902,902,'#edd18b');
+rect(-820,-820,820,820,'#78bf70');
+// Walkway around the perimeter and a thin seawall/railing indicator.
+ctx.strokeStyle='#c7ccd1';ctx.lineWidth=2.1;
+ctx.strokeRect(tx(-818),tz(-818),1636*scale,1636*scale);
+ctx.strokeStyle='#394750';ctx.lineWidth=.9;
+ctx.strokeRect(tx(-824),tz(-824),1648*scale,1648*scale);
+ctx.lineCap='round';for(let route of paths){ctx.beginPath();for(let i=0;i<=100;i++){let p=route.curve.getPoint(i/100);i?ctx.lineTo(tx(p.x),tz(p.z)):ctx.moveTo(tx(p.x),tz(p.z))}ctx.lineWidth=route.width*scale+2;ctx.strokeStyle='#e9e8e0';ctx.stroke();ctx.lineWidth=route.width*scale;ctx.strokeStyle='#6b727a';ctx.stroke()}ctx.fillStyle='#e4a65b';placedHomes.forEach(([x,z])=>ctx.fillRect(tx(x)-3,tz(z)-3,6,6));ctx.save();ctx.translate(125,125);ctx.rotate(-yaw);ctx.fillStyle='#ed363c';ctx.beginPath();ctx.moveTo(0,-9);ctx.lineTo(-6,7);ctx.lineTo(6,7);ctx.fill();ctx.restore()}
+// Six-speed automatic with smooth clutch handover and preserved vehicle momentum.
+const upshift=[0,46,83,126,176,232,Infinity];
+const downshift=[0,0,30,65,101,145,198];
+let gear=1,requestedGear=1,shiftTimer=0,shiftCooldown=0,shiftKick=0,gearFlash=0;
+const SHIFT_DURATION=.52;
+function automaticShift(next){
+ if(next===gear||shiftTimer>0||shiftCooldown>0)return;
+ requestedGear=next;
+ shiftTimer=SHIFT_DURATION;
+ shiftCooldown=.62;
+ gearFlash=.55;
+ gearChangeSound();
+}
+let visibilityClock=0;
+function updateBuildingVisibility(dt){
+ visibilityClock+=dt;if(visibilityClock<.33)return;visibilityClock=0;
+ const maxDistSq=preferences.distance*preferences.distance;
+ for(const g of scene.children){
+  if(!g.userData.cityBuilding)continue;
+  const dx=g.position.x-pos.x,dz=g.position.z-pos.z;
+  g.visible=dx*dx+dz*dz<maxDistSq;
+ }
+}
+let prev=performance.now();function frame(now){requestAnimationFrame(frame);let dt=Math.min((now-prev)/1000,.05);prev=now;
+fpsFrames++;fpsElapsed+=dt;
+if(fpsElapsed>=.65){document.getElementById('fps-meter').textContent=Math.round(fpsFrames/fpsElapsed)+' FPS';fpsFrames=0;fpsElapsed=0}
+if(settingsOpen){renderer.render(scene,camera);return;}
+let throttle=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0),steer=(keys.KeyD||keys.ArrowLeft?1:0)-(keys.KeyA||keys.ArrowRight?1:0);
+let onRoad=occupied(Math.floor((pos.x-MINX)/CELL),Math.floor((pos.z-MINZ)/CELL));
+// Automatic transmission chooses a new gear, then gradually engages it.
+shiftCooldown=Math.max(0,shiftCooldown-dt);
+gearFlash=Math.max(0,gearFlash-dt);
+const kmh=Math.abs(speed)*2.6;
+if(speed>=0&&shiftCooldown<=0&&shiftTimer<=0){
+ if(gear<6&&kmh>=upshift[gear]&&throttle>0)automaticShift(gear+1);
+ else if(gear>1&&kmh<downshift[gear])automaticShift(gear-1);
+}
+let clutch=1;
+if(shiftTimer>0){
+ shiftTimer=Math.max(0,shiftTimer-dt);
+ const progress=1-shiftTimer/SHIFT_DURATION;
+ // Gentle torque handover: dip in the middle and return smoothly.
+ clutch=1-.43*Math.pow(Math.sin(Math.PI*progress),2);
+ shiftKick=.13*Math.sin(Math.PI*progress);
+ if(shiftTimer===0){gear=requestedGear;shiftKick=0;}
+}else shiftKick+=(0-shiftKick)*Math.min(1,dt*9);
+const boosting=keys.ShiftLeft||keys.ShiftRight;
+const gearTorque=[0,1.42,1.25,1.10,.98,.88,.79][gear];
+let acceleration=0;
+if(throttle>0)acceleration=(boosting?116:89)*gearTorque*clutch*(preferences.power/100);
+else if(throttle<0)acceleration=speed>1?-145:-46;
+speed+=acceleration*dt;
+// Do not subtract speed during shifts: momentum is conserved, with only normal drag.
+const driftRequested=!!keys.Space && throttle>0 && speed>12;
+// Holding W/Up + Space initiates a controlled drift rather than stopping the car.
+// Handbrake without throttle still slows the car normally.
+speed*=Math.pow(driftRequested?.995:(keys.Space?.91:(onRoad?.994:.982)),dt*60);
+speed=Math.max(-38,Math.min(boosting?135:116,speed));
+if(Math.abs(speed)<.08)speed=0;
+updateSound(dt,speed,gear,throttle,steer,boosting,driftRequested,shiftTimer);
+for(const wheel of sports.wheels)wheel.rotation.x+=speed*dt*.48;
+// Drift: rear grip drops when holding accelerate + Space while steering.
+// The car's nose turns rapidly, but its existing velocity continues forward.
+const steerStrength=Math.min(1,Math.abs(speed)/17);
+const activelyDrifting=driftRequested&&Math.abs(steer)>.12&&Math.abs(speed)>15;
+yaw-=steer*steerStrength*(activelyDrifting?2.12:1.7)*dt*Math.sign(speed||1)*(preferences.steering/100);
+const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw);
+const targetVX=forwardX*speed,targetVZ=forwardZ*speed;
+const grip=activelyDrifting?Math.max(.35,1.05/(preferences.drift/100)):(driftRequested?2.0:7.8);
+const follow=1-Math.exp(-grip*dt);
+velocityX+=(targetVX-velocityX)*follow;
+velocityZ+=(targetVZ-velocityZ)*follow;
+// Keep drifting momentum and allow the rear end to swing out visibly.
+const lateral=velocityX*Math.cos(yaw)-velocityZ*Math.sin(yaw);
+const slide=Math.min(1,Math.abs(lateral)/Math.max(12,Math.abs(speed)*.38));
+driftAmount+=(slide-driftAmount)*(1-Math.exp(-5*dt));
+pos.x+=velocityX*dt;
+pos.z+=velocityZ*dt;
+// Marks are based on actual movement of the two rear wheels, not the car center.
+updateDriftSqueal(slide,activelyDrifting,speed);
+if(preferences.skids)leaveTireMarks(dt,activelyDrifting&&slide>.15);else previousRear=rearTires();
+updateSkids(dt);updateBuildingVisibility(dt);
+updateSmoke(dt,preferences.smoke&&activelyDrifting&&slide>.13);
+// Solid perimeter collision: the car cannot pass through the coastal fence.
+// Soft speed reduction at impact prevents jitter, including during a drift.
+const FENCE_INNER=801,carRadius=5.2;
+let collided=false;
+if(pos.x>FENCE_INNER-carRadius){pos.x=FENCE_INNER-carRadius;velocityX=Math.min(0,velocityX)*.16;collided=true}
+if(pos.x< -FENCE_INNER+carRadius){pos.x=-FENCE_INNER+carRadius;velocityX=Math.max(0,velocityX)*.16;collided=true}
+if(pos.z>FENCE_INNER-carRadius){pos.z=FENCE_INNER-carRadius;velocityZ=Math.min(0,velocityZ)*.16;collided=true}
+if(pos.z< -FENCE_INNER+carRadius){pos.z=-FENCE_INNER+carRadius;velocityZ=Math.max(0,velocityZ)*.16;collided=true}
+if(collided){speed*=.38;previousRear=null;}
+player.position.set(pos.x,.15-shiftKick*.07,pos.z);player.rotation.y=yaw+Math.PI;
+player.rotation.x=-shiftKick*.018;player.rotation.z=-driftAmount*.085*Math.sign(steer||1);
+
+if(raceOn){let target=race.curve.getPointAt(checkpoints[checkpoint]);if(Math.hypot(target.x-pos.x,target.z-pos.z)<20){markers[checkpoint].visible=false;checkpoint++;if(checkpoint>=checkpoints.length){checkpoint=0;lap++;show('🏁 Lap '+lap+' complete!')}markers[checkpoint].visible=true}}
+// Police pursuit disabled so no additional cars spawn.
+let heading=new T.Vector3(Math.sin(yaw),0,Math.cos(yaw)),desired=pos.clone().addScaledVector(heading,camMode===1?3:camMode===2?-25:-36);desired.y=(camMode===1?5:camMode===2?40:12)-shiftKick*.06;camera.position.lerp(desired,1-Math.pow(.003,dt));let look=pos.clone().addScaledVector(heading,camMode===1?22:21);look.y=camMode===1?3:5;camera.lookAt(look);
+document.getElementById('speed').textContent=Math.round(Math.abs(speed)*2.6);document.getElementById('gear').textContent=speed<-.5?'R':(shiftTimer>0?gear+' → '+requestedGear:gear);document.getElementById('gear').style.color=gearFlash>0?'#ff8a57':'#ffda4d';document.getElementById('race').textContent=raceOn?'LAP '+(lap+1)+' • '+(checkpoint+1)+'/10':'FREE ROAM';document.getElementById('police').textContent='OFF';if(now>noticeUntil)document.getElementById('message').style.opacity=0;if(Math.floor(now/180)%3===0)map();renderer.render(scene,camera)}
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+// F toggles the graphical grade without changing gameplay or geometry.
+window.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='f'&&!e.repeat){const off=document.body.classList.toggle('cinematic-off');preferences.vivid=!off;document.getElementById('grade-tag').textContent=off?'FILTER OFF · Press F to enable':'✨ VIVID LEGO FILTER ON · Press F to compare';}});
+document.getElementById('loading').remove();show('New LEGO supercar! Press W to hear the engine.');requestAnimationFrame(frame);
+})();
+</script></body></html>
