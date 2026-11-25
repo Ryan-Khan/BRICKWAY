@@ -213,7 +213,7 @@ body.mode-f1-race #f1-live-ranks{display:block}
  #footer{left:10px;bottom:9px}.controls{font-size:10px}.controls>div{margin:2px 0}.controls kbd{min-width:25px;padding:1px 3px}.controls .extras{display:none}
  #settings-open{left:10px;top:50%;width:38px;height:38px;font-size:22px}
  .settings-panel{padding:12px}.controls-grid{grid-template-columns:1fr}.settings-tabs button{padding:7px;font-size:11px}
- #fps-meter{right:9px;top:115px}
+ #fps-meter{left:auto;right:9px;top:115px;bottom:auto}
  #health-box{width:122px;padding:4px 7px}#health-top{font-size:9px}
  #low-hp-popup{bottom:155px;padding:9px 12px;gap:8px}#low-hp-popup .lp-text{font-size:11px}
  #wanted-hud{top:72px;right:12px}#wanted-stars{font-size:19px}#loot-box{font-size:11px;padding:4px 8px}
@@ -658,7 +658,7 @@ body.phone-device .mc-pedal-drift-btn{
 </div>
 
 <button id="settings-open" aria-label="Open settings" title="Settings (Esc)">⚙</button>
-<div id="fps-meter" style="display:none!important"></div>
+<div id="fps-meter"></div>
 <div id="death-overlay" role="dialog" aria-modal="true" aria-label="You died respawn screen">
  <div class="mc-death-box">
  <h2 class="mc-death-title">You Died!</h2>
@@ -1027,7 +1027,9 @@ scene.add(worldDynamicGroup);
 
 function rebuildRoadNetwork(mode){
  while(worldDynamicGroup.children.length){
-  const ch=worldDynamicGroup.children.pop();
+  const ch=worldDynamicGroup.children[worldDynamicGroup.children.length-1];
+  worldDynamicGroup.remove(ch);
+  if(ch.isInstancedMesh)ch.dispose();
   if(ch.geometry&&ch.geometry!==edgeGeo&&ch.geometry!==cube)ch.geometry.dispose();
  }
  paths.length=0;
@@ -1153,7 +1155,23 @@ function clearance(x,z){let best=Infinity;for(const p of samples){const d=Math.h
 function legoBuilding(x,z,w,d,h,kind,index){
  const g=new T.Group();g.position.set(x,0,z);g.userData.cityBuilding=true;scene.add(g);
  const wall=moldedBrickMaterial(walls[index%walls.length],w,h,d),roof=roofs[(index+Math.floor(index/3))%roofs.length];
- function part(x,y,z,w,h,d,mat){let o=box(x,y,z,w,h,d,mat,g);const big=w*h*d>120;o.castShadow=big;o.receiveShadow=big;return o}
+ const parts=[new Map(),new Map()];
+ const transform=new T.Object3D();
+ function part(x,y,z,w,h,d,mat){
+  const shadows=w*h*d>120;
+  // The grass shader reads modelMatrix directly, so the baseplate needs its own mesh.
+  if(mat===m.grass){
+   const base=box(x,y,z,w,h,d,mat,g);
+   base.castShadow=base.receiveShadow=shadows;
+   return;
+  }
+  const batches=parts[Number(shadows)];
+  if(!batches.has(mat))batches.set(mat,[]);
+  transform.position.set(x,y,z);
+  transform.scale.set(w,h,d);
+  transform.updateMatrix();
+  batches.get(mat).push(transform.matrix.clone());
+ }
  // raised baseplate and a single uninterrupted wall shell avoid flicker
  part(0,.25,0,w+9,.5,d+10,m.grass);
  part(0,h/2+.6,0,w,h,d,wall);
@@ -1256,6 +1274,15 @@ function legoBuilding(x,z,w,d,h,kind,index){
  for(let side of [-1,1]){
   part(side*(w/2+2),1.5,d/2-4,3,3,3,plantMat);
   part(side*(w/2+2),3.2,d/2-4,2,1,2,flowerMat);
+ }
+ for(const [shadowIndex,batches] of parts.entries()){
+  for(const [mat,matrices] of batches){
+   const batch=new T.InstancedMesh(cube,mat,matrices.length);
+   matrices.forEach((matrix,i)=>batch.setMatrixAt(i,matrix));
+   batch.castShadow=batch.receiveShadow=Boolean(shadowIndex);
+   batch.computeBoundingSphere();
+   g.add(batch);
+  }
  }
  g.updateMatrix();g.matrixAutoUpdate=false;
  return g;
@@ -2311,15 +2338,29 @@ function pitOffset(u){
 function gpBuildPitLane(parent){
  gpPitCrew=[];const lane=new T.Group();parent.add(lane);
  const asphalt=new T.MeshBasicMaterial({color:0x253d48}),yellow=new T.MeshBasicMaterial({color:0xffd34b}),white=new T.MeshBasicMaterial({color:0xf8fafc}),suit=new T.MeshStandardMaterial({color:0xec3049}),skin=new T.MeshStandardMaterial({color:0xffce46}),rubber=new T.MeshStandardMaterial({color:0x171a22});
- const lat=gpPitLaneLat(),n=90,step=(GP_PIT_EXIT-GP_PIT_ENTRY)/n;
+ const n=90,step=(GP_PIT_EXIT-GP_PIT_ENTRY)/n;
+ // Keep the same segment transforms while drawing the lane and edge lines in two batches.
+ const surface=new T.InstancedMesh(cube,asphalt,n);
+ const edges=new T.InstancedMesh(cube,yellow,n*2);
+ const segment=new T.Object3D();
  for(let i=0;i<n;i++){
   const u=GP_PIT_ENTRY+i*step,v=u+step,a=gpPitPoint(u,pitOffset(u)),b=gpPitPoint(v,pitOffset(v));
   const dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz),x=(a.x+b.x)/2,z=(a.z+b.z)/2;
-  const angle=Math.atan2(dx,dz);
-  box(x,.20,z,11,.06,len+.25,asphalt,lane).rotation.y=angle;
-  for(const edge of [-5.5,5.5])box(x+dz/len*edge,.25,z-dx/len*edge,.34,.05,len+.25,yellow,lane).rotation.y=angle;
+  segment.rotation.y=Math.atan2(dx,dz);
+  segment.position.set(x,.20,z);
+  segment.scale.set(11,.06,len+.25);
+  segment.updateMatrix();
+  surface.setMatrixAt(i,segment.matrix);
+  segment.scale.set(.34,.05,len+.25);
+  for(let side=0;side<2;side++){
+   const offset=(side*2-1)*5.5/len;
+   segment.position.set(x+dz*offset,.25,z-dx*offset);
+   segment.updateMatrix();
+   edges.setMatrixAt(i*2+side,segment.matrix);
+  }
  }
- const b=gpPitPoint(GP_PIT_BOX,lat),g=new T.Group();g.position.set(b.x,.28,b.z);g.rotation.y=Math.atan2(b.t.x,b.t.z);lane.add(g);
+ lane.add(surface,edges);
+ const b=gpPitPoint(GP_PIT_BOX,gpPitLaneLat()),g=new T.Group();g.position.set(b.x,.28,b.z);g.rotation.y=Math.atan2(b.t.x,b.t.z);lane.add(g);
  for(const x of [-4.5,4.5])box(x,0,0,.45,.07,12,white,g);for(const z of [-6,6])box(0,0,z,9,.07,.45,white,g);
  const metal=new T.MeshStandardMaterial({color:0xa9b7c9,metalness:.6,roughness:.35}),black=new T.MeshStandardMaterial({color:0x141821}),green=new T.MeshBasicMaterial({color:0x35ef81});
  gpPitJack=new T.Group();g.add(gpPitJack);box(0,.16,8.8,1.8,.3,3,metal,gpPitJack);box(0,.5,9.5,.26,1,.26,metal,gpPitJack);gpPitJack.visible=false;
@@ -2393,7 +2434,17 @@ const f1TrackProps=new T.Group();
 scene.add(f1TrackProps);
 
 function buildF1CircuitProps(){
- while(f1TrackProps.children.length)f1TrackProps.remove(f1TrackProps.children[0]);
+ const geometries=new Set(),materials=new Set(),textures=new Set();
+ f1TrackProps.traverse(o=>{
+  if(o.isInstancedMesh)o.dispose();
+  if(o.geometry&&o.geometry!==cube&&o.geometry!==cylinderGeo)geometries.add(o.geometry);
+  if(o.material){
+   materials.add(o.material);
+   if(o.material.map)textures.add(o.material.map);
+  }
+ });
+ f1TrackProps.clear();
+ for(const resource of [...geometries,...materials,...textures])resource.dispose();
  if(gameMode!=='f1race')return;
 
  const baseGreenMat=material(0x2d8a42,.75,.15);
@@ -2728,51 +2779,44 @@ function buildF1CircuitProps(){
    bItems.push({x:wx,z:wz,cx,cz,yaw:yawWall,len:segLen*1.12+0.55,side,idx:si});
   }
  }
- if(bItems.length>0){
-  const wallInst=new T.InstancedMesh(wallBaseGeo,wallBodyMat,bItems.length);
-  const bumpRInst=new T.InstancedMesh(bumperGeo,bumperRedMat,bItems.length);
-  const bumpWInst=new T.InstancedMesh(bumperGeo,bumperWhiteMat,bItems.length);
-  const capInst=new T.InstancedMesh(topCapGeo,topAccentMat,bItems.length);
-  const curbRInst=new T.InstancedMesh(curbGeo,curbRedMat,bItems.length);
-  const curbWInst=new T.InstancedMesh(curbGeo,curbWhiteMat,bItems.length);
-  for(const im of [wallInst,bumpRInst,bumpWInst,capInst,curbRInst,curbWInst]){
-   im.userData.f1VisualOnly=true;im.castShadow=false;im.receiveShadow=false;im.frustumCulled=false;
+ // Bound the batches to short stretches so off-camera track sections can be culled.
+ const wallTransform=new T.Object3D();
+ for(let start=0;start<bItems.length;start+=96){
+  const items=bItems.slice(start,start+96);
+  const redCount=items.filter(item=>item.idx%2===0).length;
+  const whiteCount=items.length-redCount;
+  const wall=new T.InstancedMesh(wallBaseGeo,wallBodyMat,items.length);
+  const cap=new T.InstancedMesh(topCapGeo,topAccentMat,items.length);
+  const redBumper=new T.InstancedMesh(bumperGeo,bumperRedMat,redCount);
+  const whiteBumper=new T.InstancedMesh(bumperGeo,bumperWhiteMat,whiteCount);
+  const redCurb=new T.InstancedMesh(curbGeo,curbRedMat,redCount);
+  const whiteCurb=new T.InstancedMesh(curbGeo,curbWhiteMat,whiteCount);
+  let redIndex=0,whiteIndex=0;
+  for(let i=0;i<items.length;i++){
+   const item=items[i],red=item.idx%2===0;
+   const colorIndex=red?redIndex++:whiteIndex++;
+   wallTransform.rotation.y=item.yaw;
+   wallTransform.scale.set(1,1,item.len);
+   wallTransform.position.set(item.x,.75,item.z);
+   wallTransform.updateMatrix();
+   wall.setMatrixAt(i,wallTransform.matrix);
+   wallTransform.position.y=1.84;
+   wallTransform.updateMatrix();
+   cap.setMatrixAt(i,wallTransform.matrix);
+   wallTransform.position.y=1.48;
+   wallTransform.scale.z=item.len*.98;
+   wallTransform.updateMatrix();
+   (red?redBumper:whiteBumper).setMatrixAt(colorIndex,wallTransform.matrix);
+   wallTransform.position.set(item.cx,red?.115:.12,item.cz);
+   wallTransform.updateMatrix();
+   (red?redCurb:whiteCurb).setMatrixAt(colorIndex,wallTransform.matrix);
   }
-  const dum=new T.Object3D();
-  for(let i=0;i<bItems.length;i++){
-   const it=bItems[i];
-   dum.position.set(it.x,0.75,it.z);dum.scale.set(1,1,it.len);dum.rotation.set(0,it.yaw,0);dum.updateMatrix();
-   wallInst.setMatrixAt(i,dum.matrix);
-   dum.position.set(it.x,1.84,it.z);dum.scale.set(1,1,it.len);dum.rotation.set(0,it.yaw,0);dum.updateMatrix();
-   capInst.setMatrixAt(i,dum.matrix);
-
-   const isRed=(it.idx%2===0);
-   if(isRed){
-    dum.position.set(it.x,1.48,it.z);dum.scale.set(1,1,it.len*0.98);dum.rotation.set(0,it.yaw,0);dum.updateMatrix();
-    bumpRInst.setMatrixAt(i,dum.matrix);
-    dum.position.set(it.x,-50,it.z);dum.scale.set(0.01,0.01,0.01);dum.updateMatrix();
-    bumpWInst.setMatrixAt(i,dum.matrix);
-   }else{
-    dum.position.set(it.x,1.48,it.z);dum.scale.set(1,1,it.len*0.98);dum.rotation.set(0,it.yaw,0);dum.updateMatrix();
-    bumpWInst.setMatrixAt(i,dum.matrix);
-    dum.position.set(it.x,-50,it.z);dum.scale.set(0.01,0.01,0.01);dum.updateMatrix();
-    bumpRInst.setMatrixAt(i,dum.matrix);
-   }
-
-   if(isRed){
-    dum.position.set(it.cx,0.115,it.cz);dum.scale.set(1,1,it.len*0.98);dum.rotation.set(0,it.yaw,0);dum.updateMatrix();
-    curbRInst.setMatrixAt(i,dum.matrix);
-    dum.position.set(it.cx,-50,it.cz);dum.scale.set(0.01,0.01,0.01);dum.updateMatrix();
-    curbWInst.setMatrixAt(i,dum.matrix);
-   }else{
-    dum.position.set(it.cx,0.12,it.cz);dum.scale.set(1,1,it.len*0.98);dum.rotation.set(0,it.yaw,0);dum.updateMatrix();
-    curbWInst.setMatrixAt(i,dum.matrix);
-    dum.position.set(it.cx,-50,it.cz);dum.scale.set(0.01,0.01,0.01);dum.updateMatrix();
-    curbRInst.setMatrixAt(i,dum.matrix);
-   }
+  for(const batch of [wall,cap,redBumper,whiteBumper,redCurb,whiteCurb]){
+   if(!batch.count)continue;
+   batch.userData.f1VisualOnly=true;
+   batch.computeBoundingSphere();
+   f1TrackProps.add(batch);
   }
-  for(const im of [wallInst,bumpRInst,bumpWInst,capInst,curbRInst,curbWInst])im.instanceMatrix.needsUpdate=true;
-  f1TrackProps.add(wallInst,bumpRInst,bumpWInst,capInst,curbRInst,curbWInst);
  }
 
  const sandPatchMat=material(0xf2d16b,.88,.12);
@@ -3816,7 +3860,9 @@ window.addEventListener('pointerdown',()=>{initSound();if(!preferences.sound)set
 const settingDefaults={quality:'medium',distance:610,brightness:132,fps:false,steering:100,drift:100,power:100,smoke:true,skids:true,camera:'0',sound:true,volume:100,minimap:true,speedometer:true,controls:false,logo:true,audiobutton:true};
 let preferences={...settingDefaults};
 try{const saved=JSON.parse(localStorage.getItem('brickway-settings-v2')||'{}');preferences={...preferences,...saved}}catch(e){}
-let settingsOpen=false,settingsPrevTime=performance.now(),fpsFrames=0,fpsElapsed=0;
+let settingsOpen=false,fpsFrames=0,fpsElapsed=0;
+const fpsMeter=document.getElementById('fps-meter');
+let renderPixelRatio=renderer.getPixelRatio();
 const settingsOverlay=document.getElementById('settings-overlay');
 const settingsControls={};
 for(const key of Object.keys(settingDefaults)){
@@ -3833,15 +3879,20 @@ function applyPreferences(){
   if(output)output.textContent=key==='distance'?v+' m':key==='brightness'?Math.round(v/100*100)+'%':v+'%';
  }
  const scale={low:.75,medium:1.15,high:Math.min(devicePixelRatio,1.8)}[preferences.quality]||1.15;
- renderer.setPixelRatio(Math.min(devicePixelRatio,scale));
- try{if(composer){composer.setPixelRatio(Math.min(devicePixelRatio,scale));composer.setSize(bwSize().rw,bwSize().rh);}}catch(_e){usePostFX=false;}
+ const pixelRatio=Math.min(devicePixelRatio,scale);
  const shadowsOn=preferences.quality!=='low';
  renderer.shadowMap.enabled=shadowsOn;sun.castShadow=shadowsOn;
- usePostFX=preferences.quality!=='low';
+ usePostFX=shadowsOn;
+ if(pixelRatio!==renderPixelRatio){
+  renderPixelRatio=pixelRatio;
+  renderer.setPixelRatio(pixelRatio);
+  try{composer.setPixelRatio(pixelRatio);}catch(_e){usePostFX=false;}
+ }
  bloomPass.strength=preferences.quality==='high'?0.34:0.24;
  document.body.classList.remove('cinematic-off');
  renderer.toneMappingExposure=(preferences.brightness/100)*0.84;
- document.getElementById('fps-meter').style.display='none';
+ fpsMeter.style.display=preferences.fps?'block':'none';
+ if(!preferences.fps){fpsFrames=0;fpsElapsed=0;fpsMeter.textContent='';}
  for(const [key,cl] of [['controls','hide-controls'],['minimap','hide-minimap'],['speedometer','hide-speedometer'],['logo','hide-logo'],['audiobutton','hide-audio-button']]){
   document.body.classList.toggle(cl,!preferences[key]);
  }
@@ -3853,7 +3904,7 @@ function openSettings(){
  settingsOpen=true;settingsOverlay.classList.add('open');keys={};
 }
 function closeSettings(){
- settingsOpen=false;settingsOverlay.classList.remove('open');keys={};settingsPrevTime=performance.now();
+ settingsOpen=false;settingsOverlay.classList.remove('open');keys={};
 }
 document.getElementById('settings-open').addEventListener('click',openSettings);
 document.getElementById('settings-close').addEventListener('click',closeSettings);
@@ -3976,6 +4027,16 @@ function reset(){
  pos.set(-220*WORLD_SCALE,0,35*WORLD_SCALE);yaw=1.5254;speed=0;velocityX=0;velocityZ=0;previousRear=null;driftAmount=0;gear=1;requestedGear=1;shiftTimer=0;shiftKick=0;shiftJerk=0;shiftCooldown=0;engineRPM=950;audibleRPM=950;clearPolice();show('Back on the starting road!');
 }
 
+// Traffic light positions are static across mode switches.
+{
+ const waypoints=[[-310,265],[-110,265],[105,265],[225,235],[255,155],[175,105],[75,135],[-25,78],[55,12],[-45,-52],[75,-108],[215,-125],[345,-155],[365,-255],[310,-345],[195,-355],[95,-295],[-15,-345],[-135,-310],[-245,-235],[-335,-125],[-360,15],[-350,165]];
+ const curve=new T.CatmullRomCurve3(waypoints.map(([x,z])=>new T.Vector3(x*WORLD_SCALE,0,z*WORLD_SCALE)),true,'centripetal',.45);
+ const points=Array.from({length:161},(_,i)=>curve.getPointAt(i/160));
+ const clearance=(42*1.45)*.5+28;
+ for(const light of lights){
+  light.nearLegacyCircuit=points.some(point=>Math.hypot(point.x-light.poleX,point.z-light.poleZ)<clearance);
+ }
+}
 function selectGameMode(mode){
  gpPitResetVisual();
  gameMode=mode;
@@ -4006,19 +4067,7 @@ function selectGameMode(mode){
  for(const pr of destructibleProps){pr.group.visible=isOpen&&!pr.broken;}
  for(const d of propDebrisPool){if(!isOpen){d.active=false;d.mesh.visible=false;}}
  for(const c of civilians){c.root.visible=isOpen;}
- for(const L of lights){
-  if(L.group){
-   let nearF1=false;
-    const f1Waypoints=[[-310,265],[-110,265],[105,265],[225,235],[255,155],[175,105],[75,135],[-25,78],[55,12],[-45,-52],[75,-108],[215,-125],[345,-155],[365,-255],[310,-345],[195,-355],[95,-295],[-15,-345],[-135,-310],[-245,-235],[-335,-125],[-360,15],[-350,165]];
-    const f1LoopCurve=new T.CatmullRomCurve3(f1Waypoints.map(p=>new T.Vector3(p[0]*WORLD_SCALE,0,p[1]*WORLD_SCALE)),true,'centripetal',.45);
-    const f1HalfW=(42*1.45)*0.5+28;
-    for(let k=0;k<=160;k++){
-     const fp=f1LoopCurve.getPointAt(k/160);
-     if(Math.hypot(fp.x-L.poleX,fp.z-L.poleZ)<f1HalfW){nearF1=true;break;}
-    }
-   L.group.visible=isOpen&&!nearF1;
-  }
- }
+ for(const light of lights)light.group.visible=isOpen&&!light.nearLegacyCircuit;
  for(const b of f1Bots){b.group.visible=!isOpen;}
  for(const od of openWorldDecor){od.visible=isOpen;}
  for(const g of scene.children){if(g.userData.cityBuilding)g.visible=isOpen;}
@@ -4066,7 +4115,10 @@ document.getElementById('f1-replay-btn').addEventListener('click',()=>{if(gpSess
 document.getElementById('f1-menu-btn').addEventListener('click',returnToStartScreen);
 
 window.addEventListener('keydown',e=>{if(!gameStarted)return;if(deathScreenOpen){if(['Enter','Space','KeyR'].includes(e.code)){e.preventDefault();respawnFromDeath();}return;}if(settingsOpen)return;if(!e.repeat){initSound();if(e.code==='KeyM')setSoundMuted(!audio.muted)}keys[e.code]=true;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(e.repeat)return;if(e.code==='KeyR')reset();if(e.code==='Enter'&&gameMode==='openworld'){raceOn=!raceOn;checkpoint=0;lap=0;taTimeLeft=45;taCurrentTrace=[];ghostGroup.visible=raceOn&&taBestTrace.length>1;markers.forEach((o,i)=>o.visible=raceOn&&i===0);renderTaBoard();show(raceOn?'⏱️ TIME-ATTACK STARTED! 45s to clear checkpoint!':'Free roam mode')}});window.addEventListener('keyup',e=>keys[e.code]=false);window.addEventListener('blur',()=>{keys={};if(typeof resetJoystick==='function')resetJoystick();});
-const minimap=document.getElementById('map'),ctx=minimap.getContext('2d');function map(){let w=250;ctx.clearRect(0,0,w,w);const scale=.14,tx=x=>125+(x-pos.x)*scale,tz=z=>125+(z-pos.z)*scale;
+const minimap=document.getElementById('map'),ctx=minimap.getContext('2d');
+const minimapPaths=new WeakMap();
+let nextMinimapFrame=0;
+function map(){let w=250;ctx.clearRect(0,0,w,w);const scale=.14,tx=x=>125+(x-pos.x)*scale,tz=z=>125+(z-pos.z)*scale;
 // Coastal minimap matches the playable world: blue open water, cyan shallows,
 // sandy beach, gray waterfront promenade and green city interior.
 const rect=(x1,z1,x2,z2,color)=>{ctx.fillStyle=color;ctx.fillRect(tx(x1),tz(z1),(x2-x1)*scale,(z2-z1)*scale)};
@@ -4079,7 +4131,31 @@ ctx.strokeStyle='#c7ccd1';ctx.lineWidth=2.1;
 ctx.strokeRect(tx(-818),tz(-818),1636*scale,1636*scale);
 ctx.strokeStyle='#394750';ctx.lineWidth=.9;
 ctx.strokeRect(tx(-824),tz(-824),1648*scale,1648*scale);
-ctx.lineCap='round';for(let ri=paths.length-1;ri>=0;ri--){let route=paths[ri],isPrimary=(route===race);ctx.beginPath();for(let i=0;i<=120;i++){let p=route.curve.getPoint(i/120);i?ctx.lineTo(tx(p.x),tz(p.z)):ctx.moveTo(tx(p.x),tz(p.z))}ctx.lineWidth=route.width*scale+(isPrimary?3.2:2);ctx.strokeStyle=isPrimary?'#ffda29':'#e9e8e0';ctx.stroke();ctx.lineWidth=route.width*scale;ctx.strokeStyle=isPrimary?'#525b66':'#6b727a';ctx.stroke()}ctx.fillStyle='#e4a65b';placedHomes.forEach(([x,z])=>ctx.fillRect(tx(x)-3,tz(z)-3,6,6));if(gameMode==='f1race'){
+ctx.save();
+ctx.translate(tx(0),tz(0));
+ctx.lineCap='round';
+for(let ri=paths.length-1;ri>=0;ri--){
+ const route=paths[ri],isPrimary=route===race;
+ let path=minimapPaths.get(route);
+ if(!path){
+  path=new Path2D();
+  const point=new T.Vector3();
+  for(let i=0;i<=120;i++){
+   const p=route.curve.getPoint(i/120,point);
+   if(i===0)path.moveTo(p.x*scale,p.z*scale);
+   else path.lineTo(p.x*scale,p.z*scale);
+  }
+  minimapPaths.set(route,path);
+ }
+ ctx.lineWidth=route.width*scale+(isPrimary?3.2:2);
+ ctx.strokeStyle=isPrimary?'#ffda29':'#e9e8e0';
+ ctx.stroke(path);
+ ctx.lineWidth=route.width*scale;
+ ctx.strokeStyle=isPrimary?'#525b66':'#6b727a';
+ ctx.stroke(path);
+}
+ctx.restore();
+ctx.fillStyle='#e4a65b';placedHomes.forEach(([x,z])=>ctx.fillRect(tx(x)-3,tz(z)-3,6,6));if(gameMode==='f1race'){
  for(const b of f1Bots)if(b.group.visible){ctx.fillStyle='#'+b.body.toString(16).padStart(6,'0');ctx.beginPath();ctx.arc(tx(b.x),tz(b.z),4.8,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.4;ctx.stroke();}
 }else{
 for(const hz of heistZones){if(hz.cooldown<=0){ctx.fillStyle='#ffcf26';ctx.beginPath();ctx.arc(tx(hz.x),tz(hz.z),5.5,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#d81f2a';ctx.lineWidth=1.8;ctx.stroke();}}
@@ -4202,6 +4278,7 @@ let curFogColor=new T.Color(0xe88b54);
 let curSunColor=new T.Color(0xff8438);
 let curHemiSky=new T.Color(0xffa970);
 let curHemiGnd=new T.Color(0x473854);
+const environmentColor=new T.Color(),overcastFogColor=new T.Color(0x3b4756);
 
 function updateEnvironment(dt,now){
  if(autoCycleEnv){
@@ -4227,14 +4304,14 @@ function updateEnvironment(dt,now){
  const lerpK=Math.min(1,dt*3.5);
 
  const su=skyDome.material.uniforms;
- su.uSkyZenith.value.lerp(new T.Color(tm.zenith),lerpK);
- su.uSkyMid.value.lerp(new T.Color(tm.mid),lerpK);
- su.uSkyHorizon.value.lerp(new T.Color(tm.horizon),lerpK);
- su.uSunColor.value.lerp(new T.Color(tm.sunHex),lerpK);
+ su.uSkyZenith.value.lerp(environmentColor.setHex(tm.zenith),lerpK);
+ su.uSkyMid.value.lerp(environmentColor.setHex(tm.mid),lerpK);
+ su.uSkyHorizon.value.lerp(environmentColor.setHex(tm.horizon),lerpK);
+ su.uSunColor.value.lerp(environmentColor.setHex(tm.sunHex),lerpK);
  su.uNightFactor.value+=(tm.night-su.uNightFactor.value)*lerpK;
  su.uWeatherOvercast.value+=(wm.overcast-su.uWeatherOvercast.value)*lerpK;
 
- const targetFog=new T.Color(tm.fog).lerp(new T.Color(0x3b4756),wm.overcast*0.65);
+ const targetFog=environmentColor.setHex(tm.fog).lerp(overcastFogColor,wm.overcast*0.65);
  curFogColor.lerp(targetFog,lerpK);
  if(scene.fog){
   scene.fog.color.copy(curFogColor);
@@ -4245,14 +4322,14 @@ function updateEnvironment(dt,now){
  }
  scene.background.copy(curFogColor);
 
- curSunColor.lerp(new T.Color(tm.sunHex),lerpK);
+ curSunColor.lerp(environmentColor.setHex(tm.sunHex),lerpK);
  sun.color.copy(curSunColor);
  const targetSunInt=tm.sunInt*(1-wm.overcast*0.55);
  sun.intensity+=(targetSunInt-sun.intensity)*lerpK;
 
  if(hemiLight){
-  curHemiSky.lerp(new T.Color(tm.hemiSky),lerpK);
-  curHemiGnd.lerp(new T.Color(tm.hemiGnd),lerpK);
+  curHemiSky.lerp(environmentColor.setHex(tm.hemiSky),lerpK);
+  curHemiGnd.lerp(environmentColor.setHex(tm.hemiGnd),lerpK);
   hemiLight.color.copy(curHemiSky);
   hemiLight.groundColor.copy(curHemiGnd);
   hemiLight.intensity+=(tm.hemiInt*(1-wm.overcast*0.25)-hemiLight.intensity)*lerpK;
@@ -4294,9 +4371,24 @@ function updateEnvironment(dt,now){
 }
 
 let playerBoostActive=false,playerBoostTimer=0,playerBoostCooldown=0,shiftWasDown=false;
-let prev=performance.now();function frame(now){requestAnimationFrame(frame);let dt=Math.min((now-prev)/1000,.05);prev=now;
-fpsFrames++;fpsElapsed+=dt;
-if(fpsElapsed>=.65){document.getElementById('fps-meter').textContent=Math.round(fpsFrames/fpsElapsed)+' FPS';fpsFrames=0;fpsElapsed=0}
+let prev=performance.now();
+document.addEventListener('visibilitychange',()=>{
+ prev=performance.now();
+ fpsFrames=0;
+ fpsElapsed=0;
+});
+function frame(now){
+ requestAnimationFrame(frame);
+ const elapsed=Math.max(0,(now-prev)/1000);
+ const dt=Math.min(elapsed,.05);
+ prev=now;
+ if(preferences.fps){
+  fpsFrames++;fpsElapsed+=elapsed;
+  if(fpsElapsed>=.65){
+   fpsMeter.textContent=Math.round(fpsFrames/fpsElapsed)+' FPS';
+   fpsFrames=0;fpsElapsed=0;
+  }
+ }
 if(deathScreenOpen&&deathLockRemaining>0){
  deathLockRemaining=Math.max(0,deathLockRemaining-dt);
  updateDeathRespawnUI();
@@ -5389,7 +5481,10 @@ const speedFrac=Math.min(1,Math.max(0,displayKmh/240));
 const needleDeg=-120+speedFrac*240;
 if(gaugeArcEl)gaugeArcEl.setAttribute('stroke-dasharray',(speedFrac*427.26).toFixed(1)+' 640.88');
 if(gaugeNeedleEl)gaugeNeedleEl.style.transform='rotate('+needleDeg.toFixed(1)+'deg)';
-document.getElementById('speed').textContent=Math.round(displayKmh);document.getElementById('gear').textContent=speed<-.5?'R':(shiftTimer>0?gear+' → '+requestedGear:gear);document.getElementById('gear').style.color=gearFlash>0?'#ff8a57':'#ffda4d';document.getElementById('race').textContent=(gameMode==='f1race')?('RACE · L'+Math.min(F1_TOTAL_LAPS,Math.max(1,f1PlayerLap))): (raceOn?'LAP '+(lap+1)+' • '+(checkpoint+1)+'/10':'FREE ROAM');document.getElementById('police').textContent=wanted>0?'★'.repeat(wanted):'CLEAR';if(now>noticeUntil)document.getElementById('message').style.opacity=0;if(Math.floor(now/180)%3===0)map();
+document.getElementById('speed').textContent=Math.round(displayKmh);document.getElementById('gear').textContent=speed<-.5?'R':(shiftTimer>0?gear+' → '+requestedGear:gear);document.getElementById('gear').style.color=gearFlash>0?'#ff8a57':'#ffda4d';document.getElementById('race').textContent=(gameMode==='f1race')?('RACE · L'+Math.min(F1_TOTAL_LAPS,Math.max(1,f1PlayerLap))): (raceOn?'LAP '+(lap+1)+' • '+(checkpoint+1)+'/10':'FREE ROAM');document.getElementById('police').textContent=wanted>0?'★'.repeat(wanted):'CLEAR';if(now>noticeUntil)document.getElementById('message').style.opacity=0;if(preferences.minimap&&now>=nextMinimapFrame){
+ map();
+ nextMinimapFrame=now+1000/30-1;
+}
 updateEnvironment(dt,now);
 updateChaseBeatVisual();
 try{if(usePostFX&&composer)composer.render();else renderer.render(scene,camera);}catch(_e){usePostFX=false;renderer.render(scene,camera);}}
