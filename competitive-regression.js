@@ -166,6 +166,20 @@ function exerciseCity() {
   const check=(condition,message)=>{if(!condition)throw new Error(message);};
   document.getElementById('btn-mode-openworld').click();
   check(harborRoot.visible&&paths.length>=23,'expanded Open World');
+  const turnWith=key=>{
+    reset();speed=55;
+    const start=yaw;
+    keys={[key]:true};frame(prev+40);keys={};
+    return yaw-start;
+  };
+  const keyboardTurn=turnWith('KeyA'),arrowTurn=turnWith('ArrowRight');
+  check(Math.abs(keyboardTurn)>.02&&Math.abs(keyboardTurn-arrowTurn)<.00001,'Open World keyboard steering uses the full turn rate');
+  reset();
+  for(const {points} of cityJobs)for(const point of points){
+    for(const [x,z] of Array.isArray(point[0])?point:[point]){
+      check(onRoadAt(x,z),'job destination remains on a drivable road');
+    }
+  }
   for(const bridge of crossings){
     let lastHeight=bridgeHeight(bridge,bridgeStart);
     for(let x=bridgeStart+2;x<=bridgeEnd;x+=2){

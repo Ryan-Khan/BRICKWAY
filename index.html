@@ -1048,8 +1048,8 @@ function road(points,width,closed=false){
 
 // Both the bridges' render meshes and their driving surfaces use these profiles.
 const crossings=[
- {name:'Skyspan Bridge',z:-350,width:42,height:25,color:0xe7af48},
- {name:'Dockside Crossing',z:440,width:30,height:12,color:0x549b9a}
+ {name:'Skyspan Bridge',z:-350,width:48,height:25,color:0xe7af48},
+ {name:'Dockside Crossing',z:440,width:36,height:12,color:0x549b9a}
 ];
 const harbor={left:1225,right:1745,edge:718};
 const bridgeStart=802,bridgeEnd=1270;
@@ -1090,14 +1090,16 @@ function confineWorld(x,z,fromX,fromZ,clearance=0){
 }
 function addHarborRoads(){
  const route=(points,width,closed=false)=>road(points.map(([x,z])=>[x/WORLD_SCALE,z/WORLD_SCALE]),width,closed);
- route([[741,-355],[790,-350],[bridgeStart,-350],[bridgeEnd,-350],[1302,-350],[1645,-350]],29);
- route([[744,440],[bridgeStart,440],[bridgeEnd,440],[1302,440],[1650,440]],21);
- route([[1302,-600],[1302,-350],[1302,35],[1302,440],[1302,625]],24);
- route([[1302,35],[1440,35],[1560,-45],[1650,-95]],18);
- harborTrafficRoute=route([[1302,440],[1430,555],[1570,570],[1680,470],[1650,440],[1700,225],[1650,-95],[1645,-350],[1570,-510],[1465,-575],[1302,-600],[1290,-350],[1302,35],[1302,265]],19,true);
- route([[1302,265],[1410,265],[1525,228],[1700,225]],13);
- route([[1302,-350],[1390,-445],[1530,-420],[1645,-350]],12);
- route([[1645,-350],[1610,-458],[1425,-492],[1395,-538],[1510,-564],[1625,-606],[1552,-652],[1430,-653],[1302,-600]],12);
+ for(const {z,width} of crossings){
+  route([[744,z],[bridgeStart,z],[bridgeEnd,z],[1302,z],[1650,z]],width/1.45);
+ }
+ route([[1302,-600],[1302,-350],[1302,35],[1302,440],[1302,625]],27);
+ route([[1302,35],[1410,29],[1535,-26],[1650,-95]],23);
+ harborTrafficRoute=route([[1302,440],[1425,535],[1555,557],[1643,508],[1680,420],[1700,225],[1675,45],[1650,-95],[1650,-350],[1590,-488],[1465,-575],[1302,-600],[1302,-350],[1302,35],[1302,265]],24,true);
+ route([[1302,265],[1410,260],[1545,232],[1700,225]],18);
+ route([[1302,-350],[1390,-432],[1520,-438],[1650,-350]],17);
+ route([[1650,-350],[1610,-458],[1460,-485],[1400,-532],[1500,-560],[1615,-602],[1552,-650],[1430,-653],[1302,-600]],16);
+ route([[1440,540],[1458,423],[1478,249],[1490,95],[1497,-11]],17);
 }
 
 const roadMat=new T.MeshStandardMaterial({color:0x363c46,roughness:.78,metalness:.02,envMapIntensity:.12,side:T.DoubleSide});
@@ -3513,30 +3515,6 @@ for(let si=0;si<25;si++){
 }
 let collectedGoldStuds=0;
 
-const speedTraps=[];
-const trapArchMat=material(0xff9d1c,.3,.35);
-const trapBeaconMat=new T.MeshBasicMaterial({color:0x38f2ff,transparent:true,opacity:.45,side:T.DoubleSide,depthWrite:false,blending:T.AdditiveBlending});
-const trapSpecs=[
- [coastBoulevard,.22,'COAST NORTH RADAR'],
- [coastBoulevard,.58,'OCEAN STRAIGHT RADAR'],
- [coastBoulevard,.84,'HARBOR RADAR'],
- [paths[0],.42,'GRAND CIRCUIT RADAR'],
- [paths[1],.55,'SOUTH BLVD RADAR']
-];
-for(const [route,tVal,label] of trapSpecs){
- const p=route.curve.getPointAt(tVal),tg=route.curve.getTangentAt(tVal);
- const ang=Math.atan2(tg.x,tg.z);
- const arch=new T.Group();arch.position.set(p.x,0,p.z);arch.rotation.y=ang;
- const span=route.width*.56;
- box(-span,6.5,0,1.4,13,1.6,m.black,arch);
- box(span,6.5,0,1.4,13,1.6,m.black,arch);
- box(0,13.2,0,span*2+2.2,1.6,2.0,trapArchMat,arch);
- const beam=new T.Mesh(new T.PlaneGeometry(span*2-1,11.5),trapBeaconMat);
- beam.position.set(0,6.2,0);arch.add(beam);
- scene.add(arch);
- speedTraps.push({x:p.x,z:p.z,label,arch,cooldown:0,bestStars:0});
-}
-
 const destructibleProps=[];
 const propBrickGeo=new T.BoxGeometry(.95,.65,.95);
 const crateMat=material(0xc78d46,.42,.25);
@@ -4101,18 +4079,6 @@ function studPickupSound(){
   o.connect(g);g.connect(audio.master);o.start(t+delay);o.stop(t+delay+dur+.02);
  }
 }
-function trapChimeSound(stars){
- if(!audio.ctx||!audio.master||audio.muted)return;
- const c=audio.ctx,t=c.currentTime;
- const notes=stars>=3?[587.33,739.99,880,1174.66]:(stars===2?[587.33,739.99,880]:[587.33,880]);
- notes.forEach((fr,idx)=>{
-  const o=c.createOscillator(),g=c.createGain();
-  o.type='sine';o.frequency.setValueAtTime(fr,t+idx*.07);
-  g.gain.setValueAtTime(.0001,t+idx*.07);g.gain.linearRampToValueAtTime(.11,t+idx*.07+.015);
-  g.gain.exponentialRampToValueAtTime(.0001,t+idx*.07+.18);
-  o.connect(g);g.connect(audio.master);o.start(t+idx*.07);o.stop(t+idx*.07+.2);
- });
-}
 function updateSiren(nowSec,nearestCopDist){
  if(!audio.ctx||!audio.sirenGain)return;
  const t=audio.ctx.currentTime;
@@ -4391,7 +4357,6 @@ function selectGameMode(mode){
  for(const hz of heistZones){hz.ring.visible=isOpen&&hz.cooldown<=0;hz.beacon.visible=isOpen&&hz.cooldown<=0;hz.studSpin.visible=isOpen&&hz.cooldown<=0;}
  for(const bm of heistModels){bm.visible=isOpen;}
  for(const gs of goldStuds){gs.group.visible=isOpen&&!gs.collected;}
- for(const st of speedTraps){if(st.arch)st.arch.visible=isOpen;}
  for(const pr of destructibleProps){pr.group.visible=isOpen&&!pr.broken;}
  for(const d of propDebrisPool){if(!isOpen){d.active=false;d.mesh.visible=false;}}
  for(const c of civilians){c.root.visible=isOpen;}
@@ -4849,7 +4814,7 @@ if(gameMode==='f1race'){
  const command=steer*keyboardSteerScale*(preferences.steering/100);
  gpSteering+=(command-gpSteering)*(1-Math.exp(-dt*(command?7:10)));
  if(!pitAssist)yaw-=F1Core.yawRate(speed,gpSteering,gpTyre)*dt;
-}else yaw-=steer*keyboardSteerScale*steerStrength*driftYawMult*dt*Math.sign(speed||1)*(preferences.steering/100)*streetCars[streetCarId].steering;
+}else yaw-=steer*steerStrength*driftYawMult*dt*Math.sign(speed||1)*(preferences.steering/100)*streetCars[streetCarId].steering;
 const forwardX=Math.sin(yaw),forwardZ=Math.cos(yaw);
 const targetVX=forwardX*speed,targetVZ=forwardZ*speed;
 const driftScale=Math.max(0.3,Number(preferences.drift||100)/100);
@@ -5698,26 +5663,6 @@ for(const gs of goldStuds){
   saveCityLedger();
   studPickupSound();
   show(collectedGoldStuds>=25?'🏆 ALL 25 GOLDEN STUDS FOUND! (+100🪙)':'🪙 GOLD STUD '+collectedGoldStuds+'/25! (+100🪙)');
- }
-}
-
-// 3) Coastal Speed Traps (Bronze 200+ / Silver 260+ / Gold 310+ km/h)
-for(const st of speedTraps){
- st.cooldown=Math.max(0,st.cooldown-dt);
- if(st.cooldown<=0&&Math.hypot(pos.x-st.x,pos.z-st.z)<14){
-  st.cooldown=9;
-  const spdNow=Math.round(kmh);
-  const stars=spdNow>=310?3:(spdNow>=260?2:(spdNow>=200?1:0));
-  if(stars>0){
-   if(stars>st.bestStars)st.bestStars=stars;
-   const reward=stars*75+stars*10;bankedStuds+=reward;
-   saveCityLedger();
-   trapChimeSound(stars);
-   const badge=stars===3?'🥇 GOLD':(stars===2?'🥈 SILVER':'🥉 BRONZE');
-   show('📸 '+st.label+': '+spdNow+' km/h · '+badge+' (+🪙'+reward+')');
-  }else{
-   show('📸 '+st.label+': '+spdNow+' km/h (Hit 200+ km/h for stars!)');
-  }
  }
 }
 
