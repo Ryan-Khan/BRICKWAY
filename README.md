@@ -36,17 +36,3 @@ Watch the ERS percentage before deploying boost. Brake to recover energy, and pl
 
 After classification, **Watch Replay** plays the latest recorded segment, up to about 25 seconds. Pause or scrub to inspect the run, then return to the results. The existing qualifying ghost, penalties, and championship scoring remain available.
 
-## Verification and cloud execution
-
-```sh
-npm ci
-npx playwright install chromium
-npm test
-npm run test:browser
-```
-
-Set `CHROME_BIN` to use an existing Chromium executable. Add `-- --mobile` or `-- --city` to run one browser group. The browser tests load the production game and exercise its logic with controlled time steps. They check five race configurations, tyre strategy, driver balance, angled barrier impacts, pit entry and release, cockpit, replay, landscape touch, bridge seams and rails, city traffic, walking, garage persistence and getaway payout. Tests use scripted driving. FPS and physical input latency should be measured separately on the target device.
-
-The GitHub Actions workflow runs these checks on hosted Ubuntu with software WebGL. It can be dispatched with `gh workflow run brickway.yml` from an authenticated account after the workflow is on GitHub. Commits for this overhaul use the suffix `-SomeNobody21112`.
-
-The new vehicles, avatar details, liveries, road meshes and harbor scenery are generated in the game. No third-party donor car models or game maps are bundled.
