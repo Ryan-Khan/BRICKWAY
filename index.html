@@ -1022,7 +1022,7 @@ m.grass.onBeforeCompile=shader=>{
 m.grass.customProgramCacheKey=()=>'lego-grass-studs-v1';
 const groundPlane=box(0,-1.1,0,3900,2,3900,m.grass);groundPlane.receiveShadow=true;
 const studGeo=new T.CylinderGeometry(.72,.72,.24,10);
-function studs(x,y,z,w,d,mat,spacing=4){let nx=Math.floor(w/spacing),nz=Math.floor(d/spacing);if(nx*nz>120)return;let inst=new T.InstancedMesh(studGeo,mat,nx*nz),dummy=new T.Object3D(),idx=0;for(let i=0;i<nx;i++)for(let j=0;j<nz;j++){dummy.position.set(x+(i-(nx-1)/2)*spacing,y,z+(j-(nz-1)/2)*spacing);dummy.updateMatrix();inst.setMatrixAt(idx++,dummy.matrix)}scene.add(inst)}
+function studs(x,y,z,w,d,mat,spacing=4,parent=scene){let nx=Math.floor(w/spacing),nz=Math.floor(d/spacing);if(nx<1||nz<1||nx*nz>160)return null;let inst=new T.InstancedMesh(studGeo,mat,nx*nz),dummy=new T.Object3D(),idx=0;for(let i=0;i<nx;i++)for(let j=0;j<nz;j++){dummy.position.set(x+(i-(nx-1)/2)*spacing,y,z+(j-(nz-1)/2)*spacing);dummy.updateMatrix();inst.setMatrixAt(idx++,dummy.matrix)}parent.add(inst);return inst}
 function brick(x,y,z,w,h,d,mat){box(x,y,z,w,h,d,mat);studs(x,y+h/2+.13,z,w-1,d-1,mat)}
 const WORLD_SCALE=2.15;
 let gameMode='openworld'; // 'openworld' | 'f1race'
@@ -1672,10 +1672,37 @@ function makeWaterShader(baseHex,deepHex,foamAmt){
 }
 function buildHarbor(){
  const root=markOW(new T.Group());scene.add(root);
- const base=material(0xa9ab8c,.88,.12),sand=material(0xd8b373,.83,.10);
- const metal=material(0x384653,.63,.18),stripe=material(0xf3dc87,.61,.13);
+ const base=material(0x9ca494,.78,.16),sand=material(0xe6c478,.80,.12);
+ const metal=material(0x2c3642,.52,.26),stripe=material(0xffd646,.42,.24);
+ const brickCream=material(0xf4f1e6,.36,.30);
+ const brickRed=material(0xdc2f29,.34,.32);
+ const brickBlue=material(0x1f6fd4,.34,.32);
+ const brickYellow=material(0xffd41f,.32,.34);
+ const brickGrey=material(0x8c96a4,.48,.22);
+ const brickDark=material(0x1e2530,.40,.28);
+ const craneGlass=new T.MeshPhysicalMaterial({color:0x7fd8f5,roughness:.12,metalness:.10,clearcoat:.9,transparent:true,opacity:.72});
+ const bridgeLampBulb=new T.MeshStandardMaterial({color:0xfff4bd,emissive:0xffbe4d,emissiveIntensity:2.3,roughness:.20});
+ const beaconRed=new T.MeshStandardMaterial({color:0xff3038,emissive:0xff1a24,emissiveIntensity:2.2,roughness:.22});
+
+ // Harbor island baseplates with LEGO edge trim
  box((harbor.left+harbor.right)/2,-.95,0,harbor.right-harbor.left,2,harbor.edge*2,sand,root);
  box(1480,-.52,0,495,1,1380,base,root);
+
+ // Studded LEGO harbor quay seawall & mooring bollards along the waterfront
+ for(let z=-696;z<=696;z+=24){
+  if(crossings.some(b=>Math.abs(z-b.z)<b.width*.5+10))continue;
+  const isAlt=Math.abs(Math.round(z/24))%2===0;
+  box(harbor.left+2.5,.85,z,7.2,2.2,23.6,isAlt?brickCream:brickGrey,root);
+  studs(harbor.left+2.5,2.08,z,5.4,21.0,isAlt?brickCream:brickGrey,3.2,root);
+  // Red/white LEGO harbor dock bumpers facing the water
+  box(harbor.left-1.2,.45,z,1.1,1.3,10.0,isAlt?brickRed:brickYellow,root);
+  if(isAlt){
+   cyl(harbor.left+4.2,2.45,z,.75,1.2,brickDark,root);
+   cyl(harbor.left+4.2,3.15,z,1.05,.38,brickYellow,root);
+  }
+ }
+
+ // Sculpted LEGO harbor hills
  const hillGeometry=new T.PlaneGeometry(402,340,56,48);
  hillGeometry.rotateX(-Math.PI*.5);hillGeometry.translate(1536,0,-545);
  const hillPoints=hillGeometry.attributes.position;
@@ -1684,9 +1711,13 @@ function buildHarbor(){
   hillPoints.setY(i,elevation-.22+.26*Math.min(1,elevation));
  }
  hillGeometry.computeVertexNormals();
- const hills=new T.Mesh(hillGeometry,material(0x71905a,.91,.14));hills.receiveShadow=true;root.add(hills);
+ const hills=new T.Mesh(hillGeometry,material(0x52a846,.82,.16));hills.receiveShadow=true;root.add(hills);
+
+ // High-detail LEGO Harbor Bridges (Skyspan Suspension Bridge + Dockside Truss Crossing)
  for(const bridge of crossings){
-  const paint=material(bridge.color,.54,.22);
+  const isSuspension=bridge.height>15;
+  const paint=material(bridge.color,.36,.32);
+  const accent=isSuspension?brickRed:brickYellow;
   const vertices=[],indices=[],segments=94;
   for(let i=0;i<=segments;i++){
    const x=bridgeStart+i*(bridgeEnd-bridgeStart)/segments,y=bridgeHeight(bridge,x)+.095;
@@ -1695,33 +1726,118 @@ function buildHarbor(){
   }
   const deck=new T.BufferGeometry();deck.setAttribute('position',new T.Float32BufferAttribute(vertices,3));deck.setIndex(indices);deck.computeVertexNormals();
   const deckMesh=new T.Mesh(deck,roadMat);deckMesh.receiveShadow=true;root.add(deckMesh);
+
+  // Under-deck structural LEGO girder spine & underside ribs
+  for(let x=bridgeStart;x<bridgeEnd;x+=26){
+   const end=Math.min(bridgeEnd,x+26),y1=bridgeHeight(bridge,x),y2=bridgeHeight(bridge,end);
+   const girder=box((x+end)*.5,(y1+y2)*.5-1.05,bridge.z,Math.hypot(end-x,y2-y1)+.4,1.9,bridge.width-1.2,metal,root);
+   girder.rotation.z=Math.atan2(y2-y1,end-x);
+  }
+
   for(const side of [-1,1]){
    const z=bridge.z+side*(bridge.width*.5-.45);
+   // Layered LEGO safety curb, dual guardrails, brick posts & alternating color blocks
    for(let x=bridgeStart;x<bridgeEnd;x+=12){
     const end=Math.min(bridgeEnd,x+12),y1=bridgeHeight(bridge,x),y2=bridgeHeight(bridge,end);
-    const rail=box((x+end)*.5,(y1+y2)*.5+2.25,z,Math.hypot(end-x,y2-y1)+.08,.45,.58,paint,root);
-    rail.rotation.z=Math.atan2(y2-y1,end-x);
-    box(x,y1+1.22,z,.38,2.1,.42,metal,root);
+    const segLen=Math.hypot(end-x,y2-y1)+.14,ang=Math.atan2(y2-y1,end-x);
+    const curb=box((x+end)*.5,(y1+y2)*.5+.42,z,segLen,.72,1.35,(Math.round(x/12)%2===0)?brickCream:accent,root);
+    curb.rotation.z=ang;
+    const topRail=box((x+end)*.5,(y1+y2)*.5+2.35,z,segLen,.46,.62,paint,root);
+    topRail.rotation.z=ang;
+    const midRail=box((x+end)*.5,(y1+y2)*.5+1.45,z,segLen,.28,.44,brickCream,root);
+    midRail.rotation.z=ang;
+    box(x,y1+1.35,z,.52,2.4,.62,metal,root);
    }
+
+   // Detailed stepped LEGO bridge pylons & underwater masonry piers
    for(const x of [917,1155]){
-    const y=bridgeHeight(bridge,x),height=bridge.height>15?44:12;
-    box(x,(y+height)*.5,z,3.7,y+height,3.4,paint,root);
-    if(side===1)box(x,y+height-1.25,bridge.z,3.5,2.6,bridge.width,paint,root);
+    const y=bridgeHeight(bridge,x),height=isSuspension?48:16;
+    // Underwater stepped LEGO stone pier footing
+    box(x,1.4,z,9.2,4.4,8.0,brickGrey,root);
+    box(x,4.4,z,7.2,2.4,6.4,brickCream,root);
+    // Main LEGO brick pylon column + side buttress
+    const pylon=box(x,(y+height)*.5,z,4.4,y+height,4.2,paint,root);
+    pylon.castShadow=true;pylon.receiveShadow=true;
+    box(x,(y+height)*.42,z+side*2.35,2.6,(y+height)*.84,1.2,brickCream,root);
+    // Crown cap with LEGO studs & red aviation beacon
+    box(x,y+height+1.1,z,5.4,2.2,5.2,accent,root);
+    studs(x,y+height+2.32,z,4.2,4.0,accent,1.8,root);
+    cyl(x,y+height+3.4,z,.45,1.8,metal,root);
+    box(x,y+height+4.5,z,.9,.9,.9,beaconRed,root);
+
+    if(side===1){
+     // Multi-tier overhead LEGO cross-beams & X-truss portal
+     box(x,y+height-2.0,bridge.z,4.2,3.2,bridge.width+2.4,paint,root);
+     box(x,y+height-6.8,bridge.z,3.0,2.1,bridge.width-1.6,brickCream,root);
+     studs(x,y+height-.28,bridge.z,3.2,bridge.width,paint,2.4,root);
+     if(isSuspension){
+      box(x,y+height-15.5,bridge.z,2.6,1.8,bridge.width-2.0,accent,root);
+      // Decorative truss struts between upper portals
+      for(const tz of [-bridge.width*.24,bridge.width*.24]){
+       const brace=box(x,y+height-11.2,bridge.z+tz,1.4,8.6,1.4,brickCream,root);
+       brace.rotation.x=tz>0?.48:-.48;
+      }
+     }
+    }
    }
-   if(bridge.height>15)for(let x=918;x<1155;x+=12){
-    const end=Math.min(1155,x+12),cableY=a=>bridgeHeight(bridge,a)+10+35*((a-1036.5)/119.5)**2;
-    const ya=cableY(x),yb=cableY(end),y=bridgeHeight(bridge,x);
-    const cable=box((x+end)*.5,(ya+yb)*.5,z,Math.hypot(end-x,yb-ya)+.1,.44,.49,paint,root);
-    cable.rotation.z=Math.atan2(yb-ya,end-x);
-    box(x,(ya+y)*.5,z,.20,ya-y,.20,metal,root);
+
+   // Suspension bridge main parabolic cables + backstay anchor cables + vertical hangers
+   if(isSuspension){
+    // Main span catenary (918 -> 1155)
+    for(let x=918;x<1155;x+=12){
+     const end=Math.min(1155,x+12),cableY=a=>bridgeHeight(bridge,a)+10+38*((a-1036.5)/119.5)**2;
+     const ya=cableY(x),yb=cableY(end),y=bridgeHeight(bridge,x);
+     const cable=box((x+end)*.5,(ya+yb)*.5,z,Math.hypot(end-x,yb-ya)+.15,.62,.68,paint,root);
+     cable.rotation.z=Math.atan2(yb-ya,end-x);
+     box(x,(ya+y)*.5,z,.26,ya-y,.26,metal,root);
+    }
+    // Side backstay cables from tower tops down to bridge approaches
+    for(const [xA,xB,topX] of [[bridgeStart+14,917,917],[1155,bridgeEnd-14,1155]]){
+     const topY=bridgeHeight(bridge,topX)+48;
+     const steps=6;
+     for(let si=0;si<steps;si++){
+      const xa=xA+(xB-xA)*(si/steps),xb=xA+(xB-xA)*((si+1)/steps);
+      const tA=topX===917?(xa-xA)/(xB-xA):(xB-xa)/(xB-xA);
+      const tB=topX===917?(xb-xA)/(xB-xA):(xB-xb)/(xB-xA);
+      const ya=bridgeHeight(bridge,xa)+2.5+(topY-bridgeHeight(bridge,xa)-2.5)*(tA**1.45);
+      const yb=bridgeHeight(bridge,xb)+2.5+(topY-bridgeHeight(bridge,xb)-2.5)*(tB**1.45);
+      const stay=box((xa+xb)*.5,(ya+yb)*.5,z,Math.hypot(xb-xa,yb-ya)+.15,.52,.58,paint,root);
+      stay.rotation.z=Math.atan2(yb-ya,xb-xa);
+      box(xa,(ya+bridgeHeight(bridge,xa))*.5,z,.22,Math.max(1,ya-bridgeHeight(bridge,xa)),.22,metal,root);
+     }
+    }
+   }else{
+    // Dockside Crossing: LEGO steel-truss side arches
+    for(let x=920;x<1152;x+=16){
+     const end=Math.min(1152,x+16),archY=a=>bridgeHeight(bridge,a)+3.5+11.5*Math.sin(Math.PI*(a-917)/(1155-917));
+     const ya=archY(x),yb=archY(end),y=bridgeHeight(bridge,x);
+     const topChord=box((x+end)*.5,(ya+yb)*.5,z,Math.hypot(end-x,yb-ya)+.18,.68,.68,paint,root);
+     topChord.rotation.z=Math.atan2(yb-ya,end-x);
+     box(x,(ya+y)*.5,z,.38,Math.max(1,ya-y),.38,brickCream,root);
+    }
    }
   }
+
+  // Glowing LEGO bridge streetlamps & warm light pools along the deck
+  for(let x=bridgeStart+26;x<bridgeEnd-26;x+=52){
+   const y=bridgeHeight(bridge,x);
+   for(const side of [-1,1]){
+    const lz=bridge.z+side*(bridge.width*.5-1.15);
+    cyl(x,y+4.6,lz,.34,8.6,metal,root);
+    box(x,y+9.1,lz,2.1,2.0,2.1,bridgeLampBulb,root);
+    box(x,y+10.35,lz,2.8,.48,2.8,accent,root);
+   }
+  }
+
+  // Center dashed lane stripe
   for(let x=bridgeStart+8;x<bridgeEnd;x+=21){
-   const dash=box(x,bridgeHeight(bridge,x)+.14,bridge.z,8,.07,.40,stripe,root);
+   const dash=box(x,bridgeHeight(bridge,x)+.14,bridge.z,8,.07,.44,stripe,root);
    dash.rotation.z=Math.atan2(bridgeHeight(bridge,x+4)-bridgeHeight(bridge,x-4),8);
   }
  }
- const cargo=[0xb54c45,0x326c8d,0xcaa14e,0x4b8377].map(color=>material(color,.61,.18));
+
+ // Bright LEGO cargo containers (with roof studs!) & harbor buildings
+ const cargo=[0xdc2f29,0x1f6fd4,0xffc824,0x25a866,0xf27d24].map(color=>material(color,.36,.32));
  for(let z=-528;z<=568;z+=78)for(let x=1370;x<=1675;x+=67){
   const depot=z>70&&z<395;
   const w=depot?28:32,d=depot?21:34;
@@ -1736,15 +1852,79 @@ function buildHarbor(){
   const color=cargo[Math.abs(Math.round(x+z))%cargo.length],levels=z%3===0?2:1;
   for(let level=0;level<levels;level++){
    const y=level*7+3.5;
-   box(x,y,z,w,7,d,color,root);
-   for(let rib=-4;rib<=4;rib++)box(x+rib*2.7,y,z-d*.5-.1,.32,6.6,.25,metal,root);
+   const cMat=level===1?cargo[(Math.abs(Math.round(x+z))+2)%cargo.length]:color;
+   const cBox=box(x,y,z,w,7,d,cMat,root);
+   cBox.castShadow=true;cBox.receiveShadow=true;
+   for(let rib=-4;rib<=4;rib++){
+    box(x+rib*2.7,y,z-d*.5-.1,.32,6.6,.25,metal,root);
+    box(x+rib*2.7,y,z+d*.5+.1,.32,6.6,.25,metal,root);
+   }
+   if(level===levels-1)studs(x,levels*7+.14,z,w-3,d-3,cMat,3.6,root);
   }
   lots.push({x,z,w,d});placedHomes.push([x,z]);
  }
- // A grade-separated ramp above the port entrance serves as a landmark.
- for(const x of [1350,1610])box(x,18,330,4,36,5,metal,root);
- box(1480,33,330,265,3.0,4,metal,root);
- box(1588,28,330,24,2.1,13,stripe,root);
+
+ // Giant LEGO Brick Harbor Gantry Cranes along the dockside waterfront
+ for(const [cx,cz,cColor,hangMat] of [
+  [1262,-180,brickYellow,cargo[1]],
+  [1262,190,brickRed,cargo[2]],
+  [1262,560,brickBlue,cargo[0]]
+ ]){
+  for(const dx of [-11,11])for(const dz of [-9,9]){
+   const leg=box(cx+dx,18,cz+dz,2.8,36,2.8,cColor,root);
+   leg.castShadow=true;
+   box(cx+dx,1.4,cz+dz,4.4,2.8,4.4,brickDark,root);
+  }
+  // Cross bracing & operator cab
+  box(cx,14,cz-9,22,1.6,1.6,brickCream,root);
+  box(cx,14,cz+9,22,1.6,1.6,brickCream,root);
+  box(cx,36.8,cz,30,3.2,22,cColor,root);
+  studs(cx,38.55,cz,26,18,cColor,4.0,root);
+  // Operator cabin with blue LEGO glass
+  box(cx-8,31.5,cz,7.5,5.5,7.0,brickCream,root);
+  box(cx-11.8,31.5,cz,.4,3.6,5.6,craneGlass,root);
+  // Overhead cantilever boom reaching over the water with LEGO studs
+  box(cx-14,40.4,cz,54,2.8,6.8,cColor===brickRed?brickYellow:brickRed,root);
+  studs(cx-14,41.95,cz,50,4.8,cColor===brickRed?brickYellow:brickRed,3.6,root);
+  // Trolley + hoist cables + suspended LEGO container
+  box(cx-30,38.4,cz,6.0,1.6,5.2,brickDark,root);
+  for(const sx of [-2.2,2.2])box(cx-30+sx,29,cz,.32,17,.32,metal,root);
+  box(cx-30,19,cz,13,5.8,6.2,hangMat,root);
+  studs(cx-30,22.05,cz,11,4.4,hangMat,2.8,root);
+ }
+
+ // Moored LEGO Harbor Tugboats & Cargo Barges floating beside the quay
+ for(const [bx,bz,hullMat,cabinMat] of [
+  [1185,-50,brickRed,brickCream],
+  [1185,115,brickBlue,brickYellow],
+  [1190,-520,brickYellow,brickCream]
+ ]){
+  const boat=new T.Group();boat.position.set(bx,.2,bz);
+  box(0,1.6,0,12,3.4,28,hullMat,boat);
+  box(0,3.6,0,12.8,.8,29,brickCream,boat);
+  studs(0,4.14,0,10.5,24,brickCream,3.8,boat);
+  box(0,6.6,-4,7.6,5.2,9.5,cabinMat,boat);
+  box(0,7.2,-8.9,6.2,2.4,.4,craneGlass,boat);
+  box(0,9.6,-4,8.2,.9,10.2,hullMat,boat);
+  studs(0,10.18,-4,6.4,8.0,hullMat,2.4,boat);
+  cyl(0,11.6,2.5,1.2,4.6,brickDark,boat);
+  cyl(0,13.4,2.5,1.35,.9,brickYellow,boat);
+  // Mini LEGO cargo bricks on the stern deck
+  box(0,5.4,7.5,7.5,2.8,7.0,cargo[3],boat);
+  studs(0,6.94,7.5,6.0,5.4,cargo[3],2.6,boat);
+  root.add(boat);
+ }
+
+ // Upgraded LEGO Port Entrance Gantry Arch (landmark at z = 330)
+ for(const x of [1350,1610]){
+  box(x,18,330,4.8,36,5.4,brickRed,root);
+  box(x,2.0,330,7.4,4.0,7.8,brickCream,root);
+  studs(x,36.2,330,3.6,4.0,brickRed,2.0,root);
+ }
+ box(1480,33.5,330,268,3.6,5.2,brickYellow,root);
+ studs(1480,35.45,330,260,3.6,brickYellow,6.0,root);
+ box(1588,28,330,26,2.4,14,brickBlue,root);
+ studs(1588,29.35,330,22,11,brickBlue,3.6,root);
  return root;
 }
 const harborRoot=buildHarbor();
@@ -3344,7 +3524,10 @@ const heistCandidates=[
  [paths[0],.18,'BRICK BANK'],
  [paths[0],.62,'DOLLAR BANK'],
  [paths[1],.35,'GREEN VAULT'],
- [coastBoulevard,.48,'COAST BANK']
+ [coastBoulevard,.48,'COAST BANK'],
+ [coastBoulevard,.12,'SKYSPAN BANK'],
+ [harborTrafficRoute,.18,'HARBOR VAULT'],
+ [harborTrafficRoute,.68,'PIER EXCHANGE']
 ];
 const dollarSignCanvas=document.createElement('canvas');dollarSignCanvas.width=128;dollarSignCanvas.height=128;
 const dsCtx=dollarSignCanvas.getContext('2d');
@@ -3371,8 +3554,9 @@ for(const [route,tVal,label] of heistCandidates){
  const hx=p.x+nx*(route.width*.14),hz=p.z+nz*(route.width*.14);
  const bx=p.x+nx*(route.width*.62+10.5),bz=p.z+nz*(route.width*.62+10.5);
 
+ const bankElev=harborElevation(bx,bz),zoneElev=harborElevation(hx,hz);
  const bankModel=new T.Group();
- bankModel.position.set(bx,.08,bz);bankModel.rotation.y=yawBank;
+ bankModel.position.set(bx,bankElev+.08,bz);bankModel.rotation.y=yawBank;
  // Studded LEGO baseplate + main brick body + green roof cap + corner pillars
  box(0,.35,0,16.0,.7,13.6,bankDarkBrickMat,bankModel);
  box(0,4.5,0,14.0,8.0,11.6,bankWallMat,bankModel);
@@ -3404,12 +3588,12 @@ for(const [route,tVal,label] of heistCandidates){
 
  const ringMat=new T.MeshBasicMaterial({color:0x24e870,transparent:true,opacity:.85,side:T.DoubleSide,depthWrite:false});
  const ring=new T.Mesh(new T.RingGeometry(6.2,8.0,32),ringMat);
- ring.rotation.x=-Math.PI/2;ring.position.set(hx,.22,hz);scene.add(ring);
+ ring.rotation.x=-Math.PI/2;ring.position.set(hx,zoneElev+.22,hz);scene.add(ring);
  const beaconMat=new T.MeshBasicMaterial({color:0x2be872,transparent:true,opacity:.24,side:T.DoubleSide,depthWrite:false,blending:T.AdditiveBlending});
  const beacon=new T.Mesh(new T.CylinderGeometry(6.0,6.0,15,20,1,true),beaconMat);
- beacon.position.set(hx,7.7,hz);scene.add(beacon);
+ beacon.position.set(hx,zoneElev+7.7,hz);scene.add(beacon);
  const studSpin=new T.Mesh(new T.BoxGeometry(3.4,3.4,.75),dollarSignMat);
- studSpin.position.set(hx,5.5,hz);scene.add(studSpin);
+ studSpin.position.set(hx,zoneElev+5.5,hz);scene.add(studSpin);
  bankModel.userData.openWorldBank=true;
  heistModels.push(bankModel);
  heistZones.push({x:hx,z:hz,label,ring,beacon,studSpin,progress:0,cooldown:0});
@@ -4467,7 +4651,7 @@ ctx.restore();
 ctx.fillStyle='#e4a65b';placedHomes.forEach(([x,z])=>ctx.fillRect(tx(x)-3,tz(z)-3,6,6));if(gameMode==='f1race'){
  for(const b of f1Bots)if(b.group.visible){ctx.fillStyle='#'+b.body.toString(16).padStart(6,'0');ctx.beginPath();ctx.arc(tx(b.x),tz(b.z),4.8,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.4;ctx.stroke();}
 }else{
-for(const hz of heistZones){if(hz.cooldown<=0){ctx.fillStyle='#ffcf26';ctx.beginPath();ctx.arc(tx(hz.x),tz(hz.z),5.5,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#d81f2a';ctx.lineWidth=1.8;ctx.stroke();}}
+for(const hz of heistZones){const ready=hz.cooldown<=0;ctx.fillStyle=ready?'#24e870':'#4b6b58';ctx.beginPath();ctx.arc(tx(hz.x),tz(hz.z),ready?5.8:4.2,0,Math.PI*2);ctx.fill();ctx.strokeStyle=ready?'#ffda29':'#1b2e22';ctx.lineWidth=1.8;ctx.stroke();}
 }
 const flashRed=Math.floor(performance.now()/180)%2===0;
 for(const c of policePool)if(c.active){ctx.fillStyle=flashRed?'#ff2430':'#2b92ff';ctx.beginPath();ctx.arc(tx(c.x),tz(c.z),4.8,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.stroke();}
