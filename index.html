@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="brickway-release" content="2026.11.25-f1-grand-prix-overhaul"><title>Brickway | Open World Racing</title>
-<link rel="manifest" href="/manifest.webmanifest">
+<script>if(/^https?:$/.test(location.protocol)){var m=document.createElement("link");m.rel="manifest";m.href="/manifest.webmanifest";document.head.appendChild(m);}</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Brickway">
@@ -632,8 +632,6 @@ body.phone-device .mc-pedal-drift-btn{
 <div id="gui-top-bar" aria-label="Quick controls">
  <button type="button" id="mode-switch-btn" title="Switch mode">⇄ MODES</button>
  <button type="button" class="gui-chip-btn" id="view-switch-btn" title="Change camera (C)">VIEW</button>
- <button type="button" class="gui-chip-btn ow-action" id="city-open" title="City jobs and garage (G)">CITY</button>
- <button type="button" class="gui-chip-btn ow-action" id="city-walk" title="Enter or exit car (E)">EXIT CAR</button>
  <button type="button" class="gui-chip-btn" id="gui-mute-btn" title="Toggle Sound">🔊 SOUND</button>
  <button type="button" class="gui-chip-btn" id="gui-fs-btn" title="Toggle fullscreen">⛶ FULLSCREEN</button>
 </div>
@@ -1864,34 +1862,103 @@ function buildHarbor(){
   lots.push({x,z,w,d});placedHomes.push([x,z]);
  }
 
- // Giant LEGO Brick Harbor Gantry Cranes along the dockside waterfront
- for(const [cx,cz,cColor,hangMat] of [
-  [1262,-180,brickYellow,cargo[1]],
-  [1262,190,brickRed,cargo[2]],
-  [1262,560,brickBlue,cargo[0]]
- ]){
-  for(const dx of [-11,11])for(const dz of [-9,9]){
-   const leg=box(cx+dx,18,cz+dz,2.8,36,2.8,cColor,root);
-   leg.castShadow=true;
-   box(cx+dx,1.4,cz+dz,4.4,2.8,4.4,brickDark,root);
+ // LEGO Red Harbor Gantry Crane (matching the red gantry crane, angled glass cab, diagonal struts & container lift)
+ const craneCrateMat=material(0x9c5a28,.40,.26);
+ const craneTealMat=material(0x13989e,.36,.30);
+ const craneHazardWhite=material(0xf6f7fa,.32,.25);
+ const craneRailTrack=material(0x525c68,.55,.22);
+ const craneHookMetal=material(0xc8d0da,.65,.25);
+
+ function buildPhotoRedGantryCrane(cx,cz,rotY=0,liftedMat=craneCrateMat){
+  const g=new T.Group();
+  g.position.set(cx,.08,cz);
+  g.rotation.y=rotY;
+
+  // Dual rail tracks along the dockside / quay
+  for(const rx of [-11.5,11.5]){
+   box(rx,.22,0,4.2,.44,44,craneRailTrack,g);
+   box(rx,.52,0,1.4,.22,44,metal,g);
   }
-  // Cross bracing & operator cab
-  box(cx,14,cz-9,22,1.6,1.6,brickCream,root);
-  box(cx,14,cz+9,22,1.6,1.6,brickCream,root);
-  box(cx,36.8,cz,30,3.2,22,cColor,root);
-  studs(cx,38.55,cz,26,18,cColor,4.0,root);
-  // Operator cabin with blue LEGO glass
-  box(cx-8,31.5,cz,7.5,5.5,7.0,brickCream,root);
-  box(cx-11.8,31.5,cz,.4,3.6,5.6,craneGlass,root);
-  // Overhead cantilever boom reaching over the water with LEGO studs
-  box(cx-14,40.4,cz,54,2.8,6.8,cColor===brickRed?brickYellow:brickRed,root);
-  studs(cx-14,41.95,cz,50,4.8,cColor===brickRed?brickYellow:brickRed,3.6,root);
-  // Trolley + hoist cables + suspended LEGO container
-  box(cx-30,38.4,cz,6.0,1.6,5.2,brickDark,root);
-  for(const sx of [-2.2,2.2])box(cx-30+sx,29,cz,.32,17,.32,metal,root);
-  box(cx-30,19,cz,13,5.8,6.2,hangMat,root);
-  studs(cx-30,22.05,cz,11,4.4,hangMat,2.8,root);
+
+  // Four main red LEGO portal legs + base footpads + white/red hazard stripes
+  for(const lx of [-11.5,11.5])for(const lz of [-8.2,8.2]){
+   const leg=box(lx,17.5,lz,3.1,34,3.1,brickRed,g);
+   leg.castShadow=true;leg.receiveShadow=true;
+   box(lx,1.0,lz,4.8,2.0,4.8,brickDark,g);
+   // Hazard chevron blocks near lower leg section
+   for(let si=-1;si<=1;si++){
+    const st=box(lx,7.5+si*1.35,lz+(lz>0?1.65:-1.65),2.4,.55,.22,craneHazardWhite,g);
+    st.rotation.z=(lz>0?1:-1)*.42;
+   }
+  }
+
+  // Lower & upper cross-beams and connecting tie-bars between the two portals
+  box(0,15.5,-8.2,20.2,1.6,1.6,brickRed,g);
+  box(0,15.5,8.2,20.2,1.6,1.6,brickRed,g);
+  box(0,33.5,-8.2,21.5,2.2,2.2,brickRed,g);
+  box(0,33.5,8.2,21.5,2.2,2.2,brickRed,g);
+  for(const ty of [34.4,37.8]){
+   box(0,ty,-8.2,1.2,1.2,17.6,brickRed,g);
+   box(0,ty,8.2,1.2,1.2,17.6,brickRed,g);
+   box(0,ty,0,21.5,1.2,1.2,brickRed,g);
+  }
+  // Vertical red mast extensions above the two portal frames
+  for(const lx of [-11.5,11.5]){
+   box(lx,36.4,-8.2,2.2,6.2,2.2,brickRed,g);
+   box(lx,36.4,8.2,2.2,6.2,2.2,brickRed,g);
+  }
+
+  // Main horizontal red bridge girder extending out over the harbor & quay
+  box(0,31.2,0,28.5,2.6,19.4,brickRed,g);
+  studs(0,32.62,0,26.0,17.2,brickRed,3.6,g);
+
+  // Diagonal tension/compression struts from tower tops out to bridge ends
+  for(const side of [-1,1]){
+   for(const lz of [-8.2,8.2]){
+    const xTop=side*11.5,yTop=38.6;
+    const xBot=side*13.6,yBot=31.6;
+    const dx=xBot-xTop,dy=yBot-yTop,len=Math.hypot(dx,dy);
+    const strut=box((xTop+xBot)*.5,(yTop+yBot)*.5,lz,.95,len,.95,brickRed,g);
+    strut.rotation.z=Math.atan2(dy,dx)-Math.PI/2;
+   }
+  }
+
+  // Angled glass operator cabin mounted on the left/harbor side of the upper girder
+  const cab=new T.Group();
+  cab.position.set(-8.8,35.6,-4.2);
+  box(0,-2.4,0,6.8,2.2,6.8,brickRed,cab);
+  box(0,.5,0,7.4,3.8,7.4,craneGlass,cab);
+  const cabRoof=box(0,2.8,0,8.2,1.1,8.2,brickRed,cab);
+  cabRoof.rotation.z=.14;
+  studs(0,3.45,0,6.4,6.4,brickRed,2.2,cab);
+  g.add(cab);
+
+  // Hoist trolley, chain/cable links & suspended cargo container below
+  box(-3.5,29.6,0,5.2,1.4,5.2,brickDark,g);
+  for(let hy=0;hy<8;hy++){
+   box(-3.5,28.4-hy*1.35,0,.45,.95,.45,hy%2===0?craneHookMetal:brickDark,g);
+  }
+  box(-3.5,16.8,0,8.8,5.4,6.4,liftedMat,g);
+  studs(-3.5,19.62,0,7.2,4.8,liftedMat,2.4,g);
+
+  // Teal LEGO cargo wagons/containers alongside the crane track
+  for(const wz of [-14.5,14.5]){
+   const wagon=new T.Group();
+   wagon.position.set(11.5,1.4,wz);
+   box(0,1.2,0,7.4,2.4,12.2,craneTealMat,wagon);
+   box(0,2.6,0,7.8,.45,12.6,brickDark,wagon);
+   studs(0,2.95,0,6.0,10.5,craneTealMat,2.4,wagon);
+   g.add(wagon);
+  }
+
+  root.add(g);
+  return g;
  }
+
+ // Place the red LEGO gantry crane prominently in the harbor district
+ buildPhotoRedGantryCrane(1262,-180,0,craneCrateMat);
+ buildPhotoRedGantryCrane(1262,190,Math.PI,cargo[2]);
+ buildPhotoRedGantryCrane(1545,232,Math.PI/2,craneCrateMat);
 
  // Moored LEGO Harbor Tugboats & Cargo Barges floating beside the quay
  for(const [bx,bz,hullMat,cabinMat] of [
@@ -6510,7 +6577,8 @@ function openCity(){
  if(wanted||(onFoot&&!onFootAtGarage)||Math.abs(speed)>4){show('PARK TO USE THE CITY MENU. ON FOOT, STAY NEAR YOUR CAR IN A SAFEHOUSE.');return;}
  drawCityPanel();keys={};resetJoystick();clearPhoneDrift();cityPanel.showModal();
 }
-document.getElementById('city-open').addEventListener('click',openCity);
+const cityOpenBtn=document.getElementById('city-open');
+if(cityOpenBtn)cityOpenBtn.addEventListener('click',openCity);
 document.getElementById('city-close').addEventListener('click',()=>cityPanel.close());
 cityPanel.addEventListener('close',()=>{keys={};});
 cityPanel.addEventListener('keydown',event=>event.stopPropagation());
@@ -6528,7 +6596,8 @@ const walkMotion=new T.Vector3(),walkLook=new T.Vector3();
 let walkHeading=0;
 function leaveWalk(){
  onFoot=false;walker.visible=false;
- document.getElementById('city-walk').textContent='EXIT CAR';
+ const walkBtn=document.getElementById('city-walk');
+ if(walkBtn)walkBtn.textContent='EXIT CAR';
 }
 function toggleWalk(){
  if(!canWorkCity()||cityPanel.open)return;
@@ -6538,19 +6607,16 @@ function toggleWalk(){
   const spot=confineWorld(pos.x+Math.cos(yaw)*7,pos.z-Math.sin(yaw)*7,pos.x,pos.z,1);
   walker.position.set(spot.x,spot.y,spot.z);walker.rotation.y=yaw;walker.visible=true;
   speed=velocityX=velocityZ=0;
-  document.getElementById('city-walk').textContent='ENTER CAR';
+  const walkBtn=document.getElementById('city-walk');
+  if(walkBtn)walkBtn.textContent='ENTER CAR';
   show('ON FOOT · USE THE JOYSTICK OR WASD · E TO RETURN TO CAR');
  }else{
   if(walker.position.distanceTo(pos)>12){show('MOVE CLOSER TO YOUR CAR');return;}
   leaveWalk();show('BACK IN THE DRIVER’S SEAT');
  }
 }
-document.getElementById('city-walk').addEventListener('click',toggleWalk);
-window.addEventListener('keydown',e=>{
- if(e.repeat||cityPanel.open)return;
- if(e.code==='KeyG')openCity();
- if(e.code==='KeyE')toggleWalk();
-});
+const cityWalkBtn=document.getElementById('city-walk');
+if(cityWalkBtn)cityWalkBtn.addEventListener('click',toggleWalk);
 function updateWalker(dt,now){
  const forward=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0);
  const side=Math.abs(joySteerValue)>.09?-joySteerValue:(keys.KeyA||keys.ArrowRight?1:0)-(keys.KeyD||keys.ArrowLeft?1:0);

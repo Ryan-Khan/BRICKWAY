@@ -15,12 +15,10 @@ python3 -m http.server 4173
 | Shift | Boost in Open World or deploy ERS in Grand Prix |
 | C or View | Cycle chase, hood, high chase and cockpit |
 | P or Request Pit | Queue or cancel an assisted pit stop |
-| G or City | Open the garage and job board when parked and clear of pursuit |
-| E or Exit Car | Walk or return to the driver's seat when near the parked car |
 | Escape | Settings |
 | R | Reset to the mode's starting location |
 
-Landscape touch controls include steer, throttle, brake and quick buttons for the cockpit, City menu and walking. A standard gamepad uses left stick, right and left triggers, and the bottom face button for boost. The optional wheel preset expects steering on axis 0 with independent inverted throttle and brake on axes 1 and 2. Hardware with another mapping needs its driver or browser to expose those axes. Reduced camera motion is the default. Settings also include optional race traction assistance.
+Landscape touch controls include steer, throttle, brake and a quick button for the cockpit. A standard gamepad uses left stick, right and left triggers, and the bottom face button for boost. The optional wheel preset expects steering on axis 0 with independent inverted throttle and brake on axes 1 and 2. Hardware with another mapping needs its driver or browser to expose those axes. Reduced camera motion is the default. Settings also include optional race traction assistance.
 
 ## Open World
 
@@ -28,7 +26,7 @@ Follow the east coast to **Skyspan Bridge** or **Dockside Crossing**. The harbor
 
 **Skyspan Courier** rewards fast deliveries. **Container Getaway** triggers a three-star pursuit and accepts either crossing before requiring the driver to lose the police. **Harbor Sprint** is a timed route through the port and back. A timer starts when you reach the first checkpoint. The garage saves owned and equipped cars, the stud balance and job best times together. Existing balances are imported the first time you play.
 
-Ground police investigate last known positions, use the crossings to reach the other shore, and send some units ahead. Staying out of sight gives the escape meter time to fill. Open-sided covered garages can break helicopter sight. Cars can be swapped from the City menu, including on foot inside a covered garage when the parked car is nearby. Exit the car when there is no active pursuit or job.
+Ground police investigate last known positions, use the crossings to reach the other shore, and send some units ahead. Staying out of sight gives the escape meter time to fill. Open-sided covered garages can break helicopter sight. The City and Exit Car buttons and their keyboard shortcuts are removed in this build. Existing garage and job data are still stored.
 
 ## Grand Prix
 

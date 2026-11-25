@@ -201,19 +201,21 @@ function exerciseCity() {
   reset();
   check(!copCanSee({x:-80,z:0},{x:0,z:0},true),'covered player breaks visual contact');
   bankedStuds=1200;
-  document.getElementById('city-open').click();
+  check(!document.getElementById('city-open')&&!document.getElementById('city-walk'),'City and walking quick controls are hidden');
+  // Exercise the retained garage and walking logic directly.
+  openCity();
   check(cityPanel.open,'garage opens when parked');
   [...document.querySelectorAll('#city-garage button')].find(button=>button.textContent==='950 STUDS').click();
   check(streetCarId==='v12'&&ownedStreetCars.has('v12')&&bankedStuds===250,'garage buys and equips a distinct car');
   const save=JSON.parse(localStorage.getItem('bw-city-v1'));
   check(save.selected==='v12'&&save.balance===250,'garage purchase is saved atomically');
   document.getElementById('city-close').click();
-  document.getElementById('city-walk').click();
+  toggleWalk();
   check(onFoot&&walker.visible,'exit the car');
   const start=walker.position.clone();
   keys.KeyW=true;updateWalker(.05,prev+50);keys={};
   check(walker.position.distanceTo(start)>.1,'walking moves the avatar');
-  document.getElementById('city-walk').click();
+  toggleWalk();
   check(!onFoot&&!walker.visible,'get back into car');
   settingsControls.camera.value='3';settingsControls.camera.dispatchEvent(new Event('input'));
   frame(prev+40);
