@@ -59,7 +59,7 @@ function exercise(mobile) {
     check(pitOffset(GP_PIT_BOX)>F1Core.widthAt(GP_PIT_BOX)/2+5.5,'pit separation');
     check(pitOffset(GP_PIT_ENTRY)===0&&pitOffset(GP_PIT_EXIT)===0,'pit merges');
     const boxEdges=gpBarrierEdges(GP_PIT_BOX);
-    check(boxEdges.divider!==null&&boxEdges.pitInner>boxEdges.divider&&boxEdges.positive>pitOffset(GP_PIT_BOX),'pit separator and outer wall');
+    check(boxEdges.divider===null&&boxEdges.positive>pitOffset(GP_PIT_BOX)+GP_PIT_HALF_WIDTH,'widened race boundary encloses the pit lane');
     check(gpBarrierEdges(GP_PIT_ENTRY).divider===null&&gpBarrierEdges(GP_PIT_EXIT).divider===null,'open merges');
     check(gpFootprint(Math.PI/4,0)>gpFootprint(0,0)+3,'angled footprint includes the nose and tail');
     const u=.055,t=gpCurve.getTangentAt(u),edge=gpBarrierEdges(u).positive,contact=gpPitPoint(u,edge-2);
@@ -71,8 +71,10 @@ function exercise(mobile) {
     gpWallU=GP_PIT_ENTRY;
     const entry=gpPitPoint(gpWallU,0);
     pos.set(entry.x,0,entry.z);yaw=Math.atan2(entry.t.x,entry.t.z);speed=95;velocityX=95;
-    gpRequestPit();gpRequestPit();check(gpPitPhase==='idle','cancel');
-    gpRequestPit();document.getElementById('gp-next').value='hard';
+    gpRequestPit();check(gpPitPhase==='idle','fresh tyres lock pit requests');
+    gpTyre.wear=.71;
+    gpRequestPit();check(gpPitPhase==='queued','pit request unlocks below 30% health');gpRequestPit();check(gpPitPhase==='idle','cancel');
+    gpRequestPit();document.getElementById('tyre-next-select').value='hard';
     let stationary=0,transit=0,largestYawStep=0;
     do {
       if(gpPitPhase==='service')stationary+=.025;
@@ -197,7 +199,7 @@ function exerciseCity() {
   check(isCovered(safehouses[0].x,safehouses[0].z),'safehouse has cover');
   check(harborElevation(1536,-545)>25&&harborElevation(1310,-545)===0,'switchbacks rise into and descend from the hills');
   pos.set(1645,0,-350);updateHarborTraffic(.05,false);
-  check(harborTraffic.some(car=>car.group.visible),'traffic runs in the harbor');
+  check(harborTraffic.length===0,'harbor AI traffic is disabled');
   reset();
   check(!copCanSee({x:-80,z:0},{x:0,z:0},true),'covered player breaks visual contact');
   bankedStuds=1200;

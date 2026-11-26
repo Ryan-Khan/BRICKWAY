@@ -14,7 +14,7 @@ python3 -m http.server 4173
 | Space | Drift in Open World or brake in Grand Prix |
 | Shift | Boost in Open World or deploy ERS in Grand Prix |
 | C or View | Cycle chase, hood, high chase and cockpit |
-| P or Request Pit | Queue or cancel an assisted pit stop |
+| P or Pit Stop | Queue or cancel an assisted pit stop below 30% tyre health |
 | Escape | Settings |
 | R | Reset to the mode's starting location |
 
@@ -22,7 +22,7 @@ Landscape touch controls include steer, throttle, brake and a quick button for t
 
 ## Open World
 
-Follow the east coast to **Skyspan Bridge** or **Dockside Crossing**. The harbor has an industrial port, hill roads, alternate routes and traffic on its outer loop. The bridge profiles drive the road mesh, vehicle elevation and rail boundaries. The road and hill use the same elevation function. The minimap outlines the new roads and marks active job destinations.
+Follow the east coast to **Skyspan Bridge** or **Dockside Crossing**. The harbor has an industrial port, hill roads, and alternate routes around the harbor. The bridge profiles drive the road mesh, vehicle elevation and rail boundaries. The road and hill use the same elevation function. The minimap outlines the new roads and marks active job destinations.
 
 **Skyspan Courier** rewards fast deliveries. **Container Getaway** triggers a three-star pursuit and accepts either crossing before requiring the driver to lose the police. **Harbor Sprint** is a timed route through the port and back. A timer starts when you reach the first checkpoint. The garage saves owned and equipped cars, the stud balance and job best times together. Existing balances are imported the first time you play.
 

@@ -25,6 +25,32 @@ html.bw-mobile-fit #ui,html.bw-mobile-fit #mobile-controls,html.bw-mobile-fit #s
 html.bw-mobile-fit .settings-panel,html.bw-mobile-fit .ss-card,html.bw-mobile-fit .f1-podium-box,html.bw-mobile-fit .fs-card{max-height:100%!important;overflow-y:auto;touch-action:pan-y}
 html.bw-mobile-fit .mc-pedal-pad,html.bw-mobile-fit .mc-action-pad{bottom:calc(env(safe-area-inset-bottom,0px) + 16px)!important}
 html.bw-mobile-fit .mc-joystick-pad{bottom:calc(env(safe-area-inset-bottom,0px) + 34px)!important}
+
+#tyre-logo-widget{position:fixed;right:37px;bottom:284px;z-index:20;pointer-events:auto;display:none;flex-direction:column;align-items:center;gap:6px;background:radial-gradient(circle at 50% 0%,rgba(42,56,84,.96),rgba(9,13,24,.98));border:2px solid rgba(255,255,255,.26);border-radius:20px;padding:10px 14px;box-shadow:0 14px 32px rgba(0,0,0,.68),0 0 24px rgba(56,232,255,.10);backdrop-filter:blur(12px);min-width:168px}
+body.mode-f1-race #tyre-logo-widget{display:flex}
+body.hide-speedometer #tyre-logo-widget{bottom:32px}
+#tyre-logo-canvas{width:84px;height:84px;border-radius:50%;display:block;filter:drop-shadow(0 6px 14px rgba(0,0,0,.65))}
+#tyre-logo-info{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;line-height:1.15;width:100%}
+#tyre-logo-compound{font-family:var(--bw-display);font-size:11px;letter-spacing:.9px;color:#ffda29;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+#tyre-logo-health{font-family:var(--bw-display);font-size:16px;color:#35e379;text-shadow:0 0 12px rgba(53,227,121,.35)}
+#tyre-logo-health.warn{color:#ffda29;text-shadow:0 0 12px rgba(255,218,41,.35)}
+#tyre-logo-health.crit{color:#ff4757;text-shadow:0 0 14px rgba(255,71,87,.55)}
+#tyre-wear-bar-wrap{width:100%;height:6px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden;margin:2px 0;border:1px solid rgba(255,255,255,.08)}
+#tyre-wear-bar-fill{height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#35e379,#7cf257);transition:width .15s ease,background .2s ease}
+#tyre-logo-sub{font-size:9px;font-weight:900;color:#b8cae2;letter-spacing:.5px;text-transform:uppercase}
+#tyre-pit-controls{display:none;flex-direction:column;align-items:center;gap:5px;margin-top:4px;padding-top:6px;border-top:1px solid rgba(255,255,255,.16);width:100%}
+#tyre-pit-controls.unlocked{display:flex}
+#tyre-pit-controls select{background:#131d33;color:#fff;border:1px solid rgba(255,218,41,.65);border-radius:8px;padding:4px 7px;font-size:10.5px;font-weight:800;width:100%;cursor:pointer}
+#tyre-pit-controls button{width:100%;border:none;border-radius:9px;padding:6px 10px;font-family:var(--bw-display);font-size:10.5px;letter-spacing:.6px;background:linear-gradient(180deg,#ffe14d,#f0a800);color:#131722;cursor:pointer;box-shadow:0 3px 0 #9a6d00}
+#tyre-pit-controls button:disabled{opacity:.45;cursor:default}
+@media(max-width:920px),(max-height:460px){
+ #tyre-logo-widget{right:max(10px,env(safe-area-inset-right));bottom:max(166px,calc(env(safe-area-inset-bottom) + 158px));min-width:122px;padding:7px 9px;border-radius:14px}
+ #tyre-logo-canvas{width:54px;height:54px}
+ #tyre-logo-compound{font-size:9px}
+ #tyre-logo-health{font-size:12px}
+ #tyre-logo-sub{font-size:7.5px}
+}
+
 </style><script>
 (function(){var mobile=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)||matchMedia('(pointer:coarse)').matches,root=document.documentElement,probe=null,largeProbe=null,last='',queued=false;
 function makeProbe(unit){var p=document.createElement('div');p.setAttribute('aria-hidden','true');p.style.cssText='position:fixed;left:0;top:0;width:100vw;height:'+unit+';visibility:hidden;pointer-events:none;z-index:-1;contain:strict;';root.appendChild(p);return p;}
@@ -638,7 +664,7 @@ body.phone-device .mc-pedal-drift-btn{
 <div id="f1-race-hud">
  <div class="f1-pill pos" id="f1-pos">POS: 1st / 6</div>
  <div class="f1-pill lap" id="f1-lap">LAP: 1 / 20</div>
- <div class="f1-pill" id="f1-timer">00:00.0</div><div id="f1-telemetry">S1 · BEST -- · GAP --</div><div id="f1-strategy"><span id="gp-tyres">MEDIUM · TYRE LIFE 100%</span> · <span id="gp-drs">DRS OFF</span> · <select id="gp-next" aria-label="Next pit compound"><option value="soft">Box soft</option><option selected value="medium">Box medium</option><option value="hard">Box hard</option><option value="intermediate">Box intermediate</option><option value="wet">Box wet</option></select> <button id="gp-pit" type="button" disabled>PIT (P)</button></div>
+ <div class="f1-pill" id="f1-timer">00:00.0</div><div id="f1-telemetry">S1 · BEST -- · GAP --</div><div id="f1-strategy" style="display:none"><span id="gp-tyres"></span><span id="gp-drs">DRS OFF</span><span id="gp-pit-gate-note"></span><select id="gp-next" aria-label="Next pit compound"><option value="soft">Box soft</option><option selected value="medium">Box medium</option><option value="hard">Box hard</option><option value="intermediate">Box intermediate</option><option value="wet">Box wet</option></select><button id="gp-pit" type="button" disabled>PIT (P)</button></div>
 </div>
 <div id="gp-pit-status" role="status" hidden></div><div id="f1-live-ranks" aria-label="Live Race Ranks">
  <div class="f1-rk-title"><span>🏁 LIVE RANKS</span><span id="f1-rk-diff">PRO</span></div>
@@ -755,7 +781,26 @@ body.phone-device .mc-pedal-drift-btn{
  <div class="settings-actions"><button id="settings-defaults">↺ RESTORE DEFAULTS</button><button id="settings-done">✓ SAVE & RESUME</button></div>
  </div>
 </div>
-<button id="audio-toggle" title="Enable audio or press M">🔊 SOUND · PRESS ANY KEY</button><div id="loading">BUILDING THE LEGO COAST...<small>CUSTOM SUPERCAR • ENGINE AUDIO • 6 SPEED AUTO</small></div><div id="ui"><div id="header"><div class="brand"><h1>BRICKWAY<span>🏁</span></h1><div>LEGO RACER</div></div><div id="gauge"><svg id="gauge-svg" viewBox="0 0 250 250"><defs><linearGradient id="speedGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2ee8ff"/><stop offset="55%" stop-color="#ffda29"/><stop offset="100%" stop-color="#ff2b36"/></linearGradient></defs><circle cx="125" cy="125" r="102" fill="none" stroke="#ffffff24" stroke-width="14" stroke-linecap="round" stroke-dasharray="427.26 640.88" transform="rotate(150 125 125)"/><circle id="gauge-arc" cx="125" cy="125" r="102" fill="none" stroke="url(#speedGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 640.88" transform="rotate(150 125 125)"/><g id="gauge-dial-ticks" stroke="#ffffffaa" stroke-width="2" fill="#e6edf5" font-size="10.5" font-weight="900" text-anchor="middle" dominant-baseline="central"></g><g id="gauge-needle" style="transform:rotate(-120deg)"><polygon points="122,125 128,125 126,36 124,36" fill="#ff2731"/><circle cx="125" cy="125" r="8.5" fill="#181c24" stroke="#ff2731" stroke-width="3"/></g></svg><div id="speed">0</div><div class="kmh">km/h</div><div class="gear-box"><b id="gear">1</b><small>AUTO</small></div><div class="gauge-meta"><span id="race">FREE ROAM</span> · <span id="police">OFF</span></div></div></div><canvas id="map" width="250" height="250"></canvas><div id="wanted-hud"><div id="wanted-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div><div id="loot-box">💵 $<span id="studs-banked">0</span><span id="studs-unbanked" class="unbanked"></span></div><div id="health-box"><div id="health-top"><span>❤️ ARMOR</span><span id="health-num">100</span></div><div id="health-track"><div id="health-fill"></div></div></div></div><div id="low-hp-popup" role="alert"><div class="lp-text">⚠️ ARMOR LOW! Repair car?<small id="lp-sub">Cost: 🪙 150 · Restores 100% Armor</small></div><button id="low-hp-btn">🔧 REPAIR</button><button id="low-hp-close">✕</button></div><div id="status-bar-wrap"><div id="status-bar-label">HEIST</div><div id="status-bar-track"><div id="status-bar-fill"></div></div></div><div id="arcade-hud"><div class="ah-pill" id="drift-pill">🔥 DRIFT: <span id="drift-pts">0</span><span class="mult" id="drift-mult">x1</span></div><div class="ah-pill gold" id="hunt-pill">🏆 GOLD STUDS: <span id="hunt-count">0</span>/25</div><div class="ah-pill ta" id="ta-pill" style="display:none">⏱️ <span id="ta-time">45.0s</span></div><div class="ah-pill chase" id="chase-pill" style="display:none">🚨 CHASE: <span id="chase-time">0.0s</span></div></div><div id="ta-board"></div><div id="message"></div><div id="drift-bottom-note">Drift: hold W/↑ + SPACE while steering (A/D or ←/→)</div><div id="footer"><div class="controls"><div><kbd>W</kbd><kbd>↑</kbd> Accelerate</div><div><kbd>S</kbd><kbd>↓</kbd> Brake / Reverse</div><div><kbd>A</kbd><kbd>→</kbd> Steer Right</div><div><kbd>D</kbd><kbd>←</kbd> Steer Left</div><div><kbd>SPACE</kbd> Drift / Handbrake</div><div><kbd>SHIFT</kbd> Boost</div><div class="extras">C Camera · R Reset · M Sound · Enter Race</div></div></div></div>
+<button id="audio-toggle" title="Enable audio or press M">🔊 SOUND · PRESS ANY KEY</button><div id="loading">BUILDING THE LEGO COAST...<small>CUSTOM SUPERCAR • ENGINE AUDIO • 6 SPEED AUTO</small></div><div id="ui"><div id="header"><div class="brand"><h1>BRICKWAY<span>🏁</span></h1><div>LEGO RACER</div></div><div id="tyre-logo-widget" aria-label="Tyre health indicator">
+ <canvas id="tyre-logo-canvas" width="168" height="168"></canvas>
+ <div id="tyre-logo-info">
+  <div id="tyre-logo-compound">MEDIUM TYRE</div>
+  <div id="tyre-logo-health">100%</div>
+  <div id="tyre-wear-bar-wrap"><div id="tyre-wear-bar-fill"></div></div>
+  <div id="tyre-logo-sub">GROOVED · PIT &lt;30%</div>
+ </div>
+ <div id="tyre-pit-controls">
+  <select id="tyre-next-select" aria-label="Next pit compound">
+   <option value="soft">Box Soft</option>
+   <option value="medium" selected>Box Medium</option>
+   <option value="hard">Box Hard</option>
+   <option value="intermediate">Box Inter</option>
+   <option value="wet">Box Wet</option>
+  </select>
+  <button id="tyre-pit-btn" type="button">PIT STOP (P)</button>
+ </div>
+</div>
+<div id="gauge"><svg id="gauge-svg" viewBox="0 0 250 250"><defs><linearGradient id="speedGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2ee8ff"/><stop offset="55%" stop-color="#ffda29"/><stop offset="100%" stop-color="#ff2b36"/></linearGradient></defs><circle cx="125" cy="125" r="102" fill="none" stroke="#ffffff24" stroke-width="14" stroke-linecap="round" stroke-dasharray="427.26 640.88" transform="rotate(150 125 125)"/><circle id="gauge-arc" cx="125" cy="125" r="102" fill="none" stroke="url(#speedGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 640.88" transform="rotate(150 125 125)"/><g id="gauge-dial-ticks" stroke="#ffffffaa" stroke-width="2" fill="#e6edf5" font-size="10.5" font-weight="900" text-anchor="middle" dominant-baseline="central"></g><g id="gauge-needle" style="transform:rotate(-120deg)"><polygon points="122,125 128,125 126,36 124,36" fill="#ff2731"/><circle cx="125" cy="125" r="8.5" fill="#181c24" stroke="#ff2731" stroke-width="3"/></g></svg><div id="speed">0</div><div class="kmh">km/h</div><div class="gear-box"><b id="gear">1</b><small>AUTO</small></div><div class="gauge-meta"><span id="race">FREE ROAM</span> · <span id="police">OFF</span></div></div></div><canvas id="map" width="250" height="250"></canvas><div id="wanted-hud"><div id="wanted-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div><div id="loot-box">💵 $<span id="studs-banked">0</span><span id="studs-unbanked" class="unbanked"></span></div><div id="health-box"><div id="health-top"><span>❤️ ARMOR</span><span id="health-num">100</span></div><div id="health-track"><div id="health-fill"></div></div></div></div><div id="low-hp-popup" role="alert"><div class="lp-text">⚠️ ARMOR LOW! Repair car?<small id="lp-sub">Cost: 🪙 150 · Restores 100% Armor</small></div><button id="low-hp-btn">🔧 REPAIR</button><button id="low-hp-close">✕</button></div><div id="status-bar-wrap"><div id="status-bar-label">HEIST</div><div id="status-bar-track"><div id="status-bar-fill"></div></div></div><div id="arcade-hud"><div class="ah-pill" id="drift-pill">🔥 DRIFT: <span id="drift-pts">0</span><span class="mult" id="drift-mult">x1</span></div><div class="ah-pill gold" id="hunt-pill">🏆 GOLD STUDS: <span id="hunt-count">0</span>/25</div><div class="ah-pill ta" id="ta-pill" style="display:none">⏱️ <span id="ta-time">45.0s</span></div><div class="ah-pill chase" id="chase-pill" style="display:none">🚨 CHASE: <span id="chase-time">0.0s</span></div></div><div id="ta-board"></div><div id="message"></div><div id="drift-bottom-note">Drift: hold W/↑ + SPACE while steering (A/D or ←/→)</div><div id="footer"><div class="controls"><div><kbd>W</kbd><kbd>↑</kbd> Accelerate</div><div><kbd>S</kbd><kbd>↓</kbd> Brake / Reverse</div><div><kbd>A</kbd><kbd>→</kbd> Steer Right</div><div><kbd>D</kbd><kbd>←</kbd> Steer Left</div><div><kbd>SPACE</kbd> Drift / Handbrake</div><div><kbd>SHIFT</kbd> Boost</div><div class="extras">C Camera · R Reset · M Sound · Enter Race</div></div></div></div>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script><script>
 // Dismiss the loading overlay as soon as the script tag executes so it never gets stuck
 (function(){
@@ -1047,7 +1092,7 @@ function road(points,width,closed=false){
 // Both the bridges' render meshes and their driving surfaces use these profiles.
 const crossings=[
  {name:'Skyspan Bridge',z:-350,width:48,height:25,color:0xe7af48},
- {name:'Dockside Crossing',z:440,width:36,height:12,color:0x549b9a}
+ {name:'Dockside Crossing',z:440,width:48,height:25,color:0xe7af48}
 ];
 const harbor={left:1225,right:1745,edge:718};
 const bridgeStart=802,bridgeEnd=1270;
@@ -1176,10 +1221,10 @@ function rebuildRoadNetwork(mode){
  }
  const vertices=[],indices=[];
  if(mode==='f1race'){
-  const count=720;
+  const count=900;
   for(let i=0;i<=count;i++){
    const u=i/count,center=race.curve.getPointAt(u),t=race.curve.getTangentAt(u),half=F1Core.widthAt(u)/2;
-   for(const side of [-1,1])vertices.push(center.x+t.z*half*side,.085,center.z-t.x*half*side);
+   for(const side of [-1,1])vertices.push(center.x+t.z*half*side,.09,center.z-t.x*half*side);
    if(i<count){const k=2*i;indices.push(k,k+1,k+2,k+1,k+3,k+2);}
   }
  }else for(let j=0;j<NZ;j++)for(let i=0;i<NX;i++)if(occupied(i,j)){
@@ -1191,24 +1236,51 @@ function rebuildRoadNetwork(mode){
  const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(vertices,3));geo.setIndex(indices);geo.computeVertexNormals();
  const surface=new T.Mesh(geo,roadMat);surface.receiveShadow=true;worldDynamicGroup.add(surface);
 
- const rwRed=[],rwWhite=[];
- for(let j=0;j<NZ;j++)for(let i=0;i<NX;i++)if(occupied(i,j)){
-  const x=MINX+i*CELL,z=MINZ+j*CELL;
-  if(!occupied(i,j-1))((i%2===0)?rwRed:rwWhite).push({x:x+CELL*.5,z,alongX:true});
-  if(!occupied(i,j+1))(((i+1)%2===0)?rwRed:rwWhite).push({x:x+CELL*.5,z:z+CELL,alongX:true});
-  if(!occupied(i-1,j))((j%2===0)?rwRed:rwWhite).push({x,z:z+CELL*.5,alongX:false});
-  if(!occupied(i+1,j))(((j+1)%2===0)?rwRed:rwWhite).push({x:x+CELL,z:z+CELL*.5,alongX:false});
- }
- for(const [mat,items] of [[stripRed,rwRed],[stripWhite,rwWhite]]){
-  const inst=new T.InstancedMesh(edgeGeo,mat,items.length),dummy=new T.Object3D();
-  for(let k=0;k<items.length;k++){
-   const e=items[k];
-   dummy.position.set(e.x,.135+harborElevation(e.x,e.z),e.z);
-   dummy.scale.set(e.alongX?CELL+.08:.72,.13,e.alongX?.72:CELL+.08);
-   dummy.rotation.set(0,0,0);dummy.updateMatrix();
-   inst.setMatrixAt(k,dummy.matrix);
+ if(mode==='f1race'){
+  // Smooth continuous track edge strips along left & right boundaries without overlapping road center
+  const segN=600,f1Red=[],f1White=[];
+  for(let i=0;i<segN;i++){
+   const u0=i/segN,u1=(i+1)/segN,uM=(u0+u1)*.5;
+   const p0=race.curve.getPointAt(u0),p1=race.curve.getPointAt(u1);
+   const tM=race.curve.getTangentAt(uM),h0=F1Core.widthAt(u0)/2+.35,h1=F1Core.widthAt(u1)/2+.35;
+   const len=Math.hypot(p1.x-p0.x,p1.z-p0.z)+.18,yawSeg=Math.atan2(p1.x-p0.x,p1.z-p0.z);
+   for(const side of [-1,1]){
+    const x0=p0.x+tM.z*h0*side,z0=p0.z-tM.x*h0*side;
+    const x1=p1.x+tM.z*h1*side,z1=p1.z-tM.x*h1*side;
+    ((i%2===0)?f1Red:f1White).push({x:(x0+x1)*.5,z:(z0+z1)*.5,len,yaw:yawSeg});
+   }
   }
-  inst.instanceMatrix.needsUpdate=true;inst.receiveShadow=true;worldDynamicGroup.add(inst);
+  for(const [mat,items] of [[stripRed,f1Red],[stripWhite,f1White]]){
+   const inst=new T.InstancedMesh(edgeGeo,mat,items.length),dummy=new T.Object3D();
+   for(let k=0;k<items.length;k++){
+    const e=items[k];
+    dummy.position.set(e.x,.115,e.z);
+    dummy.scale.set(1.1,.08,e.len);
+    dummy.rotation.set(0,e.yaw,0);dummy.updateMatrix();
+    inst.setMatrixAt(k,dummy.matrix);
+   }
+   inst.instanceMatrix.needsUpdate=true;inst.receiveShadow=true;worldDynamicGroup.add(inst);
+  }
+ }else{
+  const rwRed=[],rwWhite=[];
+  for(let j=0;j<NZ;j++)for(let i=0;i<NX;i++)if(occupied(i,j)){
+   const x=MINX+i*CELL,z=MINZ+j*CELL;
+   if(!occupied(i,j-1))((i%2===0)?rwRed:rwWhite).push({x:x+CELL*.5,z,alongX:true});
+   if(!occupied(i,j+1))(((i+1)%2===0)?rwRed:rwWhite).push({x:x+CELL*.5,z:z+CELL,alongX:true});
+   if(!occupied(i-1,j))((j%2===0)?rwRed:rwWhite).push({x,z:z+CELL*.5,alongX:false});
+   if(!occupied(i+1,j))(((j+1)%2===0)?rwRed:rwWhite).push({x:x+CELL,z:z+CELL*.5,alongX:false});
+  }
+  for(const [mat,items] of [[stripRed,rwRed],[stripWhite,rwWhite]]){
+   const inst=new T.InstancedMesh(edgeGeo,mat,items.length),dummy=new T.Object3D();
+   for(let k=0;k<items.length;k++){
+    const e=items[k];
+    dummy.position.set(e.x,.135+harborElevation(e.x,e.z),e.z);
+    dummy.scale.set(e.alongX?CELL+.08:.72,.13,e.alongX?.72:CELL+.08);
+    dummy.rotation.set(0,0,0);dummy.updateMatrix();
+    inst.setMatrixAt(k,dummy.matrix);
+   }
+   inst.instanceMatrix.needsUpdate=true;inst.receiveShadow=true;worldDynamicGroup.add(inst);
+  }
  }
  // White center dashes removed per request
 
@@ -2339,37 +2411,60 @@ function makeLegoFaceTexture(style){
  const x=c.getContext('2d');
  x.fillStyle='#ffd21e';x.fillRect(0,0,128,64);
  x.strokeStyle='#151515';x.fillStyle='#151515';x.lineCap='round';x.lineJoin='round';
+ const drawEyes=(lx=52,rx=76,ey=24,rad=4.8)=>{
+  x.fillStyle='#151515';
+  x.beginPath();x.arc(lx,ey,rad,0,Math.PI*2);x.arc(rx,ey,rad,0,Math.PI*2);x.fill();
+  x.fillStyle='#ffffff';
+  x.beginPath();x.arc(lx+1.5,ey-1.8,rad*.35,0,Math.PI*2);x.arc(rx+1.5,ey-1.8,rad*.35,0,Math.PI*2);x.fill();
+ };
  if(style==='scared'){
-  x.lineWidth=2.6;
-  x.beginPath();x.moveTo(43,16);x.quadraticCurveTo(51,11,58,15);x.stroke();
-  x.beginPath();x.moveTo(85,16);x.quadraticCurveTo(77,11,70,15);x.stroke();
-  x.beginPath();x.arc(52,24,4.4,0,Math.PI*2);x.arc(76,24,4.4,0,Math.PI*2);x.fill();
-  x.fillStyle='#ffffff';
-  x.beginPath();x.arc(53.4,22.5,1.5,0,Math.PI*2);x.arc(77.4,22.5,1.5,0,Math.PI*2);x.fill();
-  // Scared open screaming mouth outline
-  x.fillStyle='#1a1516';
+  x.lineWidth=2.8;
+  x.beginPath();x.moveTo(43,15);x.quadraticCurveTo(51,10,58,15);x.stroke();
+  x.beginPath();x.moveTo(85,15);x.quadraticCurveTo(77,10,70,15);x.stroke();
+  drawEyes(52,76,24,4.5);
+  x.fillStyle='#151515';
   x.beginPath();
-  x.moveTo(49,34);
-  x.quadraticCurveTo(56,30,64,32);
-  x.quadraticCurveTo(72,30,79,34);
-  x.quadraticCurveTo(82,42,76,48);
-  x.quadraticCurveTo(64,45,52,48);
-  x.quadraticCurveTo(46,42,49,34);
+  x.moveTo(49,33);x.quadraticCurveTo(56,29,64,31);x.quadraticCurveTo(72,29,79,33);
+  x.quadraticCurveTo(82,42,76,48);x.quadraticCurveTo(64,45,52,48);x.quadraticCurveTo(46,42,49,33);
   x.closePath();x.fill();
-  // Crisp white upper teeth
   x.fillStyle='#ffffff';
-  x.beginPath();x.moveTo(52,34.5);x.quadraticCurveTo(64,33.2,76,34.5);x.lineTo(75,38.5);x.quadraticCurveTo(64,37.4,53,38.5);x.closePath();x.fill();
-  // Pink-red tongue
-  x.fillStyle='#c44943';
-  x.beginPath();x.ellipse(64,44.2,8.0,3.2,0,0,Math.PI*2);x.fill();
+  x.beginPath();x.moveTo(52,33.5);x.quadraticCurveTo(64,32.2,76,33.5);x.lineTo(75,38);x.quadraticCurveTo(64,37,53,38);x.closePath();x.fill();
+  x.fillStyle='#d1494b';
+  x.beginPath();x.ellipse(64,43.5,7.8,3.0,0,0,Math.PI*2);x.fill();
+ }else if(style==='determined'){
+  x.lineWidth=3.6;
+  x.beginPath();x.moveTo(41,14);x.lineTo(58,19);x.stroke();
+  x.beginPath();x.moveTo(87,14);x.lineTo(70,19);x.stroke();
+  drawEyes(52,76,24.5,4.6);
+  x.lineWidth=3.2;
+  x.beginPath();x.moveTo(53,38);x.quadraticCurveTo(64,41.5,75,37.5);x.stroke();
+ }else if(style==='grin'){
+  x.lineWidth=3.4;
+  x.beginPath();x.moveTo(42,15);x.lineTo(58,19.5);x.stroke();
+  x.beginPath();x.moveTo(86,15);x.lineTo(70,19.5);x.stroke();
+  drawEyes(52,76,24.5,4.7);
+  x.fillStyle='#151515';
+  x.beginPath();x.moveTo(50,33);x.quadraticCurveTo(64,35,78,33);x.quadraticCurveTo(75,47,64,47);x.quadraticCurveTo(53,47,50,33);x.closePath();x.fill();
+  x.fillStyle='#ffffff';
+  x.fillRect(52.5,34.2,23,4.2);
+  x.fillStyle='#d1494b';
+  x.beginPath();x.arc(64,43.5,5.5,0,Math.PI);x.fill();
+ }else if(style==='bigsmile'){
+  x.lineWidth=3.0;
+  x.beginPath();x.moveTo(43,16);x.quadraticCurveTo(51,11,58,16);x.stroke();
+  x.beginPath();x.moveTo(85,16);x.quadraticCurveTo(77,11,70,16);x.stroke();
+  drawEyes(52,76,24,4.8);
+  x.fillStyle='#151515';
+  x.beginPath();x.moveTo(48,32);x.quadraticCurveTo(64,34,80,32);x.quadraticCurveTo(77,49,64,49);x.quadraticCurveTo(51,49,48,32);x.closePath();x.fill();
+  x.fillStyle='#ffffff';
+  x.fillRect(51,33.2,26,4.5);
+  x.fillStyle='#d1494b';
+  x.beginPath();x.arc(64,44,6.4,0,Math.PI);x.fill();
  }else{
-  // Normal LEGO face: arched brows, round eyes with upper-right shine dots, gentle curved smile
   x.lineWidth=3.0;
   x.beginPath();x.moveTo(42,17);x.quadraticCurveTo(51,12,59,16);x.stroke();
   x.beginPath();x.moveTo(86,17);x.quadraticCurveTo(77,12,69,16);x.stroke();
-  x.beginPath();x.arc(52,24,4.8,0,Math.PI*2);x.arc(76,24,4.8,0,Math.PI*2);x.fill();
-  x.fillStyle='#ffffff';
-  x.beginPath();x.arc(53.5,22.3,1.65,0,Math.PI*2);x.arc(77.5,22.3,1.65,0,Math.PI*2);x.fill();
+  drawEyes(52,76,24,4.8);
   x.strokeStyle='#151515';x.lineWidth=3.3;
   x.beginPath();x.arc(64,30,11.5,0.20*Math.PI,0.80*Math.PI);x.stroke();
  }
@@ -2377,11 +2472,14 @@ function makeLegoFaceTexture(style){
  return tex;
 }
 const legoNormalFaceTex=makeLegoFaceTexture('normal');
+const legoDeterminedFaceTex=makeLegoFaceTexture('determined');
+const legoGrinFaceTex=makeLegoFaceTexture('grin');
+const legoBigSmileFaceTex=makeLegoFaceTexture('bigsmile');
 const legoScaredFaceTex=makeLegoFaceTexture('scared');
-const civCalmTextures=[legoNormalFaceTex];
+const civCalmTextures=[legoNormalFaceTex,legoDeterminedFaceTex,legoGrinFaceTex,legoBigSmileFaceTex];
 const civWorriedTextures=[legoScaredFaceTex];
-const driverCoolTex=legoNormalFaceTex;
-const driverGrinTex=legoNormalFaceTex;
+const driverCoolTex=legoDeterminedFaceTex;
+const driverGrinTex=legoBigSmileFaceTex;
 const driverSurprisedTex=legoScaredFaceTex;
 
 function buildSupercar(opts={}){
@@ -2876,12 +2974,12 @@ function gpBuildMarkers(){const markers=new T.Group();f1TrackProps.add(markers);
 function board(u,text,side=1){const q=gpCurve.getPointAt(u),t=gpCurve.getTangentAt(u),off=F1Core.widthAt(u)*.5+7,g=new T.Group();g.position.set(q.x+t.z*side*off,0,q.z-t.x*side*off);g.rotation.y=Math.atan2(t.x,t.z);markers.add(g);box(0,1.2,0,.3,2.4,.3,white,g);const m=new T.Mesh(new T.PlaneGeometry(5,2.5),label(text));m.position.y=3.2;g.add(m);}
 let last=-1000;for(let i=0;i<GP_N;i++){const c=Math.abs(gpProfile.curv[i]),prev=Math.abs(gpProfile.curv[(i+GP_N-1)%GP_N]);if(c>.006&&prev<=.006&&i-last>40){last=i;for(const d of [150,100,50])board(gpIncrease(i/GP_N,-d/race.length,1),String(d),-Math.sign(gpProfile.curv[i]||1));}}
 for(const [u] of gpZones)board(u,'DRS');board(.91,'PIT');board(.955,'BOX');board(.985,'EXIT');gpBuildPitLane(markers);
-for(let i=0;i<GP_N;i+=6){const s=gpProfile.curv[i];if(Math.abs(s)<.004)continue;const q=gpProfile.pts[i],t=gpProfile.tans[i],side=-Math.sign(s),off=F1Core.widthAt(i/GP_N)*.5-2.8,m=box(q.x+t.z*side*off,.13,q.z-t.x*side*off,1.7,.08,gpProfile.ds*4.8,(i%12===0?white:red),markers);m.rotation.y=Math.atan2(t.x,t.z);const run=box(q.x-t.z*side*(F1Core.widthAt(i/GP_N)*.5+2),.06,q.z+t.x*side*(F1Core.widthAt(i/GP_N)*.5+2),4.5,.06,gpProfile.ds*5.6,green,markers);run.rotation.y=m.rotation.y;}}
+/* Clean non-overlapping kerbs handled directly along track boundaries */}
 // v51: visible, assisted pit lane, service and release; no immediate tyre reset.
 const GP_PIT_ENTRY=.91,GP_PIT_LAST_ENTRY=.915,GP_PIT_BOX=.955,GP_PIT_MERGE=.969,GP_PIT_EXIT=.985;
-const GP_PIT_HALF_WIDTH=5.5;
+const GP_PIT_HALF_WIDTH=8.6;
 let gpPitPhase='idle',gpPitU=0,gpPitLat=0,gpPitSpeed=0,gpPitStartU=0,gpPitStartLat=0,gpPitCrew=[],gpPitGrace=0,gpPitJack=null,gpPitLift=0;
-function gpPitLaneLat(){return F1Core.widthAt(GP_PIT_BOX)/2+13;}
+function gpPitLaneLat(){return F1Core.widthAt(GP_PIT_BOX)/2+16.5;}
 function gpPitPoint(u,lat){const q=gpCurve.getPointAt(u),t=gpCurve.getTangentAt(u);return {x:q.x+t.z*lat,z:q.z-t.x*lat,t};}
 function gpPitSmooth(x){x=gpClamp(x,0,1);return x*x*(3-2*x);}
 function pitOffset(u){
@@ -2898,11 +2996,11 @@ function gpPitHeading(u,start,from){
  return Math.atan2(b.x-a.x,b.z-a.z);
 }
 function gpBarrierEdges(u){
- const raceEdge=F1Core.widthAt(u)*.5+4;
+ const raceEdge=F1Core.widthAt(u)*.5+3.2;
  if(u<GP_PIT_ENTRY||u>GP_PIT_EXIT)return {negative:-raceEdge,positive:raceEdge,divider:null,pitInner:null};
- const center=pitOffset(u),inner=center-GP_PIT_HALF_WIDTH,outer=center+GP_PIT_HALF_WIDTH+.8;
- const segregated=inner>=raceEdge+.8;
- return {negative:-raceEdge,positive:Math.max(raceEdge,outer),divider:segregated?raceEdge:null,pitInner:segregated?inner:null};
+ const off=pitOffset(u);
+ const outerEdge=Math.max(raceEdge,raceEdge+off*0.55+4.5);
+ return {negative:-raceEdge,positive:outerEdge,divider:null,pitInner:null};
 }
 function gpFootprint(heading,trackHeading){
  const angle=heading-trackHeading;
@@ -2910,77 +3008,114 @@ function gpFootprint(heading,trackHeading){
 }
 function gpBuildPitLane(parent){
  gpPitCrew=[];const lane=new T.Group();parent.add(lane);
- const asphalt=new T.MeshBasicMaterial({color:0x253d48}),yellow=new T.MeshBasicMaterial({color:0xffd34b}),white=new T.MeshBasicMaterial({color:0xf8fafc}),suit=new T.MeshStandardMaterial({color:0xec3049}),skin=new T.MeshStandardMaterial({color:0xffce46}),rubber=new T.MeshStandardMaterial({color:0x171a22});
- const n=90,step=(GP_PIT_EXIT-GP_PIT_ENTRY)/n;
- // Keep the same segment transforms while drawing the lane and edge lines in two batches.
+ const asphalt=roadMat,yellow=new T.MeshStandardMaterial({color:0xffd34b,roughness:.38,metalness:.05,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}),dividerWallMat=new T.MeshStandardMaterial({color:0x1e2532,roughness:.35,metalness:.18}),dividerStripeMat=new T.MeshStandardMaterial({color:0xffd429,roughness:.32,metalness:.10}),white=new T.MeshBasicMaterial({color:0xf8fafc}),suit=new T.MeshStandardMaterial({color:0xec3049}),skin=new T.MeshStandardMaterial({color:0xffce46}),rubber=new T.MeshStandardMaterial({color:0x171a22});
+ const n=120,step=(GP_PIT_EXIT-GP_PIT_ENTRY)/n;
  const surface=new T.InstancedMesh(cube,asphalt,n);
  const edges=new T.InstancedMesh(cube,yellow,n*2);
+ const sepWall=new T.InstancedMesh(cube,dividerWallMat,n);
+ const sepStripe=new T.InstancedMesh(cube,dividerStripeMat,n);
  const segment=new T.Object3D();
  for(let i=0;i<n;i++){
-  const u=GP_PIT_ENTRY+i*step,v=u+step,a=gpPitPoint(u,pitOffset(u)),b=gpPitPoint(v,pitOffset(v));
+  const u=GP_PIT_ENTRY+i*step,v=u+step,uMid=(u+v)*.5;
+  const a=gpPitPoint(u,pitOffset(u)),b=gpPitPoint(v,pitOffset(v));
   const dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz),x=(a.x+b.x)/2,z=(a.z+b.z)/2;
-  segment.rotation.y=Math.atan2(dx,dz);
-  segment.position.set(x,.20,z);
-  segment.scale.set(11,.06,len+.25);
+  const yawSeg=Math.atan2(dx,dz);
+  const tFactor=gpPitSmooth((uMid-GP_PIT_ENTRY)/.022)*(1-gpPitSmooth((uMid-GP_PIT_MERGE)/(GP_PIT_EXIT-GP_PIT_MERGE)));
+  segment.rotation.y=yawSeg;
+  segment.position.set(x,.092,z);
+  segment.scale.set(Math.max(1.5,14.5*tFactor),.04,len+.24);
   segment.updateMatrix();
   surface.setMatrixAt(i,segment.matrix);
-  segment.scale.set(.34,.05,len+.25);
+
+  const ux=dx/Math.max(.001,len),uz=dz/Math.max(.001,len);
+  const nx=-uz,nz=ux;
+  const halfLane=6.2*tFactor;
+  segment.scale.set(.42,.035,len+.20);
   for(let side=0;side<2;side++){
-   const offset=(side*2-1)*5.5/len;
-   segment.position.set(x+dz*offset,.25,z-dx*offset);
+   const sgn=side*2-1;
+   segment.position.set(x+nx*sgn*halfLane,.112,z+nz*sgn*halfLane);
    segment.updateMatrix();
    edges.setMatrixAt(i*2+side,segment.matrix);
   }
+
+  // Dedicated boundary wall & yellow stripe between the main race track and pit lane
+  const trackOuterMid=gpPitPoint(uMid,F1Core.widthAt(uMid)*.5+2.1);
+  const pitInnerMid=gpPitPoint(uMid,pitOffset(uMid)-halfLane-1.2);
+  const bdx=pitInnerMid.x-trackOuterMid.x,bdz=pitInnerMid.z-trackOuterMid.z;
+  const bSeg=new T.Object3D();
+  bSeg.rotation.y=Math.atan2(bdx,bdz);
+  bSeg.position.set(trackOuterMid.x+bdx*.5*tFactor,.65,trackOuterMid.z+bdz*.5*tFactor);
+  bSeg.scale.set(0.75,1.25,Math.max(1.2,len*.88*tFactor));
+  bSeg.updateMatrix();
+  sepWall.setMatrixAt(i,bSeg.matrix);
+  bSeg.position.y=1.32;
+  bSeg.scale.set(0.82,0.16,Math.max(1.2,len*.88*tFactor));
+  bSeg.updateMatrix();
+  sepStripe.setMatrixAt(i,bSeg.matrix);
  }
- lane.add(surface,edges);
+ lane.add(surface,edges,sepWall,sepStripe);
  const b=gpPitPoint(GP_PIT_BOX,gpPitLaneLat()),g=new T.Group();g.position.set(b.x,.28,b.z);g.rotation.y=Math.atan2(b.t.x,b.t.z);lane.add(g);
  for(const x of [-4.5,4.5])box(x,0,0,.45,.07,12,white,g);for(const z of [-6,6])box(0,0,z,9,.07,.45,white,g);
  const metal=new T.MeshStandardMaterial({color:0xa9b7c9,metalness:.6,roughness:.35}),black=new T.MeshStandardMaterial({color:0x141821}),green=new T.MeshBasicMaterial({color:0x35ef81});
  gpPitJack=new T.Group();g.add(gpPitJack);box(0,.16,8.8,1.8,.3,3,metal,gpPitJack);box(0,.5,9.5,.26,1,.26,metal,gpPitJack);gpPitJack.visible=false;
- for(const side of [-1,1])for(const z of [-5.43,5.53]){const crew=new T.Group();crew.position.set(side*8.4,0,z);g.add(crew);
-  const body=new T.Group();crew.add(body);
-  box(0,1.18,0,1.08,.24,.80,black,body); // hips
-  box(0,1.74,0,1.36,.98,.94,suit,body); // torso
-  box(0,1.96,.47,.82,.14,.08,white,body); // chest stripe
-  box(0,1.60,.47,.44,.14,.08,white,body); // zipper base
-  box(0,1.76,.49,.16,.38,.06,white,body); // zipper line
-  box(0,1.77,.50,.52,.30,.05,yellow,body); // team badge plate
-  box(-.14,1.83,.53,.08,.08,.03,black,body);box(0,1.78,.53,.08,.08,.03,black,body);box(.14,1.71,.53,.08,.08,.03,black,body); // GP logo dots
-  const head=new T.Group();head.position.set(0,2.82,0);body.add(head);
-  const headMain=new T.Mesh(new T.CylinderGeometry(.37,.41,.62,14),skin);headMain.rotation.z=Math.PI/2;head.add(headMain);
-  box(-.13,.07,.39,.07,.07,.05,black,head); // left eye
-  box(.13,.07,.39,.07,.07,.05,black,head); // right eye
-  box(0,-.06,.40,.22,.04,.05,black,head); // smile center
-  box(-.12,-.01,.40,.06,.04,.05,black,head); // smile left corner
-  box(.12,-.01,.40,.06,.04,.05,black,head); // smile right corner
-  const helmet=new T.Group();helmet.position.y=.18;head.add(helmet);
-  box(0,.02,0,1.02,.18,1.00,suit,helmet); // helmet base
-  box(0,.24,0,.86,.20,.84,suit,helmet); // helmet crown
-  box(0,-.12,.36,.76,.10,.18,black,helmet); // front visor
-  box(-side*.46,.05,0,.18,.42,.96,black,helmet); // big side headset
-  box(-side*.62,.08,0,.16,.24,.38,suit,helmet); // outer earmuff
-  box(-side*.73,-.03,.20,.22,.06,.08,black,helmet); // mic boom
-  const legs=[];for(const dz of [-.24,.24]){const leg=new T.Group();leg.position.set(0,.86,dz);body.add(leg);box(0,-.34,0,.38,.68,.29,suit,leg);box(-side*.10,-.69,0,.54,.16,.34,black,leg);legs.push(leg);}
-  box(side*.62,1.93,0,.28,.82,.32,suit,body); // parked arm
-  box(side*.85,1.32,0,.22,.20,.26,skin,body); // yellow hand
-  const shoulder=box(-side*.64,1.96,0,.26,.26,.48,suit,body);
-  const arm=new T.Group();arm.position.set(-side*.78,1.79,0);body.add(arm);
-  box(0,0,0,.34,.90,.34,suit,arm); // working arm
-  const glove=box(-side*.24,-.46,0,.26,.20,.28,skin,arm); // yellow hand
-  box(-side*.48,-.55,0,.18,.12,.34,metal,arm); // tyre gun nose
-  box(-side*.35,-.42,.14,.10,.14,.10,skin,arm); // c-hand upper
-  const handHook=box(-side*.35,-.56,-.14,.10,.14,.10,skin,arm); // c-hand lower
+ for(const side of [-1,1])for(const z of [-5.43,5.53]){
+  const crew=new T.Group();crew.position.set(side*8.4,0,z);g.add(crew);
+  const body=new T.Group();
+  // Face the car (-side along X) using the exact open-world LEGO minifigure build
+  body.rotation.y=-side*Math.PI/2;
+  crew.add(body);
+
+  // Classic LEGO Minifigure Hips & Torso (matching createLegoCivilian)
+  const hip=new T.Mesh(civHipGeo,black);hip.position.set(0,1.72,0);body.add(hip);
+  const torso=new T.Mesh(civTorsoGeo,suit);torso.position.set(0,2.60,0);body.add(torso);
+  box(0,2.82,.43,1.10,.16,.06,white,body); // pit suit chest stripe
+  box(0,2.56,.44,.48,.28,.05,yellow,body); // GP team badge plate
+
+  // Classic LEGO Hinged Left & Right Legs + Feet (pivot at hip y=1.64)
+  const legs=[];
+  for(const lx of [-.38,.38]){
+   const leg=new T.Group();leg.position.set(lx,1.64,0);
+   const thigh=new T.Mesh(civLegGeo,suit);thigh.position.set(0,-.76,0);leg.add(thigh);
+   const foot=new T.Mesh(civFootGeo,black);foot.position.set(0,-1.44,.12);leg.add(foot);
+   body.add(leg);legs.push(leg);
+  }
+
+  // Classic Cylindrical Yellow LEGO Head with Printed Face + Top Stud + Pit Cap/Helmet
+  const head=new T.Group();head.position.set(0,3.82,0);body.add(head);
+  const headMain=new T.Mesh(civHeadGeo,civHeadMat);headMain.rotation.y=Math.PI;head.add(headMain);
+  const headStud=new T.Mesh(civStudGeo,civSkinMat);headStud.position.set(0,.54,0);head.add(headStud);
+  const helmet=new T.Group();helmet.position.set(0,.34,0);head.add(helmet);
+  const capDome=new T.Mesh(civHairDomeGeo,suit);capDome.scale.set(1.04,.64,1.04);helmet.add(capDome);
+  const capBrim=new T.Mesh(civCapBrimGeo,black);capBrim.position.set(0,-.05,.56);helmet.add(capBrim);
+  // Pit crew comms headset earcups
+  for(const ex of [-.66,.66])box(ex,-.14,0,.18,.38,.38,black,helmet);
+
+  // Classic LEGO Hinged Left & Right Arms + Yellow C-Hands (pivot at shoulder y=3.16)
+  const armL=new T.Group();armL.position.set(-.97,3.16,0);
+  const sleeveL=new T.Mesh(civArmGeo,suit);sleeveL.position.set(0,-.50,.06);sleeveL.rotation.x=-.12;armL.add(sleeveL);
+  const handL=new T.Mesh(civHandGeo,civSkinMat);handL.position.set(0,-1.08,.18);handL.rotation.x=Math.PI/2;armL.add(handL);
+  body.add(armL);
+
+  const arm=new T.Group();arm.position.set(.97,3.16,0);
+  const sleeveR=new T.Mesh(civArmGeo,suit);sleeveR.position.set(0,-.50,.06);sleeveR.rotation.x=-.35;arm.add(sleeveR);
+  const glove=new T.Mesh(civHandGeo,civSkinMat);glove.position.set(0,-1.04,.34);glove.rotation.x=Math.PI/2;arm.add(glove);
+  // LEGO Impact Tyre Gun held in hand pointing forward (+Z toward car wheel)
+  box(0,-1.04,.58,.24,.24,.44,metal,arm);
+  box(0,-1.04,.84,.12,.12,.22,yellow,arm);
+  body.add(arm);
+
   const wheel=sports.wheels.reduce((best,w)=>Math.abs(w.position.x+side*4.23)+Math.abs(w.position.z+z)<Math.abs(best.position.x+side*4.23)+Math.abs(best.position.z+z)?w:best,sports.wheels[0]);
   const oldWheel=wheel.clone(),newWheel=wheel.clone();for(const w of [oldWheel,newWheel]){w.rotation.set(0,0,0);g.add(w);w.visible=false;}newWheel.position.set(side*8,1.48,z);oldWheel.position.set(side*4.23,1.48,z);
-  const lamp=box(side*6.6,.12,z,.8,.12,.8,green,g);lamp.visible=false;gpPitCrew.push({crew,body,arm,head,helmet,shoulder,glove,handHook,side,z,legs,wheel,oldWheel,newWheel,lamp});}
+  const lamp=box(side*6.6,.12,z,.8,.12,.8,green,g);lamp.visible=false;gpPitCrew.push({crew,body,arm,armL,head,helmet,glove,side,z,legs,wheel,oldWheel,newWheel,lamp});}
  }
 function gpPitAnimate(t){const enter=gpPitSmooth(t/.65),leave=gpPitSmooth((t-2.35)/.65),work=enter*(1-leave);gpPitLift=.38*gpPitSmooth(t/.5)*(1-gpPitSmooth((t-2.25)/.45));if(gpPitJack){gpPitJack.visible=t>0&&t<2.85;gpPitJack.position.z=-1.6*enter+1.6*leave;gpPitJack.position.y=gpPitLift;}
- for(const c of gpPitCrew){c.crew.position.x=c.side*(8.4-2.4*work);c.body.rotation.z=c.side*.23*work;c.body.position.y=-.32*work;for(let i=0;i<c.legs.length;i++)c.legs[i].rotation.z=Math.sin(t*16+i*Math.PI)*.35*(1-work)*(1-leave);c.arm.rotation.z=c.side*(.22+Math.sin(t*26)*.09)*work;
+ for(const c of gpPitCrew){c.crew.position.x=c.side*(8.4-2.4*work);c.body.rotation.x=.22*work;c.body.position.y=-.26*work;for(let i=0;i<c.legs.length;i++)c.legs[i].rotation.x=Math.sin(t*16+i*Math.PI)*.45*(1-work)*(1-leave);c.arm.rotation.x=-(.55+Math.sin(t*26)*.12)*work;if(c.armL)c.armL.rotation.x=-(.35+Math.cos(t*22)*.10)*work;
  const remove=gpPitSmooth((t-.75)/.55),install=gpPitSmooth((t-1.42)/.65);c.wheel.visible=t<.78||t>=2.07;c.oldWheel.visible=t>=.78&&t<2.7;c.oldWheel.position.set(c.side*(4.23+3.8*remove),1.48+gpPitLift*(1-remove),c.z);c.oldWheel.rotation.x=remove*2;c.newWheel.visible=t>=1.25&&t<2.07;c.newWheel.position.set(c.side*(8.1-3.87*install),1.48+gpPitLift*install,c.z);c.newWheel.rotation.x=(1-install)*2;c.lamp.visible=t>=2.07&&t<2.9;}
 }
-function gpPitResetVisual(){gpPitLift=0;if(gpPitJack)gpPitJack.visible=false;for(const c of gpPitCrew){c.crew.position.x=c.side*8.4;c.body.position.y=0;c.body.rotation.z=0;c.arm.rotation.z=0;for(const leg of c.legs)leg.rotation.z=0;c.wheel.visible=true;c.oldWheel.visible=c.newWheel.visible=c.lamp.visible=false;}}
-function gpPitAvailable(){return gameStarted&&gameMode==='f1race'&&!f1CountdownActive&&!f1RaceFinished&&!gpPlayerDone&&gpSession!=='qualifying'&&(gpPitPhase==='idle'||gpPitPhase==='queued');}
-function gpRequestPit(){if(!gpPitAvailable())return;if(gpPitPhase==='queued'){gpPitPhase='idle';show('PIT REQUEST CANCELLED');return;}gpPitPhase='queued';show('PIT REQUESTED · automatic entry at the yellow lane');}
+function gpPitResetVisual(){gpPitLift=0;if(gpPitJack)gpPitJack.visible=false;for(const c of gpPitCrew){c.crew.position.x=c.side*8.4;c.body.position.y=0;c.body.rotation.x=0;c.body.rotation.z=0;c.arm.rotation.x=0;c.arm.rotation.z=0;if(c.armL)c.armL.rotation.x=0;for(const leg of c.legs)leg.rotation.x=leg.rotation.z=0;c.wheel.visible=true;c.oldWheel.visible=c.newWheel.visible=c.lamp.visible=false;}}
+function gpPitUnlocked(){const healthPct=(1-(gpTyre?.wear||0))*100;return healthPct<30||gpPitPhase==='queued'||gpPitActive();}
+function gpPitAvailable(){return gameStarted&&gameMode==='f1race'&&!f1CountdownActive&&!f1RaceFinished&&!gpPlayerDone&&gpSession!=='qualifying'&&gpPitUnlocked()&&(gpPitPhase==='idle'||gpPitPhase==='queued');}
+function gpRequestPit(){if(!gpPitUnlocked()){show('PIT STOP LOCKED · unlocks when tyre health drops below 30%');return;}if(!gpPitAvailable())return;if(gpPitPhase==='queued'){gpPitPhase='idle';show('PIT REQUEST CANCELLED');return;}gpPitPhase='queued';show('PIT REQUESTED · automatic entry at the wide yellow pit lane');}
 function gpPitActive(){return gpPitPhase==='entry'||gpPitPhase==='service'||gpPitPhase==='exit';}
 function gpPitPlace(dt,lat){const p=gpPitPoint(gpPitU,lat),heading=gpPitHeading(gpPitU,gpPitStartU,gpPitStartLat);pos.x=p.x;pos.z=p.z;yaw+=Math.atan2(Math.sin(heading-yaw),Math.cos(heading-yaw))*(1-Math.exp(-dt*14));velocityX=Math.sin(heading)*gpPitSpeed;velocityZ=Math.cos(heading)*gpPitSpeed;speed=gpPitSpeed;gpWallU=gpPitU;previousRear=null;}
 function gpPitTick(dt){
@@ -2990,7 +3125,7 @@ function gpPitTick(dt){
  const lane=gpPitLaneLat();
  if(gpPitPhase==='entry'){const remaining=Math.max(0,(GP_PIT_BOX-gpPitU)*race.length),target=Math.min(38,Math.sqrt(2*65*remaining));gpPitSpeed=Math.max(0,gpPitSpeed+gpClamp(target-gpPitSpeed,-125*dt,55*dt));gpPitU=Math.min(GP_PIT_BOX,gpPitU+Math.max(.5,gpPitSpeed)*dt/race.length);gpPitLat=gpPitTrajectory(gpPitU,gpPitStartU,gpPitStartLat);gpPitPlace(dt,gpPitLat);
   if(gpPitU>=GP_PIT_BOX-1e-6){gpPitPhase='service';gpPitRemaining=F1Core.PIT.stopSec;gpPitSpeed=0;speed=velocityX=velocityZ=0;show('PIT STOP · changing tyres');}
- }else if(gpPitPhase==='service'){gpPitSpeed=0;gpPitPlace(dt,lane);speed=velocityX=velocityZ=0;gpPitRemaining=Math.max(0,gpPitRemaining-dt);const t=F1Core.PIT.stopSec-gpPitRemaining;gpPitAnimate(t);if(gpPitRemaining<=0){gpPitResetVisual();F1Core.performPitStop(gpTyre,document.getElementById('gp-next').value);gpPitPhase='exit';show('FRESH '+gpTyre.compound.toUpperCase()+' TYRES · GO!');}}
+ }else if(gpPitPhase==='service'){gpPitSpeed=0;gpPitPlace(dt,lane);speed=velocityX=velocityZ=0;gpPitRemaining=Math.max(0,gpPitRemaining-dt);const t=F1Core.PIT.stopSec-gpPitRemaining;gpPitAnimate(t);if(gpPitRemaining<=0){gpPitResetVisual();const chosenComp=document.getElementById('tyre-next-select')?.value||document.getElementById('gp-next').value;document.getElementById('gp-next').value=chosenComp;F1Core.performPitStop(gpTyre,chosenComp);gpPitPhase='exit';show('FRESH '+gpTyre.compound.toUpperCase()+' TYRES · GO!');}}
  else{
   gpPitSpeed=Math.min(gpPitU<GP_PIT_MERGE?38:65,gpPitSpeed+55*dt);
   gpPitU=Math.min(GP_PIT_EXIT,gpPitU+gpPitSpeed*dt/race.length);
@@ -2999,9 +3134,135 @@ function gpPitTick(dt){
  }
  return true;
 }
-function gpPitHUD(){const h=document.getElementById('gp-pit-status');if(!h)return;h.hidden=gpPitPhase==='idle';const label={queued:'PIT REQUESTED · approach yellow pit entry',entry:'PIT ENTRY · automatic limiter',service:(gpPitRemaining>2.25?'JACKING CAR':gpPitRemaining>1.58?'REMOVING TYRES':gpPitRemaining>.93?'FITTING FRESH TYRES':'RELEASE CHECK')+' · '+gpPitRemaining.toFixed(1)+'s',exit:'PIT EXIT · rejoining circuit'};h.textContent=label[gpPitPhase]||'';}
+
+const tyreLogoCanvas=document.getElementById('tyre-logo-canvas');
+const tyreLogoCtx=tyreLogoCanvas?tyreLogoCanvas.getContext('2d'):null;
+const tyreNextSelect=document.getElementById('tyre-next-select');
+const tyrePitBtn=document.getElementById('tyre-pit-btn');
+if(tyreNextSelect){
+ tyreNextSelect.addEventListener('change',()=>{
+  const gpn=document.getElementById('gp-next');
+  if(gpn)gpn.value=tyreNextSelect.value;
+ });
+}
+if(tyrePitBtn){
+ tyrePitBtn.addEventListener('click',()=>{gpRequestPit();updateTyreLogoWidget();});
+}
+function drawTyreLogo(healthPct,compound){
+ if(!tyreLogoCtx)return;
+ const ctx=tyreLogoCtx,w=tyreLogoCanvas.width,h=tyreLogoCanvas.height,cx=w/2,cy=h/2;
+ ctx.clearRect(0,0,w,h);
+ const hClamped=Math.max(0,Math.min(100,healthPct));
+ const compColors={soft:'#ff3b4e',medium:'#ffda29',hard:'#e2e8f0',intermediate:'#2fd877',wet:'#38bdf8'};
+ const ringColor=hClamped<30?'#ff4757':(hClamped<60?'#ffda29':'#35e379');
+ const stripeColor=compColors[compound]||'#ffda29';
+
+ ctx.save();
+ ctx.lineWidth=10;
+ ctx.strokeStyle='rgba(255,255,255,0.12)';
+ ctx.beginPath();ctx.arc(cx,cy,72,0,Math.PI*2);ctx.stroke();
+
+ ctx.strokeStyle=ringColor;
+ ctx.shadowColor=ringColor;
+ ctx.shadowBlur=12;
+ ctx.beginPath();ctx.arc(cx,cy,72,-Math.PI/2,-Math.PI/2+(Math.PI*2*(hClamped/100)));ctx.stroke();
+ ctx.restore();
+
+ ctx.save();
+ ctx.beginPath();ctx.arc(cx,cy,56,0,Math.PI*2);ctx.clip();
+ const wearRatio=1-(hClamped/100);
+ const rBase=Math.round(24+wearRatio*66);
+ const gBase=Math.round(27+wearRatio*62);
+ const bBase=Math.round(35+wearRatio*58);
+ const grad=ctx.createRadialGradient(cx-12,cy-12,8,cx,cy,56);
+ grad.addColorStop(0,'rgb('+Math.min(255,rBase+22)+','+Math.min(255,gBase+22)+','+Math.min(255,bBase+22)+')');
+ grad.addColorStop(1,'rgb('+rBase+','+gBase+','+bBase+')');
+ ctx.fillStyle=grad;
+ ctx.fillRect(0,0,w,h);
+
+ if(hClamped>=65){
+  ctx.strokeStyle='rgba(10,13,18,0.82)';
+  ctx.lineWidth=4;
+  for(let a=0;a<Math.PI*2;a+=Math.PI/14){
+   const x1=cx+Math.cos(a)*32,y1=cy+Math.sin(a)*32;
+   const x2=cx+Math.cos(a+.15)*56,y2=cy+Math.sin(a+.15)*56;
+   ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  }
+ }else if(hClamped>=30){
+  ctx.strokeStyle='rgba(255,218,41,0.38)';
+  ctx.lineWidth=2.2;
+  for(let a=0;a<Math.PI*2;a+=Math.PI/9){
+   ctx.beginPath();ctx.arc(cx,cy,44,a,a+.25);ctx.stroke();
+  }
+ }else{
+  ctx.strokeStyle='rgba(255,71,87,0.68)';
+  ctx.lineWidth=2.5;
+  for(let k=0;k<12;k++){
+   const ang=k*0.52;
+   ctx.beginPath();
+   ctx.moveTo(cx+Math.cos(ang)*28,cy+Math.sin(ang)*28);
+   ctx.lineTo(cx+Math.cos(ang+.42)*56,cy+Math.sin(ang+.42)*56);
+   ctx.stroke();
+  }
+ }
+
+ ctx.strokeStyle=stripeColor;
+ ctx.lineWidth=4;
+ ctx.beginPath();ctx.arc(cx,cy,51,0,Math.PI*2);ctx.stroke();
+
+ ctx.fillStyle='#141a26';
+ ctx.beginPath();ctx.arc(cx,cy,27,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle='#e2e8f0';ctx.lineWidth=3.5;ctx.stroke();
+
+ ctx.strokeStyle='#cbd5e1';ctx.lineWidth=3;
+ for(let s=0;s<5;s++){
+  const sa=(s*Math.PI*2)/5;
+  ctx.beginPath();
+  ctx.moveTo(cx+Math.cos(sa)*7,cy+Math.sin(sa)*7);
+  ctx.lineTo(cx+Math.cos(sa)*25,cy+Math.sin(sa)*25);
+  ctx.stroke();
+ }
+ ctx.fillStyle=stripeColor;
+ ctx.beginPath();ctx.arc(cx,cy,7.5,0,Math.PI*2);ctx.fill();
+ ctx.restore();
+}
+function updateTyreLogoWidget(){
+ const healthPct=Math.max(0,Math.min(100,Math.round((1-(gpTyre?.wear||0))*100)));
+ const comp=(gpTyre?.compound||'medium').toUpperCase();
+ drawTyreLogo(healthPct,gpTyre?.compound||'medium');
+ const cEl=document.getElementById('tyre-logo-compound');
+ const hEl=document.getElementById('tyre-logo-health');
+ const bEl=document.getElementById('tyre-wear-bar-fill');
+ const sEl=document.getElementById('tyre-logo-sub');
+ const pitBox=document.getElementById('tyre-pit-controls');
+ if(cEl)cEl.textContent=comp+' TYRE';
+ if(hEl){
+  hEl.textContent=healthPct+'%';
+  hEl.classList.remove('warn','crit');
+  if(healthPct<30)hEl.classList.add('crit');
+  else if(healthPct<65)hEl.classList.add('warn');
+ }
+ if(bEl){
+  bEl.style.width=healthPct+'%';
+  bEl.style.background=healthPct<30?'linear-gradient(90deg,#ff4757,#ff7b89)':(healthPct<65?'linear-gradient(90deg,#ffda29,#ff9f1c)':'linear-gradient(90deg,#35e379,#7cf257)');
+ }
+ const unlocked=gpPitUnlocked();
+ const texLabel=healthPct>=65?'GROOVED':(healthPct>=30?'SMOOTHING':'WORN / CRIT');
+ if(sEl){
+  sEl.textContent=texLabel+(unlocked?' · PIT READY':' · PIT <30%');
+ }
+ if(pitBox){
+  pitBox.classList.toggle('unlocked',unlocked);
+ }
+ if(tyrePitBtn){
+  tyrePitBtn.disabled=!gpPitAvailable();
+  tyrePitBtn.textContent=gpPitPhase==='queued'?'CANCEL PIT':gpPitPhase==='service'?'PITTING '+gpPitRemaining.toFixed(1)+'s':gpPitActive()?'PIT ACTIVE':'PIT STOP (P)';
+ }
+}
+
+function gpPitHUD(){updateTyreLogoWidget();const h=document.getElementById('gp-pit-status');if(!h)return;h.hidden=gpPitPhase==='idle';const label={queued:'PIT REQUESTED · approach yellow pit entry',entry:'PIT ENTRY · automatic limiter',service:(gpPitRemaining>2.25?'JACKING CAR':gpPitRemaining>1.58?'REMOVING TYRES':gpPitRemaining>.93?'FITTING FRESH TYRES':'RELEASE CHECK')+' · '+gpPitRemaining.toFixed(1)+'s',exit:'PIT EXIT · rejoining circuit'};h.textContent=label[gpPitPhase]||'';}
 function gpRaceAssist(){gpDRS=false;gpDraft=1;if(gpSession==='qualifying'||gpPlayerDone||gpFlag)return;let gap=Infinity;for(const b of f1Bots){if(b.finished||b.pit)continue;const d=(b.progress-f1PlayerProgress)*race.length,dx=b.x-pos.x,dz=b.z-pos.z;if(d>8&&d<220&&Math.abs(dx*Math.cos(yaw)-dz*Math.sin(yaw))<12)gap=Math.min(gap,d/Math.max(35,b.speed));}gpDraft=F1Core.slipstreamPowerMult(gap);gpDRS=F1Core.drsOpen({inZone:F1Core.inZones(gpWallU,gpZones),lap:f1PlayerLap,gapAheadSec:gap});}
-function gpResetSession(){resetRaceReplay();gpPitResetVisual();gpEnergy=1;gpSteering=0;gpOutside=false;gpFlag='';gpNextIncident=0;gpDist=0;gpTimingU=0;gpWallU=0;gpWallContact=0;gpHudTime=0;gpWrongWay=0;gpCompleted=0;gpTimer=F1Core.createLapTimer();F1Core.startLap(gpTimer,0);gpTyre={compound:gpChoice('gp-compound'),surface:document.getElementById('gp-surface').value,wear:0,stops:0};document.getElementById('gp-next').value=gpTyre.compound;gpPenalty={};gpPitRemaining=0;gpPitPhase='idle';gpPitGrace=0;gpPitHUD();gpDRS=false;gpDraft=1;gpPlayerDone=false;gpPlayerRawFinish=0;gpSeasonScored=false;gpFinishRows=null;gpGhostRec=F1Core.createGhostRecorder(10);displayKmh=0;ghostGroup.visible=false;try{const g=JSON.parse(localStorage.getItem('bw-gp-ghost-grandprix-v54')||'null');gpGhostFrames=g&&Array.isArray(g.frames)?g.frames:[];gpGhostBest=g&&Number.isFinite(g.time)?g.time:Infinity;}catch(e){gpGhostFrames=[];gpGhostBest=Infinity;}}
+function gpResetSession(){drawTyreLogo(100,gpChoice('gp-compound'));updateTyreLogoWidget();resetRaceReplay();gpPitResetVisual();gpEnergy=1;gpSteering=0;gpOutside=false;gpFlag='';gpNextIncident=0;gpDist=0;gpTimingU=0;gpWallU=0;gpWallContact=0;gpHudTime=0;gpWrongWay=0;gpCompleted=0;gpTimer=F1Core.createLapTimer();F1Core.startLap(gpTimer,0);gpTyre={compound:gpChoice('gp-compound'),surface:document.getElementById('gp-surface').value,wear:0,stops:0};document.getElementById('gp-next').value=gpTyre.compound;gpPenalty={};gpPitRemaining=0;gpPitPhase='idle';gpPitGrace=0;gpPitHUD();gpDRS=false;gpDraft=1;gpPlayerDone=false;gpPlayerRawFinish=0;gpSeasonScored=false;gpFinishRows=null;gpGhostRec=F1Core.createGhostRecorder(10);displayKmh=0;ghostGroup.visible=false;try{const g=JSON.parse(localStorage.getItem('bw-gp-ghost-grandprix-v54')||'null');gpGhostFrames=g&&Array.isArray(g.frames)?g.frames:[];gpGhostBest=g&&Number.isFinite(g.time)?g.time:Infinity;}catch(e){gpGhostFrames=[];gpGhostBest=Infinity;}}
 function gpSelectNew(){gpLoadSettings();gpSession=gpChoice('gp-session');gpQualiTime=null;if(gpSession==='championship'){try{gpSeason=F1Core.parseSeason(localStorage.getItem('bw-gp-season-'+f1Difficulty)||'');}catch(e){gpSeason=null;}if(!gpSeason||F1Core.isSeasonComplete(gpSeason))gpSeason=F1Core.createSeason(5,gpDrivers());else gpSeason.drivers=gpDrivers();}else gpSeason=null;keys={};selectGameMode('f1race');}
 function gpGrid(){return F1Core.planGrid([{id:'p',qualiTime:gpQualiTime??undefined},...f1Bots.map((b,j)=>({id:'b'+j,qualiTime:F1Core.botQualiTime(b.pace,F1Core.drivers[0].pace,gpReference)}))]);}
 function gpFinishLap(){const r=F1Core.finishLap(gpTimer,f1RaceTime);if(r.isBest&&r.time<gpGhostBest&&gpGhostRec.frames.length>3&&!(gpPenalty.penaltySec||0)){gpGhostFrames=gpGhostRec.frames.slice();gpGhostBest=r.time;try{localStorage.setItem('bw-gp-ghost-grandprix-v54',JSON.stringify({time:r.time,frames:gpGhostFrames}));}catch(e){}}F1Core.startLap(gpTimer,f1RaceTime);gpGhostRec=F1Core.createGhostRecorder(10);}
@@ -3117,25 +3378,28 @@ function buildF1CircuitProps(){
    box(0,.5,7.2,2.2,.5,1.2,redTrimMat,stopCar);
    for(const cs of [-1,1])for(const cz of [-4.2,4.2]){
     const crew=new T.Group();crew.position.set(cs*4.2,0,cz);
-    box(0,1.08,0,1.02,.22,.72,pitWallMat,crew);
-    box(0,1.64,0,1.22,.92,.84,lCol,crew);
-    box(0,1.84,.42,.72,.14,.08,whiteTrimMat,crew); // chest stripe
-    box(0,1.64,.43,.38,.12,.06,whiteTrimMat,crew); // zipper detail
-    box(0,1.74,.48,.46,.24,.05,yellowRailMat,crew); // team logo plate
-    box(-.11,1.79,.51,.07,.07,.03,pitWallMat,crew);box(.11,1.70,.51,.07,.07,.03,pitWallMat,crew); // logo dots
-    const chd=new T.Mesh(new T.CylinderGeometry(.36,.40,.60,12),skinMat);chd.rotation.z=Math.PI/2;chd.position.y=2.46;crew.add(chd);
-    box(-.12,2.50,.31,.06,.06,.05,pitWallMat,crew);box(.12,2.50,.31,.06,.06,.05,pitWallMat,crew); // eyes
-    box(0,2.34,.32,.20,.04,.05,pitWallMat,crew); // smile
-    box(0,2.70,0,.92,.20,.92,lCol,crew); // helmet top
-    box(0,2.50,.34,.70,.10,.16,pitWallMat,crew); // visor lip
-    box(cs*.42,2.46,0,.16,.34,.86,pitWallMat,crew); // chunky headset
-    box(cs*.58,2.46,0,.14,.22,.34,lCol,crew); // outer headset cap
-    // Tyre gun tool / lego arm
-    box(cs*.62,1.58,.06,.28,.78,.28,lCol,crew);
-    box(cs*.92,1.18,.24,.18,.18,.24,skinMat,crew); // yellow hand
-    box(cs*1.18,1.10,.22,.18,.12,.34,yellowRailMat,crew);
-    box(-cs*.62,1.58,.02,.24,.74,.24,lCol,crew); // opposite arm for silhouette
-    box(-cs*.84,1.16,.02,.18,.18,.24,skinMat,crew);
+    crew.rotation.y=-cs*Math.PI/2;
+    const hip=new T.Mesh(civHipGeo,pitWallMat);hip.position.set(0,1.72,0);crew.add(hip);
+    const torso=new T.Mesh(civTorsoGeo,lCol);torso.position.set(0,2.60,0);crew.add(torso);
+    box(0,2.82,.43,1.10,.16,.06,whiteTrimMat,crew);
+    box(0,2.56,.44,.48,.28,.05,yellowRailMat,crew);
+    for(const lx of [-.38,.38]){
+     const leg=new T.Group();leg.position.set(lx,1.64,0);
+     const thigh=new T.Mesh(civLegGeo,lCol);thigh.position.set(0,-.76,0);leg.add(thigh);
+     const foot=new T.Mesh(civFootGeo,pitWallMat);foot.position.set(0,-1.44,.12);leg.add(foot);
+     crew.add(leg);
+    }
+    const chd=new T.Mesh(civHeadGeo,civHeadMat);chd.position.set(0,3.82,0);chd.rotation.y=Math.PI;crew.add(chd);
+    const cstud=new T.Mesh(civStudGeo,civSkinMat);cstud.position.set(0,4.36,0);crew.add(cstud);
+    const ccap=new T.Mesh(civHairDomeGeo,lCol);ccap.position.set(0,4.16,0);ccap.scale.set(1.04,.64,1.04);crew.add(ccap);
+    const cbrim=new T.Mesh(civCapBrimGeo,pitWallMat);cbrim.position.set(0,4.11,.56);crew.add(cbrim);
+    for(const sx of [-.97,.97]){
+     const ar=new T.Group();ar.position.set(sx,3.16,0);ar.rotation.x=sx>0?-.55:-.25;
+     const sl=new T.Mesh(civArmGeo,lCol);sl.position.set(0,-.50,.06);ar.add(sl);
+     const hd=new T.Mesh(civHandGeo,civSkinMat);hd.position.set(0,-1.08,.18);hd.rotation.x=Math.PI/2;ar.add(hd);
+     if(sx>0){box(0,-1.08,.48,.24,.24,.44,deckGreyMat,ar);box(0,-1.08,.74,.12,.12,.22,yellowRailMat,ar);}
+     crew.add(ar);
+    }
     stopCar.add(crew);
    }
    pitBldg.add(stopCar);
@@ -3337,13 +3601,14 @@ function buildF1CircuitProps(){
  for(let si=0;si<segCount;si++){
   const u0=si/segCount,u1=(si+1)/segCount,uMid=(u0+u1)*.5;
   const a=gpBarrierEdges(u0),b=gpBarrierEdges(u1),middle=gpBarrierEdges(uMid);
-  for(const edge of ['negative','positive','divider','pitInner']){
+  for(const edge of ['negative','positive']){
    if(middle[edge]===null)continue;
    const p0=gpPitPoint(u0,a[edge]??middle[edge]),p1=gpPitPoint(u1,b[edge]??middle[edge]);
    const len=Math.hypot(p1.x-p0.x,p1.z-p0.z);
    const direction=edge==='negative'?-1:1;
-   const curb=gpPitPoint(uMid,direction*(F1Core.widthAt(uMid)*.5-1));
-   bItems.push({x:(p0.x+p1.x)*.5,z:(p0.z+p1.z)*.5,cx:curb.x,cz:curb.z,yaw:Math.atan2(p1.x-p0.x,p1.z-p0.z),len:len+1.1,idx:si,curb:edge==='negative'||edge===(middle.divider===null?'positive':'divider')});
+   const curb=gpPitPoint(uMid,direction*(F1Core.widthAt(uMid)*.5-.45));
+   const inPitSpan=uMid>=GP_PIT_ENTRY&&uMid<=GP_PIT_EXIT&&edge==='positive';
+   bItems.push({x:(p0.x+p1.x)*.5,z:(p0.z+p1.z)*.5,cx:curb.x,cz:curb.z,yaw:Math.atan2(p1.x-p0.x,p1.z-p0.z),len:len+1.05,idx:si,curb:!inPitSpan});
   }
  }
  // Bound the batches to short stretches so off-camera track sections can be culled.
@@ -3551,7 +3816,7 @@ function updateF1Race(dt){
  if(!b.finished&&!b.pit&&!gpPlayerDone&&!gpPitActive()&&!gpPitGrace){const dx=pos.x-b.x,dz=pos.z-b.z,dist=Math.hypot(dx,dz);if(dist<9.4&&dist>.001){const nx=dx/dist,nz=dz/dist,pen=9.4-dist,tx=Math.sin(b.yaw),tz=Math.cos(b.yaw);pos.x+=nx*pen*.7;pos.z+=nz*pen*.7;b.lane=gpClamp(b.lane-(nx*tz-nz*tx)*pen*.3,-bound,bound);const rel=(velocityX-tx*b.speed)*nx+(velocityZ-tz*b.speed)*nz,imp=Math.max(0,-rel)*.55;velocityX+=nx*imp;velocityZ+=nz*imp;b.speed=gpClamp(b.speed-(tx*nx+tz*nz)*imp*.55,0,tune.cap*1.09);speed=velocityX*Math.sin(yaw)+velocityZ*Math.cos(yaw);if(imp>6&&!b.contactTimer){incident(imp*1.8);crashSound(Math.min(110,imp*1.8));b.contactTimer=.25;}}}}
  if(!qualifying){for(let i=0;i<f1Bots.length;i++)for(let j=i+1;j<f1Bots.length;j++){const b=f1Bots[i],o=f1Bots[j];if(b.finished||o.finished||b.pit||o.pit)continue;const dx=b.x-o.x,dz=b.z-o.z,d=Math.hypot(dx,dz);if(d>=9.4)continue;const t=gpCurve.getTangentAt(b.u),lat=dx*t.z-dz*t.x,sg=Math.abs(lat)>.01?Math.sign(lat):(i%2?1:-1),sep=(9.4-d)*.65;b.lane=gpClamp(b.lane+sg*sep,-race.width*.31,race.width*.31);o.lane=gpClamp(o.lane-sg*sep,-race.width*.31,race.width*.31);const rear=b.progress<o.progress?b:o,front=rear===b?o:b;if(rear.speed>front.speed&&!rear.contactTimer){incident(rear.speed-front.speed);rear.speed=front.speed+(rear.speed-front.speed)*.35;rear.contactTimer=.25;}}for(const b of f1Bots){const q=gpCurve.getPointAt(b.u),t=gpCurve.getTangentAt(b.u);b.x=q.x+t.z*b.lane;b.z=q.z-t.x*b.lane;b.group.position.set(b.x,.15,b.z);}if(!gpPlayerDone&&!gpPitActive()&&!gpPitGrace){gpApplyBoundary(dt,0,0,true);player.position.x=pos.x;player.position.z=pos.z;}}
  const rows=F1Core.timingTable(F1Core.rankRacers([{id:'p',name:'YOU · BRICKWAY GP',progress:f1PlayerProgress,finished:gpPlayerDone,finishTime:f1PlayerFinishTime,best:gpTimer.bestLap},...(!qualifying?f1Bots.map((b,i)=>({id:'b'+i,name:b.name,progress:b.progress,finished:b.finished,finishTime:b.finishTime,best:b.best})):[])]),gpReference);
- const me=rows.find(r=>r.id==='p');if(f1RaceTime>=gpHudTime||gpPlayerDone){gpHudTime=f1RaceTime+.12;document.getElementById('f1-pos').textContent=qualifying?'QUALIFYING':'POS: '+me.position+' / 6';document.getElementById('f1-lap').textContent='LAP: '+f1PlayerLap+' / '+laps;document.getElementById('f1-timer').textContent=F1Core.formatLapTime(gpPlayerDone?gpPlayerRawFinish:f1RaceTime);document.getElementById('f1-rk-diff').textContent=f1Difficulty.toUpperCase();document.getElementById('f1-telemetry').textContent=(gpPlayerDone?'FINISHED · WAITING FOR FIELD':gpWrongWay>.6?'WRONG WAY':'S'+(F1Core.sectorIndexOf(f1PlayerProgress%1)+1)+' · '+F1Core.formatLapTime(F1Core.currentLapTime(gpTimer,f1RaceTime)))+' · ERS '+Math.round(gpEnergy*100)+'% · BEST '+F1Core.formatLapTime(gpTimer.bestLap)+' · AHEAD '+F1Core.formatGap(me.gapToAhead)+' · LEAD '+F1Core.formatGap(me.gapToLeader)+(gpTimer.splits.length?' · S'+gpTimer.splits.length+' '+F1Core.formatLapTime(gpTimer.splits.at(-1)):'');document.getElementById('gp-tyres').textContent=(gpTyre.surface!=='dry'?gpTyre.surface.toUpperCase()+' · ':'')+gpTyre.compound.toUpperCase()+' · TYRE LIFE '+Math.round((1-gpTyre.wear)*100)+'%'+(gpTyre.wear>.8?' · BOX SOON':'')+' · STOPS '+gpTyre.stops+(gpFlag?' · '+gpFlag:'')+(gpPenalty.penaltySec?' · +'+gpPenalty.penaltySec+'s':'');const dr=document.getElementById('gp-drs');dr.textContent=gpDRS?'DRS OPEN':F1Core.inZones(gpWallU,gpZones)?'DRS ZONE':gpDraft>1?'SLIPSTREAM':'DRS OFF';dr.classList.toggle('active',gpDRS);const pit=document.getElementById('gp-pit');pit.disabled=!gpPitAvailable();pit.textContent=gpPitPhase==='queued'?'CANCEL PIT':gpPitPhase==='service'?'PIT '+gpPitRemaining.toFixed(1)+'s':gpPitActive()?'PIT ACTIVE':'REQUEST PIT (P)';gpPitHUD();document.getElementById('f1-live-ranks-list').innerHTML=rows.map(r=>'<div class="f1-rk-row'+(r.id==='p'?' me':'')+'"><span class="rk-pos">P'+r.position+'</span><span>'+r.name+'</span><span>'+(r.finished?'FIN':r.id!=='p'&&f1Bots[Number(r.id.slice(1))].pit?'PIT':F1Core.formatGap(r.gapToLeader))+'</span></div>').join('');}
+ const me=rows.find(r=>r.id==='p');if(f1RaceTime>=gpHudTime||gpPlayerDone){gpHudTime=f1RaceTime+.12;document.getElementById('f1-pos').textContent=qualifying?'QUALIFYING':'POS: '+me.position+' / 6';document.getElementById('f1-lap').textContent='LAP: '+f1PlayerLap+' / '+laps;document.getElementById('f1-timer').textContent=F1Core.formatLapTime(gpPlayerDone?gpPlayerRawFinish:f1RaceTime);document.getElementById('f1-rk-diff').textContent=f1Difficulty.toUpperCase();document.getElementById('f1-telemetry').textContent=(gpPlayerDone?'FINISHED · WAITING FOR FIELD':gpWrongWay>.6?'WRONG WAY':'S'+(F1Core.sectorIndexOf(f1PlayerProgress%1)+1)+' · '+F1Core.formatLapTime(F1Core.currentLapTime(gpTimer,f1RaceTime)))+' · ERS '+Math.round(gpEnergy*100)+'% · BEST '+F1Core.formatLapTime(gpTimer.bestLap)+' · AHEAD '+F1Core.formatGap(me.gapToAhead)+' · LEAD '+F1Core.formatGap(me.gapToLeader)+(gpTimer.splits.length?' · S'+gpTimer.splits.length+' '+F1Core.formatLapTime(gpTimer.splits.at(-1)):'');document.getElementById('gp-tyres').textContent=(gpTyre.surface!=='dry'?gpTyre.surface.toUpperCase()+' · ':'')+gpTyre.compound.toUpperCase()+' · TYRE LIFE '+Math.round((1-gpTyre.wear)*100)+'%'+(gpTyre.wear>.8?' · BOX SOON':'')+' · STOPS '+gpTyre.stops+(gpFlag?' · '+gpFlag:'')+(gpPenalty.penaltySec?' · +'+gpPenalty.penaltySec+'s':'');const dr=document.getElementById('gp-drs');dr.textContent=gpDRS?'DRS OPEN':F1Core.inZones(gpWallU,gpZones)?'DRS ZONE':gpDraft>1?'SLIPSTREAM':'DRS OFF';dr.classList.toggle('active',gpDRS);updateTyreLogoWidget();gpPitHUD();document.getElementById('f1-live-ranks-list').innerHTML=rows.map(r=>'<div class="f1-rk-row'+(r.id==='p'?' me':'')+'"><span class="rk-pos">P'+r.position+'</span><span>'+r.name+'</span><span>'+(r.finished?'FIN':r.id!=='p'&&f1Bots[Number(r.id.slice(1))].pit?'PIT':F1Core.formatGap(r.gapToLeader))+'</span></div>').join('');}
  if(gpPlayerDone&&f1Bots.every(b=>b.finished))gpFinishUI(rows);
 }
 
@@ -6408,48 +6673,8 @@ const jobMarker=new T.Mesh(new T.TorusGeometry(8,.6,7,24),new T.MeshBasicMateria
 jobMarker.rotation.x=-Math.PI*.5;jobMarker.visible=false;
 const alternateJobMarker=jobMarker.clone();
 scene.add(jobMarker,alternateJobMarker);
-function makeTrafficBrickCar(paint,roofHeight=1.7){
- const group=new T.Group();
- const color=material(paint,.41,.37),black=material(0x22262d,.71,.13),window=material(0x779db8,.28,.37);
- const lamp=material(0xf5edb4,.24,.15),rear=material(0xae2335,.35,.18);
- box(0,1.27,0,4.7,.85,8.3,color,group);
- box(0,roofHeight+.45,.44,3.7,.83,3.7,window,group);
- box(0,roofHeight+.97,.34,3.68,.29,3.10,color,group);
- for(const side of [-1,1]){
-  box(side*1.57,1.32,-4.16,.56,.32,.12,lamp,group);
-  box(side*1.57,1.32,4.16,.56,.32,.12,rear,group);
-  for(const z of [-2.63,2.65])box(side*2.27,.76,z,.46,1.3,1.51,black,group);
- }
- group.visible=false;scene.add(group);
- return group;
-}
-const harborTraffic=[0xd18768,0xe0bd64,0x8aaab4,0x567b72,0x8264a7,0xd3d5cc].map((color,i)=>({
- group:makeTrafficBrickCar(color,1.6+i%3*.16),u:(i+.45)/6,direction:i%2?1:-1,pace:20+i*1.1,hit:0
-}));
-const trafficPoint=new T.Vector3(),trafficTangent=new T.Vector3();
-function updateHarborTraffic(dt,contact=true){
- for(const car of harborTraffic){
-  car.u=gpIncrease(car.u,car.direction*car.pace*dt/harborTrafficRoute.length,1);
-  const p=harborTrafficRoute.curve.getPointAt(car.u,trafficPoint);
-  const t=harborTrafficRoute.curve.getTangentAt(car.u,trafficTangent);
-  const x=p.x+t.z*car.direction*5.9,z=p.z-t.x*car.direction*5.9;
-  const y=harborElevation(x,z);
-  car.group.visible=pos.x>765&&Math.abs(pos.x-x)<640&&Math.abs(pos.z-z)<640;
-  if(!car.group.visible)continue;
-  car.group.position.set(x,y+.1,z);
-  car.group.rotation.y=Math.atan2(t.x*car.direction,t.z*car.direction)+Math.PI;
-  car.hit=Math.max(0,car.hit-dt);
-  const dx=pos.x-x,dz=pos.z-z,d=Math.hypot(dx,dz);
-  if(contact&&!car.hit&&d<7.4&&d>.001&&Math.abs(pos.y-y)<3){
-   const nx=dx/d,nz=dz/d,closing=Math.max(0,-((velocityX-t.x*car.direction*car.pace)*nx+(velocityZ-t.z*car.direction*car.pace)*nz));
-   pos.x+=nx*(7.4-d);pos.z+=nz*(7.4-d);
-   velocityX=(velocityX+nx*closing)*.66;velocityZ=(velocityZ+nz*closing)*.66;
-   speed=velocityX*Math.sin(yaw)+velocityZ*Math.cos(yaw);
-   car.hit=.45;previousRear=null;
-   if(closing>12)crashSound(Math.min(95,closing));
-  }
- }
-}
+const harborTraffic=[];
+function updateHarborTraffic(){}
 const safehouses=[{x:1285,z:464},{x:1570,z:-375}];
 const safehouseMaterial=material(0x596977,.67,.22),roofMaterial=material(0x355460,.48,.28);
 for(const house of safehouses){
