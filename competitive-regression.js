@@ -27,7 +27,7 @@ function exercise(mobile) {
     resetJoystick();check(!keys.KeyW&&joySteerValue===0&&!phoneDriftPointers.size,'touch release');
     return {viewport:[innerWidth,innerHeight],joystickWidth:box.width,brakeWidth:brake.width};
   }
-  for (const [laps, difficulty, compound,surface] of [[12,'easy','soft','dry'],[20,'pro','medium','dry'],[30,'legend','hard','dry'],[12,'pro','intermediate','damp'],[20,'legend','wet','wet']]) {
+  for (const [laps, difficulty, compound,surface] of [[5,'easy','soft','dry'],[8,'pro','medium','dry'],[12,'legend','hard','dry'],[5,'pro','intermediate','damp'],[8,'legend','wet','wet']]) {
     document.getElementById('btn-mode-f1race').click();
     document.getElementById('gp-distance').value = laps;
     document.getElementById('gp-surface').value=surface;
@@ -72,8 +72,8 @@ function exercise(mobile) {
     const entry=gpPitPoint(gpWallU,0);
     pos.set(entry.x,0,entry.z);yaw=Math.atan2(entry.t.x,entry.t.z);speed=95;velocityX=95;
     gpRequestPit();check(gpPitPhase==='idle','fresh tyres lock pit requests');
-    gpTyre.wear=.71;
-    gpRequestPit();check(gpPitPhase==='queued','pit request unlocks below 30% health');gpRequestPit();check(gpPitPhase==='idle','cancel');
+    gpTyre.wear=.46;
+    gpRequestPit();check(gpPitPhase==='queued','pit request unlocks at 55% health');gpRequestPit();check(gpPitPhase==='idle','cancel');
     gpRequestPit();document.getElementById('tyre-next-select').value='hard';
     let stationary=0,transit=0,largestYawStep=0;
     do {
@@ -123,7 +123,7 @@ function exercise(mobile) {
     check(f1RaceFinished&&gpFinishRows.length===6&&gpCompleted===laps,'race classification');
     check(gpSeason.round>=1&&Object.values(gpSeason.totals).some(v=>v>=25),'championship scoring');
     check(orderChanges>0&&passZones.size>=3,'overtaking opportunities');
-    if(surface==='dry'||laps>=20)check(f1Bots.some(b=>b.tyre.stops>0),'AI pit decisions');
+    check(f1Bots.every(b=>b.tyre.stops>0&&!b.pit),'each AI driver finishes a tyre change and rejoins');
     const topRivals=gpFinishRows.filter(row=>row.id!=='p').slice(0,2);
     check(topRivals.some(row=>row.name===hamilton.name)&&topRivals.some(row=>row.name===max.name),'Hamilton and Verstappen are the top rated rivals in each scenario');
     results.push({laps,difficulty,compound,surface,orderChanges,attackSectors:passZones.size,
@@ -137,6 +137,7 @@ function exercise(mobile) {
   settingsControls.camera.value='3';settingsControls.camera.dispatchEvent(new Event('input'));
   frame(prev+.040*1000);
   check(formulaCockpit.group.visible&&!formulaPlayer.face.visible&&camera.position.distanceTo(formulaPlayer.group.position)<4,'driving from inside the formula car');
+  check(Number.isFinite(gpTyre.temperature)&&formulaCockpit.reading.endsWith('|'+Math.round(gpTyre.temperature)),'formula cockpit displays live tyre temperature');
   check(formulaCockpit.wheel.children.some(mesh=>mesh.material?.map===formulaCockpit.dialTex),'formula instruments follow the wheel');
   check(formulaCockpit.dialTex.version>0&&cinematicPass.uniforms.uCockpit.value===1,'formula display updates with clear cockpit post-processing');
   f1RaceTime+=.12;recordRaceReplay();
@@ -272,6 +273,26 @@ function exerciseCity() {
   check(activeCityJob&&wanted>0,'crossing does not pay until the pursuit is lost');
   clearPolice();updateCityJob(.05);
   check(!activeCityJob&&Number.isFinite(cityTimes.dock),'getaway pays after escape');
+  wanted=3;pos.set(1510,0,226);frame(prev+40);
+  check(policePool.some(c=>c.active),'an ongoing pursuit replenishes missing cruisers');
+  const oldPause=chaseSong.pause;
+  let pauses=0;
+  chaseSong.pause=function(){pauses++;return oldPause.call(this);};
+  Object.defineProperty(document,'hidden',{configurable:true,value:true});
+  try{
+    keys.KeyW=true;
+    document.dispatchEvent(new Event('visibilitychange'));
+    check(gameplayAudioBlocked()&&pauses>0&&!keys.KeyW,'hiding the tab pauses chase audio and releases controls');
+    const before=pursuitTimer;
+    frame(prev+40);
+    check(pursuitTimer===before,'hidden tab pauses pursuit simulation');
+  }finally{
+    delete document.hidden;
+    document.dispatchEvent(new Event('visibilitychange'));
+  }
+  openDeathScreen('You Died','Test death.',0,0);
+  check(gameplayAudioBlocked()&&chaseSong.paused&&!chaseWanted,'death clears chase audio');
+  chaseSong.pause=oldPause;
   return {crossings:crossings.length,cars:Object.keys(streetCars).length,jobs:cityJobs.length,traffic:harborTraffic.length,heat};
 }
 

@@ -368,3 +368,32 @@ describe('rival profiles and energy recovery', () => {
     assert.equal(F.energyStep(.99, 1, false, true), 1);
   });
 });
+
+describe('Formula Sim handling', () => {
+  test('shares longitudinal and lateral grip while preserving full grip at zero demand', () => {
+    assert.equal(F.tractionShare(0), 1);
+    assert.ok(F.tractionShare(.4) > F.tractionShare(.8));
+    assert.ok(F.tractionShare(1) > 0);
+    assert.equal(F.tractionShare(2), F.tractionShare(1));
+  });
+
+  test('warms loaded tyres, cools parked tyres, and rewards the compound window', () => {
+    const tyre = {compound:'medium', surface:'dry', wear:0, temperature:F.freshTyreTemperature('medium')};
+    const coldGrip = F.grip(tyre);
+    for(let i=0;i<100;i++) F.updateTyreTemperature(tyre,.05,135,.50,.10,1);
+    assert.ok(F.grip(tyre)>coldGrip);
+    const warm=tyre.temperature;
+    for(let i=0;i<100;i++) F.updateTyreTemperature(tyre,.05,0,0,0,0);
+    assert.ok(tyre.temperature<warm);
+    assert.ok(F.grip({...tyre,temperature:90})>F.grip({...tyre,temperature:124}));
+    assert.ok(F.tyreWindow('wet')<F.tyreWindow('medium'));
+  });
+});
+
+test('short race presets preserve proportional wear and give rivals a pit window', () => {
+  near(F.tyreWearRate('medium',5)*5,F.tyreWearRate('medium',12)*12);
+  assert.ok(F.tyreWearRate('soft',5)>F.tyreWearRate('hard',5));
+  const driver=F.drivers[0];
+  assert.equal(F.strategy({compound:'wet',surface:'wet',wear:.63,stops:0},driver,2,5),'wet');
+  assert.equal(F.strategy({compound:'medium',surface:'dry',wear:.63,stops:0},driver,.3,5),null);
+});

@@ -14,7 +14,7 @@ python3 -m http.server 4173
 | Space | Drift in Open World or brake in Grand Prix |
 | Shift | Boost in Open World or deploy ERS in Grand Prix |
 | C or View | Cycle chase, hood, high chase and cockpit |
-| P or Pit Stop | Queue or cancel an assisted pit stop below 30% tyre health |
+| P or Pit Stop | Queue or cancel an assisted pit stop at or below 55% tyre health |
 | Escape | Settings |
 | R | Reset to the mode's starting location |
 
@@ -26,9 +26,11 @@ Follow the east coast to **Skyspan Bridge** or **Dockside Crossing**. The harbor
 
 **Skyspan Courier** rewards fast deliveries. **Container Getaway** triggers a three-star pursuit and accepts either crossing before requiring the driver to lose the police. **Harbor Sprint** is a timed route through the port and back. A timer starts when you reach the first checkpoint. The garage saves owned and equipped cars, the stud balance and job best times together. Existing balances are imported the first time you play.
 
-Ground police investigate last known positions, use the crossings to reach the other shore, and send some units ahead. Cruisers stay on your trail through both crossings and around harbor buildings and cargo. The escape meter resumes once you leave the harbor and break line of sight. Open-sided covered garages can break helicopter sight. The City and Exit Car buttons and their keyboard shortcuts are removed in this build. Existing garage and job data are still stored.
+Ground police investigate last known positions, use both crossings, and call in backup if too few cruisers remain or a high-heat chase spreads out. Switching tabs pauses the game and audio. The death screen stops chase music and effects. Cruisers stay on your trail through both crossings and around harbor buildings and cargo. The escape meter resumes once you leave the harbor and break line of sight. Open-sided covered garages can break helicopter sight. The City and Exit Car buttons and their keyboard shortcuts are removed in this build. Existing garage and job data are still stored.
 
 ## Grand Prix
+
+Choose 5, 8, or 12 laps. Tyre wear per lap increases in shorter races, and AI rivals plan pit stops around the selected distance and track conditions. Watch live timing for their pit status.
 
 Lewis Hamilton #44 has the strongest power and tyre preservation. Max Verstappen #1 has the highest dry cornering multiplier and commits early to overtakes. Charles Leclerc #16 holds the longest defensive line, Lando Norris #4 preserves tyres, and Fernando Alonso #14 is tuned to attack smaller openings. These are fictional game balance profiles inspired by driving styles. The higher Legend difficulty tightens AI braking margins.
 
@@ -54,3 +56,9 @@ Design references include [Forza Horizon 5's distinct regions](https://forza.net
 [F1 25's approach to cockpit visibility](https://www.ea.com/en/games/f1/f1-25/news/f1-25-tips-and-tricks),
 [Gran Turismo 7's cockpit settings](https://www.gran-turismo.com/us/gt7/manual/drivingoption/05)
 and [Three.js instancing](https://threejs.org/docs/pages/InstancedMesh.html).
+
+### Grand Prix tyre temperature and grip
+
+Grand Prix applies a shared grip budget to the player car. Braking while turning reduces the grip available for both, and hard acceleration uses some of the same grip at low speed. Brake before turn-in and ease off the pedal as you add steering. Tyre compound, wetness, wear, and temperature all influence grip. Fresh pit tyres start cooler, and the Formula cockpit shows their temperature in blue, green, or orange.
+
+The tyre and braking changes were inspired by [LibreCorsa](https://librecorsa.org/play).
