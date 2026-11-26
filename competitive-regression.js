@@ -137,6 +137,8 @@ function exercise(mobile) {
   settingsControls.camera.value='3';settingsControls.camera.dispatchEvent(new Event('input'));
   frame(prev+.040*1000);
   check(formulaCockpit.group.visible&&!formulaPlayer.face.visible&&camera.position.distanceTo(formulaPlayer.group.position)<4,'driving from inside the formula car');
+  check(formulaCockpit.wheel.children.some(mesh=>mesh.material?.map===formulaCockpit.dialTex),'formula instruments follow the wheel');
+  check(formulaCockpit.dialTex.version>0&&cinematicPass.uniforms.uCockpit.value===1,'formula display updates with clear cockpit post-processing');
   f1RaceTime+=.12;recordRaceReplay();
   check(f1Bots.every(b=>!b.group.visible),'solo qualifying');
   gpTimingU=gpDist=.9995;gpWallU=.0005;f1RaceTime=48;
@@ -168,6 +170,7 @@ function exerciseCity() {
   const check=(condition,message)=>{if(!condition)throw new Error(message);};
   document.getElementById('btn-mode-openworld').click();
   check(harborRoot.visible&&paths.length>=23,'expanded Open World');
+  check(crossings.map(bridge=>bridge.style).join(',')==='suspension,truss','crossings have distinct visual designs');
   const turnWith=key=>{
     reset();speed=55;
     const start=yaw;
@@ -193,9 +196,26 @@ function exerciseCity() {
     const deck=confineWorld(x,bridge.z,x-2,bridge.z,4.7);
     const rail=confineWorld(x,bridge.z+bridge.width,x,bridge.z,4.7);
     check(deck.y>11&&rail.z<bridge.z+bridge.width*.5,'bridge has height and solid rails');
+    if(bridge.style==='truss'){
+      const overhead=harborRoot.children.filter(mesh=>mesh.position.z===bridge.z&&mesh.scale.z>=bridge.width-2&&
+        mesh.position.y>bridgeHeight(bridge,mesh.position.x)+5);
+      check(overhead.length>=4&&overhead.every(mesh=>{
+        const edge=mesh.scale.x/2;
+        const deckY=Math.max(bridgeHeight(bridge,mesh.position.x-edge),bridgeHeight(bridge,mesh.position.x+edge));
+        return mesh.position.y-mesh.scale.y/2-deckY>13;
+      }),'Dockside portal beams clear the raised roadway by at least 13 units');
+    }
   }
   check(worldGround(1010,0)===null,'channel is water between crossings');
   check(policeWaypoint({x:809,z:-340},1400,-350).z===-350,'police select a bridge');
+  check(policeWaypoint({x:970,z:440},980,443).x===980,'cruisers follow a target on the same bridge');
+  const obstacle=harborRouteLots.find(lot=>lot.x>1360&&lot.z>70&&lot.z<395);
+  const left={x:obstacle.x-obstacle.w/2-10,z:obstacle.z};
+  const right={x:obstacle.x+obstacle.w/2+10,z:obstacle.z};
+  check(harborPathBlocked(left.x,left.z,right.x,right.z),'cargo obstructs a direct chase');
+  const detour=harborPoliceRoute(left.x,left.z,right);
+  check(detour.length>2&&detour.slice(1).every((node,i)=>!harborPathBlocked(detour[i].x,detour[i].z,node.x,node.z,7)),'harbor police navigate around cargo');
+
   check(isCovered(safehouses[0].x,safehouses[0].z),'safehouse has cover');
   check(harborElevation(1536,-545)>25&&harborElevation(1310,-545)===0,'switchbacks rise into and descend from the hills');
   pos.set(1645,0,-350);updateHarborTraffic(.05,false);
@@ -222,6 +242,10 @@ function exerciseCity() {
   settingsControls.camera.value='3';settingsControls.camera.dispatchEvent(new Event('input'));
   frame(prev+40);
   check(streetCockpit.group.visible&&!sports.helmetGroup.visible,'street car cockpit');
+  check(streetCockpit.dialTex.version>0&&cinematicPass.uniforms.uCockpit.value===1,'street instruments update in cockpit view');
+  settingsControls.camera.value='0';settingsControls.camera.dispatchEvent(new Event('input'));
+  frame(prev+40);
+  check(!streetCockpit.group.visible&&cinematicPass.uniforms.uCockpit.value===0,'chase camera exits cockpit rendering');
   check(beginCityJob(cityJobs[0]),'start a courier job');
   for(const [x,z] of cityJobs[0].points){pos.set(x,0,z);updateCityJob(.05);}
   updateCityJob(.05);
@@ -230,6 +254,17 @@ function exerciseCity() {
   const [x,z]=cityJobs[1].points[0];pos.set(x,0,z);
   frame(prev+40);
   check(wanted===3&&activeCityJob.started&&policePool.some(c=>c.active),'cargo pickup dispatches police');
+  escapeTimer=9.95;policeMemory.x=0;policeMemory.z=0;
+  for(const cop of policePool){if(cop.active){cop.x=750;cop.z=-350;}}
+  frame(prev+50);
+  check(wanted===3&&escapeTimer<9.95&&Math.hypot(pos.x-policeMemory.x,pos.z-policeMemory.z)<.1,'harbor pursuit stays active across the channel');
+  const leadCop=policePool.find(cop=>cop.active);
+  for(const cop of policePool)if(cop!==leadCop)cop.active=false;
+  Object.assign(leadCop,{x:790,z:440,yaw:Math.PI/2,vx:0,vz:0,speed:45});
+  for(let step=0;step<320&&leadCop.x<=bridgeEnd;step++)frame(prev+40);
+  check(leadCop.x>bridgeEnd&&wanted===3,'a pursuing cruiser drives the full Dockside crossing');
+
+
   const heat=wanted;
   pos.set(1510,0,226);updateCityJob(.05);
   check(jobWaypoints(activeCityJob).length===2,'cargo job offers both crossings');

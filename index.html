@@ -935,7 +935,7 @@ const skyDome=new T.Mesh(
    uSkyMid:{value:new T.Color(0xc85a48)},
    uSkyHorizon:{value:new T.Color(0xff9c52)},
    uSunColor:{value:new T.Color(0xff8438)},
-   uNightFactor:{value:0.35},
+   uNightFactor:{value:0.0},
    uWeatherOvercast:{value:0.0}
   },
   vertexShader:`
@@ -972,7 +972,7 @@ const skyDome=new T.Mesh(
     if(starVis>0.01){
      vec2 sUv=floor(d.xz/(d.y+0.28)*140.0);
      float rnd=hash21(sUv);
-     if(rnd>0.993){
+     if(rnd>0.997){
       float tw=0.65+0.35*sin(uTime*3.5+rnd*90.0);
       col+=vec3(0.95,0.97,1.0)*tw*starVis*1.2;
      }
@@ -980,8 +980,8 @@ const skyDome=new T.Mesh(
     float sunAmt=max(dot(d,normalize(uSunDir)),0.0);
     float sunFade=1.0-uWeatherOvercast*0.85;
     col+=uSunColor*pow(sunAmt,6.0)*0.30*sunFade;
-    col+=uSunColor*pow(sunAmt,48.0)*0.58*sunFade;
-    col+=uSunColor*1.35*smoothstep(0.9968,0.9990,sunAmt)*sunFade;
+    col+=uSunColor*pow(sunAmt,48.0)*0.58*sunFade*(1.0-uNightFactor*.80);
+    col+=uSunColor*1.35*smoothstep(0.9968,0.9990,sunAmt)*sunFade*(1.0-uNightFactor);
     gl_FragColor=vec4(col,1.0);
    }`
  })
@@ -998,6 +998,7 @@ const cinematicPass=new ShaderPass({
   tDiffuse:{value:null},
   uBoost:{value:0.0},
   uSpeed:{value:0.0},
+  uCockpit:{value:0.0},
   uTime:shaderTime
  },
  vertexShader:`
@@ -1007,33 +1008,20 @@ const cinematicPass=new ShaderPass({
   uniform sampler2D tDiffuse;
   uniform float uBoost;
   uniform float uSpeed;
+  uniform float uCockpit;
   varying vec2 vUv;
   void main(){
    vec2 centered=vUv-0.5;
    float dist=length(centered);
-   // Radial chromatic aberration that intensifies at high speed & SHIFT boost
-   float ca=(0.0008+uSpeed*0.0022+uBoost*0.0055)*dist*dist;
-   vec2 dir=normalize(centered+vec2(0.00001));
-   float r=texture2D(tDiffuse,vUv+dir*ca).r;
-   float g=texture2D(tDiffuse,vUv).g;
-   float b=texture2D(tDiffuse,vUv-dir*ca).b;
-   vec3 col=vec3(r,g,b);
-   // Subtle warm-highlight / cool-shadow color lift
-   float luma=dot(col,vec3(0.299,0.587,0.114));
-   col=mix(col,col*vec3(1.03,1.01,0.97),smoothstep(0.5,1.0,luma)*0.35);
-   // Subtle miniature LEGO tilt-shift depth blur on the far upper horizon
-   float dof=smoothstep(0.60,0.96,vUv.y)*0.0024;
-   if(dof>0.0001){
-    vec3 bCol=col*0.40;
-    bCol+=texture2D(tDiffuse,vUv+vec2(dof,0.0)).rgb*0.15;
-    bCol+=texture2D(tDiffuse,vUv-vec2(dof,0.0)).rgb*0.15;
-    bCol+=texture2D(tDiffuse,vUv+vec2(0.0,dof)).rgb*0.15;
-    bCol+=texture2D(tDiffuse,vUv-vec2(0.0,dof)).rgb*0.15;
-    col=bCol;
+   vec3 col=texture2D(tDiffuse,vUv).rgb;
+   float ca=uBoost*(0.0012+uSpeed*0.002)*dist*dist*(1.0-uCockpit);
+   if(ca>0.0001){
+    vec2 offset=normalize(centered+vec2(0.00001))*ca;
+    col.r=texture2D(tDiffuse,vUv+offset).r;
+    col.b=texture2D(tDiffuse,vUv-offset).b;
    }
-   // Subtle dynamic vignette (tightens slightly when boosting)
-   float vig=smoothstep(0.94,0.30,dist*(1.04+uBoost*0.20));
-   col*=mix(0.86,1.0,vig);
+   float vignette=smoothstep(0.31,0.72,dist);
+   col*=1.0-vignette*mix(0.10+uBoost*0.05,0.035,uCockpit);
    gl_FragColor=vec4(col,1.0);
   }`
 });
@@ -1061,7 +1049,11 @@ m.grass.onBeforeCompile=shader=>{
 };
 m.grass.customProgramCacheKey=()=>'lego-grass-studs-v1';
 const groundPlane=box(0,-1.1,0,3900,2,3900,m.grass);groundPlane.receiveShadow=true;
-const studGeo=new T.CylinderGeometry(.72,.72,.24,10);
+// Molded stud shoulders catch light while keeping the footprint and height of the original stud.
+const studGeo=new T.LatheGeometry([
+ new T.Vector2(0,-.12),new T.Vector2(.68,-.12),new T.Vector2(.72,-.08),
+ new T.Vector2(.72,.075),new T.Vector2(.675,.12),new T.Vector2(0,.12)
+],12);
 function studs(x,y,z,w,d,mat,spacing=4,parent=scene){let nx=Math.floor(w/spacing),nz=Math.floor(d/spacing);if(nx<1||nz<1||nx*nz>160)return null;let inst=new T.InstancedMesh(studGeo,mat,nx*nz),dummy=new T.Object3D(),idx=0;for(let i=0;i<nx;i++)for(let j=0;j<nz;j++){dummy.position.set(x+(i-(nx-1)/2)*spacing,y,z+(j-(nz-1)/2)*spacing);dummy.updateMatrix();inst.setMatrixAt(idx++,dummy.matrix)}parent.add(inst);return inst}
 function brick(x,y,z,w,h,d,mat){box(x,y,z,w,h,d,mat);studs(x,y+h/2+.13,z,w-1,d-1,mat)}
 const WORLD_SCALE=2.15;
@@ -1088,8 +1080,8 @@ function road(points,width,closed=false){
 
 // Both the bridges' render meshes and their driving surfaces use these profiles.
 const crossings=[
- {name:'Skyspan Bridge',z:-350,width:48,height:25,color:0xe7af48},
- {name:'Dockside Crossing',z:440,width:48,height:25,color:0xe7af48}
+ {name:'Skyspan Bridge',z:-350,width:48,height:25,color:0xe7af48,style:'suspension'},
+ {name:'Dockside Crossing',z:440,width:48,height:25,color:0x567e98,style:'truss'}
 ];
 const harbor={left:1225,right:1745,edge:718};
 const bridgeStart=802,bridgeEnd=1270;
@@ -1161,10 +1153,15 @@ roadMat.onBeforeCompile=shader=>{
   float row=floor(p.y);
   p.x+=mod(row,2.0)*0.5;
   vec2 f=fract(p);
-  float seamX=smoothstep(0.0,0.05,f.x)*smoothstep(1.0,0.95,f.x);
-  float seamY=smoothstep(0.0,0.08,f.y)*smoothstep(1.0,0.92,f.y);
-  float tileFace=seamX*seamY;
-  diffuseColor.rgb=vec3(0.19,0.21,0.25)*mix(0.65,0.92,tileFace);
+  vec2 edge=min(f,1.0-f);
+  vec2 aa=max(fwidth(p),vec2(.004));
+  vec2 face=smoothstep(vec2(.024,.04)-aa,vec2(.024,.04)+aa,edge);
+  float detail=1.0-smoothstep(.10,.55,max(aa.x,aa.y));
+  float tile=fract(sin(dot(floor(p),vec2(27.17,73.83)))*1843.53);
+  float harborTone=smoothstep(1240.0,1360.0,vRoadWorld.x);
+  vec3 plastic=mix(vec3(.166,.185,.218),vec3(.190,.195,.196),harborTone);
+  float seam=(1.0-face.x*face.y)*detail;
+  diffuseColor.rgb=plastic*(1.0+(tile-.5)*.07*detail-seam*.22);
  `);
 };
 roadMat.customProgramCacheKey=()=>'lego-tiled-road-v3-clean';
@@ -1300,32 +1297,39 @@ const windowGlass=new T.MeshStandardMaterial({color:0x85b7c9,metalness:.28,rough
 // shading are evaluated in object space, so the bricks remain correctly sized
 // on tall and wide buildings without large texture downloads.
 const buildingWallCache=new Map();
-function moldedBrickMaterial(base,w,h,d){
- const key=[base.color.getHex(),Math.round(w/4),Math.round(h/4),Math.round(d/4)].join(':');
- if(buildingWallCache.has(key))return buildingWallCache.get(key);
+function moldedBrickMaterial(base){
+ if(buildingWallCache.has(base))return buildingWallCache.get(base);
  const mat=base.clone();
- mat.roughness=.46;mat.metalness=.02;mat.envMapIntensity=.28;
+ mat.roughness=.39;mat.envMapIntensity=.34;
  mat.onBeforeCompile=shader=>{
-  shader.uniforms.brickWidth={value:5.0};
-  shader.uniforms.brickHeight={value:2.8};
-  shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vBrickPosition;');
-  shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvBrickPosition=position*vec3('+w.toFixed(2)+','+h.toFixed(2)+','+d.toFixed(2)+');');
-  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vBrickPosition;');
+  shader.vertexShader=shader.vertexShader.replace('#include <common>',`#include <common>
+   varying vec2 vBrickFace;
+  `);
+  shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
+   vec3 brickSize=vec3(1.0);
+   #ifdef USE_INSTANCING
+    brickSize=vec3(length(instanceMatrix[0].xyz),length(instanceMatrix[1].xyz),length(instanceMatrix[2].xyz));
+   #endif
+   vec3 brickPosition=(position+0.5)*brickSize;
+   vBrickFace=abs(normal.z)>.5?brickPosition.xy:brickPosition.zy;
+  `);
+  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec2 vBrickFace;');
   shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
-    vec3 ap=abs(normalize(vNormal));
-    vec2 uvBrick=ap.z>ap.x?vBrickPosition.xy:vBrickPosition.zy;
-    float row=floor(uvBrick.y/2.8);
-    uvBrick.x+=mod(row,2.0)*2.5;
-    vec2 f=fract(uvBrick/vec2(5.0,2.8));
-    float mortar=max(step(f.x,.018),step(f.y,.035));
-    mortar=max(mortar,step(.982,f.x));
-    float plastic=0.96+0.04*sin(uvBrick.x*1.7+uvBrick.y*.63);
-    diffuseColor.rgb*=mix(vec3(plastic),vec3(.63),mortar*.42);
+   vec2 grid=vBrickFace/vec2(5.0,2.8);
+   grid.x+=mod(floor(grid.y),2.0)*.5;
+   vec2 aa=max(fwidth(vBrickFace)/vec2(5.0,2.8),vec2(.003));
+   vec2 f=fract(grid);
+   vec2 face=smoothstep(vec2(.028,.043)-aa,vec2(.028,.043)+aa,min(f,1.0-f));
+   float detail=1.0-smoothstep(.11,.48,max(aa.x,aa.y));
+   float mold=fract(sin(dot(floor(grid),vec2(21.7,51.3)))*1784.23);
+   float bevel=smoothstep(.035,.08,f.y)*(1.0-smoothstep(.08,.19,f.y));
+   diffuseColor.rgb*=1.0+detail*((mold-.5)*.09+bevel*.10-(1.0-face.x*face.y)*.32);
   `);
  };
- mat.customProgramCacheKey=()=> 'lego-masonry-v2';
- buildingWallCache.set(key,mat);return mat;
+ mat.customProgramCacheKey=()=> 'lego-masonry-v3';
+ buildingWallCache.set(base,mat);return mat;
 }
+const roofStudGeometry=new T.CylinderGeometry(.55,.49,.27,10);
 const buildingGlass=new T.MeshPhysicalMaterial({color:0x6ea0b5,metalness:.12,roughness:.14,clearcoat:.65,clearcoatRoughness:.16,envMapIntensity:.55,emissive:0x24394a,emissiveIntensity:.18});
 const warmShopGlass=new T.MeshPhysicalMaterial({color:0xd9b36c,metalness:.04,roughness:.16,transmission:0,clearcoat:.65,envMapIntensity:.50,emissive:0xffaa38,emissiveIntensity:.65});
 const moldedTrim=new T.MeshStandardMaterial({color:0xe8e7e0,roughness:.48,metalness:.02,envMapIntensity:.25});
@@ -1333,7 +1337,10 @@ const moldedTrim=new T.MeshStandardMaterial({color:0xe8e7e0,roughness:.48,metaln
 function clearance(x,z){let best=Infinity;for(const p of samples){const d=Math.hypot(p.x-x,p.z-z)-p.r;if(d<best)best=d}return best}
 function legoBuilding(x,z,w,d,h,kind,index){
  const g=new T.Group();g.position.set(x,0,z);g.userData.cityBuilding=true;scene.add(g);
- const wall=moldedBrickMaterial(walls[index%walls.length],w,h,d),roof=roofs[(index+Math.floor(index/3))%roofs.length];
+ const nearest=samples.reduce((best,p)=>
+  !best||(p.x-x)**2+(p.z-z)**2<(best.x-x)**2+(best.z-z)**2?p:best,null);
+ if(nearest&&nearest.z<z)g.rotation.y=Math.PI;
+ const wall=moldedBrickMaterial(walls[index%walls.length]),roof=roofs[(index+Math.floor(index/3))%roofs.length];
  const parts=[new Map(),new Map()];
  const transform=new T.Object3D();
  function part(x,y,z,w,h,d,mat){
@@ -1405,24 +1412,36 @@ function legoBuilding(x,z,w,d,h,kind,index){
  }
  part(2.1,4,d/2+1.2,.6,.6,.3,flowerMat);
  part(0,9.3,d/2+2.2,12,1.1,4,roof);
- // Pitched LEGO roofs: staggered stepped brick courses with clean vertical gaps.
- if(kind===0){for(let i=0;i<5;i++){
-  const ww=w+4-i*(w*.15);part(0,h+1.1+i*1.7,0,Math.max(5,ww),1.62,d+3,roof);
- }}else{
+ // Alternate ridge directions and roof height within the existing lot footprint.
+ if(kind===0){
+  const across=index%2===0, courses=index%3===0?4:6;
+  for(let i=0;i<courses;i++){
+   const taper=1-i*.82/(courses-1);
+   part(0,h+1.38+i*1.7,0,across?(w+4)*taper:w+4,1.68,across?d+3:(d+3)*taper,roof);
+  }
+  part(w*.24,h+4.5,-d*.22,3.6,7.8,4.2,wall);
+  part(w*.24,h+8.6,-d*.22,4.8,.65,5.2,moldedTrim);
+  for(const side of [-1,1]){
+   part(side*w*.27,4.65,d/2+1.58,7.2,1.45,1.8,roof);
+   for(let k=-1;k<=1;k++)part(side*w*.27+k*1.7,5.65,d/2+1.65,1.15,.65,1.15,plantMat);
+  }
+ }else{
   part(0,h+1,0,w+3,2,d+3,roof);
   part(0,h+2.8,-d/2,w+3,2,1.6,roof);
   part(0,h+2.8,d/2,w+3,2,1.6,roof);
   if(kind===2){part(-w*.28,h+8,0,10,13,10,wall);part(-w*.28,h+15.2,0,13,2,13,roof)}
  }
- // A visible LEGO studded parapet and molded top caps, instanced per building.
- const studCount=Math.max(4,Math.floor(w/3.6));
- const studsOnRoof=new T.InstancedMesh(new T.CylinderGeometry(.55,.55,.20,8),roof,studCount*2);
- const dummy=new T.Object3D();
- for(let i=0;i<studCount;i++)for(let side=0;side<2;side++){
-  dummy.position.set(-w/2+(i+.5)*w/studCount,h+3.12,side?d/2-1:-d/2+1);
-  dummy.scale.set(1,1,1);dummy.updateMatrix();studsOnRoof.setMatrixAt(i*2+side,dummy.matrix);
+ // Only flat parapets expose studs. Pitched roofs use overlapping tile courses.
+ if(kind!==0){
+  const studCount=Math.max(4,Math.floor(w/3.6));
+  const studsOnRoof=new T.InstancedMesh(roofStudGeometry,roof,studCount*2);
+  for(let i=0;i<studCount;i++)for(let side=0;side<2;side++){
+   transform.position.set(-w/2+(i+.5)*w/studCount,h+3.92,side?d/2:-d/2);
+   transform.scale.set(1,1,1);transform.updateMatrix();
+   studsOnRoof.setMatrixAt(i*2+side,transform.matrix);
+  }
+  g.add(studsOnRoof);
  }
- g.add(studsOnRoof);
  // Extra building-block seams and a thicker projecting roof cornice.
  part(0,h-.4,d/2+1.1,w+2.2,1.35,2.5,moldedTrim);
  // Contrasting LEGO corner bricks and thick masonry bands.
@@ -1430,15 +1449,6 @@ function legoBuilding(x,z,w,d,h,kind,index){
   for(const side of [-1,1]){
    part(side*(w/2+.25),yy,d/2+.28,1.6,4.6,1.2,windowTrim);
    part(side*(w/2+.25),yy,-d/2-.28,1.6,4.6,1.2,windowTrim);
-  }
- }
- // Brick courses and staggered joints across each facade.
- const jointMat=material(0xb8b3ad);
- for(let yy=5;yy<h-2;yy+=3.8){
-  part(0,yy,d/2+.105,w,.10,.14,jointMat);
-  for(let k=0;k<Math.floor(w/8);k++){
-   const xx=-w/2+(k+.5)*8+(Math.floor(yy/3.8)%2)*3;
-   if(xx<w/2-1)part(xx,yy+1.8,d/2+.12,.13,3.45,.18,jointMat);
   }
  }
  // Stronger cornice and layered masonry, visible from driving distance.
@@ -1790,7 +1800,7 @@ function buildHarbor(){
 
  // High-detail LEGO Harbor Bridges (Skyspan Suspension Bridge + Dockside Truss Crossing)
  for(const bridge of crossings){
-  const isSuspension=bridge.height>15;
+  const isSuspension=bridge.style==='suspension';
   const paint=material(bridge.color,.36,.32);
   const accent=isSuspension?brickRed:brickYellow;
   const vertices=[],indices=[],segments=94;
@@ -1826,7 +1836,7 @@ function buildHarbor(){
 
    // Detailed stepped LEGO bridge pylons & underwater masonry piers
    for(const x of [917,1155]){
-    const y=bridgeHeight(bridge,x),height=isSuspension?48:16;
+    const y=bridgeHeight(bridge,x),height=isSuspension?48:22;
     // Underwater stepped LEGO stone pier footing
     box(x,1.4,z,9.2,4.4,8.0,brickGrey,root);
     box(x,4.4,z,7.2,2.4,6.4,brickCream,root);
@@ -1882,13 +1892,16 @@ function buildHarbor(){
      }
     }
    }else{
-    // Dockside Crossing: LEGO steel-truss side arches
+    // Dockside Crossing: low arch with diagonal steel-truss bracing
     for(let x=920;x<1152;x+=16){
      const end=Math.min(1152,x+16),archY=a=>bridgeHeight(bridge,a)+3.5+11.5*Math.sin(Math.PI*(a-917)/(1155-917));
      const ya=archY(x),yb=archY(end),y=bridgeHeight(bridge,x);
      const topChord=box((x+end)*.5,(ya+yb)*.5,z,Math.hypot(end-x,yb-ya)+.18,.68,.68,paint,root);
      topChord.rotation.z=Math.atan2(yb-ya,end-x);
      box(x,(ya+y)*.5,z,.38,Math.max(1,ya-y),.38,brickCream,root);
+     const fromY=y+2.35, toY=yb-.35;
+     const diagonal=box((x+end)*.5,(fromY+toY)*.5,z,Math.hypot(end-x,toY-fromY),.42,.44,paint,root);
+     diagonal.rotation.z=Math.atan2(toY-fromY,end-x);
     }
    }
   }
@@ -2893,7 +2906,7 @@ function makeLegoClawHand(mat,side){
   new T.Vector3(side*.085,-.13,.70),
   new T.Vector3(side*.145,-.24,.98)
  ]);
- for(let i=0;i<18;i++){const a0=armCurve.getPoint(i/18),a1=armCurve.getPoint((i+1)/18),adx=a1.x-a0.x,ady=a1.y-a0.y,adz=a1.z-a0.z,alen=Math.hypot(adx,ady,adz)+.012,aseg=new T.Mesh(new T.CylinderGeometry(.078,.078,alen,10),mat);aseg.position.set((a0.x+a1.x)*.5,(a0.y+a1.y)*.5,(a0.z+a1.z)*.5);aseg.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),new T.Vector3(adx,ady,adz).normalize());hand.add(aseg);}
+ hand.add(new T.Mesh(new T.TubeGeometry(armCurve,12,.078,10,false),mat));
 
  // Rounded LEGO shoulder/elbow cap at the end of the extended arm
  const endCap=new T.Mesh(new T.SphereGeometry(.085,14,12),mat);
@@ -2921,6 +2934,15 @@ function buildDriverCockpit(parent,formula,accent=0xf72591){
   box(0,0,0,1.32,.45,.23,carbon,wheel);
   for(const side of [-1,1])box(side*.61,0,.025,.24,.74,.20,metal,wheel);
   box(0,.22,.03,.50,.07,.04,trim,wheel);
+  for(const side of [-1,1]){
+   const hand=makeLegoClawHand(legoYellowHand,side);
+   hand.position.set(side*.62,.02,.10);
+   hand.scale.setScalar(1.15);
+   wheel.add(hand);
+   for(let i=0;i<3;i++){
+    box(side*(.27+i*.088),-.14,.13,.05,.05,.035,i===1?trim:metal,wheel);
+   }
+  }
   // Slim continuous brick halo arch rising cleanly from the lower cockpit side rails (y=2.70)
   const haloGroup=new T.Group();
   const haloShape=new T.Shape();
@@ -3027,45 +3049,68 @@ function buildDriverCockpit(parent,formula,accent=0xf72591){
  const dialCanvas=document.createElement('canvas');dialCanvas.width=256;dialCanvas.height=256;
  const dctx=dialCanvas.getContext('2d'),dialTex=new T.CanvasTexture(dialCanvas);
  dialTex.colorSpace=T.SRGBColorSpace;
- const dSize=formula?.56:.60;
+ const dSize=formula?.85:.76;
  const dial=new T.Mesh(new T.PlaneGeometry(dSize,dSize),new T.MeshBasicMaterial({map:dialTex,toneMapped:false,transparent:true}));
  if(formula){
-  dial.position.set(seatX,2.95,-1.55);
+  dial.position.set(0,.04,.136);
  }else{
   dial.position.set(-2.55,3.12,-3.15);
   dial.rotation.set(-.30,.43,0);
  }
  if(!formula){dial.renderOrder=4;dial.material.transparent=false;dial.material.alphaTest=.5;dial.material.needsUpdate=true;}
- group.add(dial);
+ (formula?wheel:group).add(dial);
  group.visible=false;
  if(!formula){
   // Push the road-car cockpit's surfaces slightly forward so they win any tie with a surface on the same plane (stops the shimmer)
   group.traverse(o=>{if(o.isMesh&&o.material){o.material.polygonOffset=true;o.material.polygonOffsetFactor=-2;o.material.polygonOffsetUnits=-4;o.material.needsUpdate=true;}});
  }
- return {group,wheel,dctx,dialTex,accentCss:'#'+accent.toString(16).padStart(6,'0'),reading:''};
+ return {group,wheel,dctx,dialTex,formula,accentCss:'#'+accent.toString(16).padStart(6,'0'),reading:''};
 }
 let streetCockpit=buildDriverCockpit(player,false,0xf72591);
 const formulaCockpit=buildDriverCockpit(formulaPlayer.group,true,0xf72591);
 function drawCockpit(c,steer,dt){
  c.wheel.rotation.z+=(-steer*.82-c.wheel.rotation.z)*(1-Math.exp(-dt*14));
- const g=c.dctx,S=256,cx=128,cy=128,R=110;
- const v=Math.min(1,Math.max(0,displayKmh/240));
- const a0=Math.PI*.75,a1=Math.PI*2.25,an=a0+(a1-a0)*v;
- g.clearRect(0,0,S,S);
- g.beginPath();g.arc(cx,cy,R+12,0,Math.PI*2);g.fillStyle='rgba(12,18,24,.94)';g.fill();
- g.lineCap='round';
- g.lineWidth=11;g.beginPath();g.arc(cx,cy,R,a0,a1);g.strokeStyle='#2a3a44';g.stroke();
- g.beginPath();g.arc(cx,cy,R,a0,an);g.strokeStyle=c.accentCss;g.stroke();
- g.lineWidth=3;g.strokeStyle='#cbd5e1';
- for(let k=0;k<=12;k++){
-  const a=a0+(a1-a0)*k/12;
-  g.beginPath();g.moveTo(cx+Math.cos(a)*(R-24),cy+Math.sin(a)*(R-24));g.lineTo(cx+Math.cos(a)*(R-10),cy+Math.sin(a)*(R-10));g.stroke();
+ const kmh=Math.round(displayKmh),displayGear=speed<-.5?'R':gear;
+ const load=Math.max(0,Math.min(1,(engineRPM-950)/(7600-950)));
+ const lit=Math.round(load*12);
+ const drs=c.formula&&gpDRS;
+ const reading=kmh+'|'+displayGear+'|'+(c.formula?lit:0)+'|'+drs;
+ if(reading===c.reading)return;
+ c.reading=reading;
+ const g=c.dctx;
+ g.clearRect(0,0,256,256);
+ if(c.formula){
+  g.fillStyle='#111923';g.fillRect(6,74,244,112);
+  g.strokeStyle='#526779';g.lineWidth=3;g.strokeRect(7.5,75.5,241,109);
+  for(let i=0;i<12;i++){
+   g.fillStyle=i>=lit?'#29343e':i<7?'#75f0a0':i<10?'#ffd35b':'#ff6169';
+   g.fillRect(17+i*19,87,14,10);
+  }
+  g.textAlign='center';
+  g.fillStyle='#f8f9fc';g.font='bold 58px monospace';g.fillText(displayGear,58,157);
+  g.font='bold 43px monospace';g.fillText(kmh,166,148);
+  g.fillStyle='#b3c7d8';g.font='bold 15px monospace';g.fillText(drs?'KM/H · DRS':'KM/H',166,169);
+  c.dialTex.needsUpdate=true;
+  return;
  }
- g.lineWidth=5;g.strokeStyle='#ff4d4d';g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.cos(an)*(R-16),cy+Math.sin(an)*(R-16));g.stroke();
- g.fillStyle='#cbd5e1';g.beginPath();g.arc(cx,cy,9,0,Math.PI*2);g.fill();
- g.fillStyle='#f4f7fb';g.font='bold 44px monospace';g.textAlign='center';g.fillText(String(Math.round(displayKmh)),cx,cy+58);
- g.fillStyle='#8fa3ad';g.font='bold 18px monospace';g.fillText('KM/H  G'+(speed<-.5?'R':gear),cx,cy+82);
+ const a0=Math.PI*.75,a1=Math.PI*2.25,cx=128,cy=128;
+ const needle=a0+(a1-a0)*Math.min(1,kmh/300);
+ g.beginPath();g.arc(cx,cy,122,0,Math.PI*2);g.fillStyle='#101821';g.fill();
+ g.lineCap='round';g.lineWidth=10;
+ g.beginPath();g.arc(cx,cy,103,a0,a1);g.strokeStyle='#384755';g.stroke();
+ g.beginPath();g.arc(cx,cy,103,a0,needle);g.strokeStyle=c.accentCss;g.stroke();
+ for(let i=0;i<=10;i++){
+  const a=a0+(a1-a0)*i/10;
+  g.strokeStyle='#c0cfdd';g.lineWidth=i%2===0?3:2;
+  g.beginPath();g.moveTo(cx+Math.cos(a)*81,cy+Math.sin(a)*81);
+  g.lineTo(cx+Math.cos(a)*90,cy+Math.sin(a)*90);g.stroke();
+ }
+ g.textAlign='center';
+ g.fillStyle='#f8f9fc';g.font='bold 52px monospace';g.fillText(kmh,cx,139);
+ g.fillStyle='#b3c7d8';g.font='bold 19px monospace';g.fillText('KM/H',cx,168);
+ g.fillStyle='#f8f9fc';g.font='bold 26px monospace';g.fillText(displayGear,cx,208);
  c.dialTex.needsUpdate=true;
+
 }
 let F1_TOTAL_LAPS=20, gpSteering=0, gpOutside=false;
 let gpFlag='',gpFlagUntil=0,gpNextIncident=0,gpFlagOrder=[];
@@ -4880,7 +4925,7 @@ function applyPreferences(){
   renderer.setPixelRatio(pixelRatio);
   try{composer.setPixelRatio(pixelRatio);}catch(_e){usePostFX=false;}
  }
- bloomPass.strength=preferences.quality==='high'?0.34:0.24;
+ bloomPass.strength=preferences.quality==='high'?0.23:0.16;
  document.body.classList.remove('cinematic-off');
  renderer.toneMappingExposure=(preferences.brightness/100)*0.84;
  fpsMeter.style.display=preferences.fps?'block':'none';
@@ -5300,7 +5345,7 @@ const tdFrame=null;
 // =========================================================================
 const TOD_MODES=['evening','night'];
 const TOD_META={
- evening:{label:'🌅 EVENING', zenith:0x2a2468, mid:0xc85a48, horizon:0xff9c52, fog:0xe88b54, sunHex:0xff8438, sunInt:1.45, hemiSky:0xffa970, hemiGnd:0x473854, hemiInt:0.85, night:0.35,lampInt:3.6,  expScale:0.92},
+ evening:{label:'🌅 EVENING', zenith:0x2a2468, mid:0xc85a48, horizon:0xff9c52, fog:0xe88b54, sunHex:0xff8438, sunInt:1.45, hemiSky:0xffa970, hemiGnd:0x473854, hemiInt:0.85, night:0.0,lampInt:3.6,  expScale:0.92},
  night:  {label:'🌙 NIGHT',   zenith:0x050918, mid:0x0e1a38, horizon:0x1b2d52, fog:0x12203d, sunHex:0x8ab8ff, sunInt:0.42, hemiSky:0x365285, hemiGnd:0x141c2e, hemiInt:0.55, night:1.0, lampInt:6.5,  expScale:0.82}
 };
 const WEATHER_MODES=['clear','rain','mist','storm'];
@@ -5719,7 +5764,7 @@ function spawnPoliceUnit(c){
   pick=nearby[Math.floor(Math.random()*nearby.length)]||confineWorld(pos.x-Math.sin(yaw)*135,pos.z-Math.cos(yaw)*135,pos.x,pos.z,4.5);
  }
  c.x=pick.x;c.z=pick.z;c.vx=0;c.vz=0;c.speed=45;c.yaw=Math.atan2(pos.x-c.x,pos.z-c.z);
- c.active=true;c.stunTimer=0;c.jukeTimer=0;c.jukeCooldown=0;c.group.rotation.set(0,c.yaw+Math.PI,0);c.group.visible=true;
+ c.harborRoute=null;c.active=true;c.stunTimer=0;c.jukeTimer=0;c.jukeCooldown=0;c.group.rotation.set(0,c.yaw+Math.PI,0);c.group.visible=true;
 }
 function commitCrime(minStars,msg){
  const prevW=wanted;
@@ -5982,7 +6027,9 @@ if(wanted>0){
  const covered=isCovered(pos.x,pos.z);
  const airSight=policeHeli.active&&!covered&&Math.hypot(policeHeli.x-pos.x,policeHeli.z-pos.z)<210;
  const groundSight=policePool.some(c=>c.active&&copCanSee(c,pos,covered));
- const seen=groundSight||airSight;
+ const playerGround=worldGround(pos.x,pos.z);
+ const harborPursuit=playerGround?.region==='harbor'||Boolean(playerGround?.bridge);
+ const seen=groundSight||airSight||harborPursuit;
  if(seen||!policeMemory.valid){policeMemory.x=pos.x;policeMemory.z=pos.z;policeMemory.valid=true;}
  policeMemory.age=seen?0:policeMemory.age+dt;
  pursuitTimer+=dt;
@@ -6000,7 +6047,8 @@ if(wanted>0){
   const search=seen?0:Math.min(50,policeMemory.age*6);
   const targetX=policeMemory.x+velocityX*lead+Math.cos(ci*2.4)*search;
   const targetZ=policeMemory.z+velocityZ*lead+Math.sin(ci*2.4)*search;
-  const target=policeWaypoint(c,targetX,targetZ);
+  const target=policeWaypoint(c,targetX,targetZ,now);
+  const targetDistance=Math.hypot(target.x-c.x,target.z-c.z);
   const desiredYaw=Math.atan2(target.x-c.x,target.z-c.z);
   let diff=desiredYaw-c.yaw;
   while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
@@ -6041,7 +6089,8 @@ if(wanted>0){
    c.yaw+=Math.max((copDrifting?-3.3:-2.6)*dt,Math.min((copDrifting?3.3:2.6)*dt,diff));
    const extraStarSpeed=wanted>3?(wanted-3)*4.5:0;
    const boostBonus=c.boosting?24:0;
-   const topCopSpeed=(45+wanted*5.5+extraStarSpeed+boostBonus*1.25+(distToPlayer>130?7:0))*(copDrifting?0.95:1.0);
+   const chaseSpeed=(45+wanted*5.5+extraStarSpeed+boostBonus*1.25+(distToPlayer>130?7:0))*(copDrifting?0.95:1.0);
+   const topCopSpeed=target.detour&&Math.abs(diff)>.22?Math.min(chaseSpeed,Math.max(13,targetDistance*.9)):chaseSpeed;
    c.speed+=(topCopSpeed-c.speed)*Math.min(1,dt*(c.boosting?3.4:1.9));
    const driftKickYaw=copDrifting?(Math.sign(diff)*0.22):0;
    c.vx=Math.sin(c.yaw+driftKickYaw)*c.speed;c.vz=Math.cos(c.yaw+driftKickYaw)*c.speed;
@@ -6520,9 +6569,9 @@ streetCockpit.group.visible=inside&&!formulaView;
 formulaCockpit.group.visible=inside&&formulaView;
 let heading=new T.Vector3(Math.sin(yaw),0,Math.cos(yaw)),desired=pos.clone().addScaledVector(heading,camMode===1?3:camMode===2?-25:-36);desired.addScaledVector(heading,-shiftJerk*0.35);desired.y=pos.y+(camMode===1?5:camMode===2?40:12)+shiftKick*.10;
 let look=pos.clone().addScaledVector(heading,camMode===1?22:21);look.y=pos.y+(camMode===1?3:5);
-const wantFov=inside?78:66;
+const wantFov=inside?Math.max(62,Math.min(84,T.MathUtils.radToDeg(2*Math.atan(Math.tan(T.MathUtils.degToRad(107)/2)/camera.aspect)))):66;
 if(camera.fov!==wantFov){camera.fov=wantFov;camera.updateProjectionMatrix();}
-const wantNear=inside?0.4:0.1;
+const wantNear=inside?0.18:0.1;
 if(camera.near!==wantNear){camera.near=wantNear;camera.updateProjectionMatrix();}
 document.body.classList.toggle('cockpit-view',inside);
 if(inside){
@@ -6530,8 +6579,8 @@ if(inside){
  const cockpit=formulaView?formulaCockpit:streetCockpit;
  const motion=preferences.cameraMotion==='full'?Math.sin(now*.027)*.035*Math.min(1,Math.abs(speed)/95):0;
  const seatX=formulaView?0:-1.55;
- const eye=car.localToWorld(new T.Vector3(seatX,(formulaView?3.62:3.82)+motion,formulaView?.55:-1.28));
- look=car.localToWorld(new T.Vector3(seatX,formulaView?3.55:3.68,-45));
+ const eye=car.localToWorld(new T.Vector3(seatX,(formulaView?3.63:3.82)+motion,formulaView?1.03:-.92));
+ look=car.localToWorld(new T.Vector3(seatX,formulaView?2.64:2.82,-27));
  camera.position.copy(eye);
  drawCockpit(cockpit,formulaView?gpSteering:steer,dt);
 }else if(false&&tdFrame){
@@ -6598,7 +6647,8 @@ for(let ci=0;ci<legoClouds.length;ci++){
  lc.group.position.y=lc.baseY+Math.sin(now*.00075+lc.phase)*2.1;
 }
 const speedNorm=Math.min(1,Math.abs(speed)/115);
-const targetBoost=(boosting&&throttle>0&&speed>10)?1:0;
+const targetBoost=(boosting&&throttle>0&&speed>10&&preferences.cameraMotion==='full')?1:0;
+cinematicPass.uniforms.uCockpit.value=Number(inside);
 cinematicPass.uniforms.uSpeed.value+=(speedNorm-cinematicPass.uniforms.uSpeed.value)*Math.min(1,dt*6);
 cinematicPass.uniforms.uBoost.value+=(targetBoost-cinematicPass.uniforms.uBoost.value)*Math.min(1,dt*7);
 // Keep exact original static 66-deg camera angle/FOV
@@ -6957,23 +7007,97 @@ function copCanSee(c,target,covered){
  const targetSide=target.x>=harbor.left,copSide=c.x>=harbor.left;
  if(targetSide!==copSide&&!crossings.some(b=>Math.abs(target.z-b.z)<b.width*.5&&Math.abs(c.z-b.z)<b.width*.5))return false;
  // Test the sight line against the same lot footprints used for vehicle collision.
- const dx=target.x-c.x,dz=target.z-c.z;
- for(const lot of lots){
+ return !policePathBlocked(c.x,c.z,target.x,target.z);
+}
+function policePathBlocked(x,z,targetX,targetZ,padding=0,obstacles=lots){
+ const dx=targetX-x,dz=targetZ-z;
+ for(const lot of obstacles){
   let enter=0,exit=1;
-  for(const [origin,direction,min,max] of [[c.x,dx,lot.x-lot.w*.5,lot.x+lot.w*.5],[c.z,dz,lot.z-lot.d*.5,lot.z+lot.d*.5]]){
+  for(const [origin,direction,min,max] of [[x,dx,lot.x-lot.w*.5-padding,lot.x+lot.w*.5+padding],[z,dz,lot.z-lot.d*.5-padding,lot.z+lot.d*.5+padding]]){
    if(Math.abs(direction)<1e-8){if(origin<min||origin>max){enter=1;exit=0;break;}}
    else{
     const a=(min-origin)/direction,b=(max-origin)/direction;
     enter=Math.max(enter,Math.min(a,b));exit=Math.min(exit,Math.max(a,b));
    }
   }
-  if(enter<=exit)return false;
+  if(enter<=exit)return true;
  }
- return true;
+ return false;
 }
-function policeWaypoint(c,x,z){
+const harborRouteStep=16,harborRoutePadding=7;
+const harborRouteX=harbor.left+5,harborRouteZ=-harbor.edge+5;
+const harborRouteCols=Math.floor((harbor.right-5-harborRouteX)/harborRouteStep)+1;
+const harborRouteRows=Math.floor((harbor.edge-5-harborRouteZ)/harborRouteStep)+1;
+let harborRouteGrid;
+const harborRouteLots=lots.filter(lot=>lot.x+lot.w*.5>=harbor.left-10);
+function harborPathBlocked(x,z,targetX,targetZ,padding=4.25){
+ return policePathBlocked(x,z,targetX,targetZ,padding,harborRouteLots);
+}
+function harborRouteNode(index){
+ return {x:harborRouteX+(index%harborRouteCols)*harborRouteStep,z:harborRouteZ+Math.floor(index/harborRouteCols)*harborRouteStep};
+}
+function harborPoliceRoute(x,z,target){
+ const count=harborRouteCols*harborRouteRows;
+ if(!harborRouteGrid){
+  harborRouteGrid=new Uint8Array(count);
+  for(let i=0;i<count;i++){
+   const node=harborRouteNode(i);
+   harborRouteGrid[i]=Number(harborPathBlocked(node.x,node.z,node.x,node.z,harborRoutePadding));
+  }
+ }
+ const snap=(x,z)=>{
+  const col=Math.round((x-harborRouteX)/harborRouteStep),row=Math.round((z-harborRouteZ)/harborRouteStep);
+  let best=-1,distance=Infinity;
+  for(let j=Math.max(0,row-3);j<=Math.min(harborRouteRows-1,row+3);j++)for(let i=Math.max(0,col-3);i<=Math.min(harborRouteCols-1,col+3);i++){
+   const index=j*harborRouteCols+i;
+   if(harborRouteGrid[index])continue;
+   const node=harborRouteNode(index),d=(node.x-x)**2+(node.z-z)**2;
+   if(d<distance&&!harborPathBlocked(x,z,node.x,node.z)){best=index;distance=d;}
+  }
+  return best;
+ };
+ const start=snap(x,z),end=snap(target.x,target.z);
+ if(start<0||end<0)return [];
+ const queue=[start],previous=new Int32Array(count).fill(-1);
+ previous[start]=start;
+ for(let head=0;head<queue.length&&previous[end]<0;head++){
+  const i=queue[head],col=i%harborRouteCols;
+  const neighbors=[col>0?i-1:-1,col+1<harborRouteCols?i+1:-1,i-harborRouteCols,i+harborRouteCols];
+  for(const next of neighbors){
+   if(next<0||next>=count||previous[next]>=0||harborRouteGrid[next])continue;
+   const a=harborRouteNode(i),b=harborRouteNode(next);
+   if(harborPathBlocked(a.x,a.z,b.x,b.z,harborRoutePadding))continue;
+   previous[next]=i;queue.push(next);
+  }
+ }
+ if(previous[end]<0)return [];
+ const route=[];
+ for(let i=end;i!==start;i=previous[i])route.push(harborRouteNode(i));
+ route.push(harborRouteNode(start));
+ return route.reverse();
+}
+function harborPoliceWaypoint(c,target,now){
+ if(!harborPathBlocked(c.x,c.z,target.x,target.z))return target;
+ if(!c.harborRoute||now>=c.harborRouteUntil){
+  c.harborRoute=harborPoliceRoute(c.x,c.z,target);
+  c.harborRouteUntil=now+850;
+  c.harborRouteIndex=0;
+ }
+ let waypoint;
+ for(let i=c.harborRouteIndex;i<c.harborRoute.length;i++){
+  const node=c.harborRoute[i];
+  if(Math.hypot(node.x-c.x,node.z-c.z)<6){c.harborRouteIndex=i+1;continue;}
+  if(harborPathBlocked(c.x,c.z,node.x,node.z))break;
+  waypoint=node;
+  c.harborRouteIndex=i;
+ }
+ return waypoint?{...waypoint,detour:true}:target;
+}
+function policeWaypoint(c,x,z,now=0){
  const surface=worldGround(c.x,c.z),destination=confineWorld(x,z,c.x,c.z,1);
  if(surface?.bridge){
+  const onSameBridge=x>=bridgeStart&&x<=bridgeEnd&&Math.abs(z-surface.bridge.z)<surface.bridge.width*.5;
+  if(onSameBridge)return {x,z:T.MathUtils.clamp(z,surface.bridge.z-surface.bridge.width*.5+5,surface.bridge.z+surface.bridge.width*.5-5)};
   return {x:destination.x>(bridgeStart+bridgeEnd)*.5?bridgeEnd+17:bridgeStart-17,z:surface.bridge.z};
  }
  const harborSide=surface?.region==='harbor';
@@ -6981,10 +7105,13 @@ function policeWaypoint(c,x,z){
  if(harborSide!==wantsHarbor){
   const bridge=crossings.reduce((best,next)=>Math.abs(next.z-c.z)+Math.abs(next.z-z)<Math.abs(best.z-c.z)+Math.abs(best.z-z)?next:best);
   const mouth=harborSide?bridgeEnd:bridgeStart;
-  if(Math.abs(c.z-bridge.z)>bridge.width*.5-6)return {x:mouth,z:bridge.z};
+  if(Math.abs(c.z-bridge.z)>bridge.width*.5-6){
+   const approach={x:mouth,z:bridge.z,detour:true};
+   return harborSide?harborPoliceWaypoint(c,approach,now):approach;
+  }
   return {x:harborSide?bridgeStart-17:bridgeEnd+17,z:bridge.z};
  }
- return destination;
+ return harborSide?harborPoliceWaypoint(c,destination,now):destination;
 }
 function canWorkCity(){return gameStarted&&gameMode==='openworld'&&!deathScreenOpen&&!settingsOpen;}
 function cancelCityJob(){

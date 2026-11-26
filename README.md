@@ -26,7 +26,7 @@ Follow the east coast to **Skyspan Bridge** or **Dockside Crossing**. The harbor
 
 **Skyspan Courier** rewards fast deliveries. **Container Getaway** triggers a three-star pursuit and accepts either crossing before requiring the driver to lose the police. **Harbor Sprint** is a timed route through the port and back. A timer starts when you reach the first checkpoint. The garage saves owned and equipped cars, the stud balance and job best times together. Existing balances are imported the first time you play.
 
-Ground police investigate last known positions, use the crossings to reach the other shore, and send some units ahead. Staying out of sight gives the escape meter time to fill. Open-sided covered garages can break helicopter sight. The City and Exit Car buttons and their keyboard shortcuts are removed in this build. Existing garage and job data are still stored.
+Ground police investigate last known positions, use the crossings to reach the other shore, and send some units ahead. Cruisers stay on your trail through both crossings and around harbor buildings and cargo. The escape meter resumes once you leave the harbor and break line of sight. Open-sided covered garages can break helicopter sight. The City and Exit Car buttons and their keyboard shortcuts are removed in this build. Existing garage and job data are still stored.
 
 ## Grand Prix
 
@@ -36,3 +36,21 @@ Watch the ERS percentage before deploying boost. Brake to recover energy, and pl
 
 After classification, **Watch Replay** plays the latest recorded segment, up to about 25 seconds. Pause or scrub to inspect the run, then return to the results. The existing qualifying ghost, penalties, and championship scoring remain available.
 
+
+### Visuals and cockpit
+
+Press **C** to cycle to the driver seat, or choose Cockpit in Settings.
+Street cars show a circular speed and gear display. Formula cars show speed,
+gear, shift lights and active DRS on the steering wheel. Reduced camera motion
+keeps the cockpit steady, and the view adjusts to the screen's aspect ratio.
+
+Medium and High apply shadows and restrained bloom. Low uses the direct
+renderer. The brick joints and road tiles fade into the surface at a distance
+to reduce shimmer. Homes use staggered brick courses, stepped roofs and
+planters. Skyspan and Dockside use distinct bridge structures over the same
+drivable profiles.
+
+Design references include [Forza Horizon 5's distinct regions](https://forza.net/news/exploring-forza-horizon-5-biomes-and-seasons),
+[F1 25's approach to cockpit visibility](https://www.ea.com/en/games/f1/f1-25/news/f1-25-tips-and-tricks),
+[Gran Turismo 7's cockpit settings](https://www.gran-turismo.com/us/gt7/manual/drivingoption/05)
+and [Three.js instancing](https://threejs.org/docs/pages/InstancedMesh.html).
