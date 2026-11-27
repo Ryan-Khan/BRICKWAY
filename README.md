@@ -62,3 +62,15 @@ and [Three.js instancing](https://threejs.org/docs/pages/InstancedMesh.html).
 Grand Prix applies a shared grip budget to the player car. Braking while turning reduces the grip available for both, and hard acceleration uses some of the same grip at low speed. Brake before turn-in and ease off the pedal as you add steering. Tyre compound, wetness, wear, and temperature all influence grip. Fresh pit tyres start cooler, and the Formula cockpit shows their temperature in blue, green, or orange.
 
 The tyre and braking changes were inspired by [LibreCorsa](https://librecorsa.org/play).
+
+Worn tyres reduce speed, acceleration, braking and cornering performance in Grand Prix. At 0% health the car retires with a tyre-failure animation. On phones, live timing shows your position and the tyre panel keeps health, compound selection and the pit button within reach.
+
+Phone HUD settings let touch players change opacity and the right-side pit panel’s size and height. Steering, drift and engine power use the game’s built-in tuning. Formula cars use recessed headlights at night.
+
+Formula headlights switch on as soon as night begins on desktop and phones. The warm-white lamps reach full brightness while the sky is still transitioning. Each lamp casts a rounded pool that fades outward, with a brighter patch where both pools overlap. The player’s pair also illuminates scenery with a shared procedural projector mask that models a low-beam cutoff. [Three.js SpotLight](https://threejs.org/docs/pages/SpotLight.html) · [HELLA light distribution](https://www.hella.com/techworld/us/technical/automotive-lighting/light-distribution/)
+
+The shared pit box serves one car at a time, and drivers queue behind it until the car ahead clears the lane.
+
+### Phone HUD layouts
+
+Open **Settings → Phone HUD → Edit layout** while driving. Drag the visible HUD items into place, then choose **Save**. Open World and Grand Prix layouts are stored separately on the device. **Reset** restores the default layout for the current mode. **Cancel** discards the draft. With a keyboard, focus an item and use the arrow keys to move it. Hold Shift for larger steps.

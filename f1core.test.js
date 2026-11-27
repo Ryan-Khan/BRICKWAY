@@ -396,4 +396,13 @@ test('short race presets preserve proportional wear and give rivals a pit window
   const driver=F.drivers[0];
   assert.equal(F.strategy({compound:'wet',surface:'wet',wear:.63,stops:0},driver,2,5),'wet');
   assert.equal(F.strategy({compound:'medium',surface:'dry',wear:.63,stops:0},driver,.3,5),null);
+  assert.equal(F.strategy({compound:'intermediate',surface:'damp',wear:.66,stops:1},F.drivers[1],1.08,5),'intermediate');
+});
+
+test('critical tyre wear reduces braking, cornering and acceleration', () => {
+  const newTyre={compound:'medium',wear:0};
+  const worn={compound:'medium',wear:.95};
+  assert.ok(F.lateralLimit(100,worn)<.5*F.lateralLimit(100,newTyre));
+  assert.ok(F.drive(0,90,.05,worn)<F.drive(0,90,.05,newTyre));
+  assert.ok(F.drive(90,0,.05,worn)>F.drive(90,0,.05,newTyre));
 });

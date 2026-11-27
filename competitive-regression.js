@@ -10,9 +10,26 @@ function exercise(mobile) {
   const [hamilton,max,leclerc]=F1Core.drivers;
   check(hamilton.number===44&&max.number===1&&hamilton.power>max.power&&max.power>leclerc.power,'rival power order');
   check(max.corner>hamilton.corner&&hamilton.wear<max.wear&&leclerc.defence>max.defence,'distinct rival strengths');
+  check(!document.getElementById('fps-meter')&&!document.getElementById('set-fps'),'FPS display and setting are removed');
+  const checkHeadlights=()=>{
+    const oldTod=todIdx,sky=skyDome.material.uniforms.uNightFactor,oldNight=sky.value;
+    todIdx=1;sky.value=0;updateEnvironment(1/60,prev);
+    check(sky.value<.10&&formulaHeadlightLens.emissiveIntensity===.78,'lamps reach full brightness on the first frame of night');
+    check(formulaHeadlightBeams.length===2&&formulaHeadlightBeams.every(beam=>beam.visible&&beam.intensity>0&&beam.map===formulaHeadlightProjector&&beam.target.position.y<beam.position.y),'both projectors cast a downward low beam');
+    check(formulaPlayer.lightPool.visible&&formulaPlayer.lightPool.geometry.parameters.width>=42,'wide road spill is enabled');
+    const pixels=formulaHeadlightProjector.image.data,size=formulaHeadlightProjector.image.width;
+    const sample=(x,y)=>pixels[(y*size+x)*4];
+    check(sample(32,26)>sample(0,26)&&sample(32,26)>sample(32,45)&&sample(48,34)>sample(16,34),'projector has a hotspot, smooth edges and an asymmetric cutoff');
+    check(formulaHeadlightBeams.every(beam=>beam.color.r>beam.color.g&&beam.color.g>beam.color.b),'lamp light is warm white');
+    todIdx=0;sky.value=1;updateEnvironment(1/60,prev);
+    check(formulaHeadlightBeams.every(beam=>!beam.visible)&&!formulaPlayer.lightPool.visible,'headlights switch off in daylight');
+    todIdx=oldTod;sky.value=oldNight;
+    updateEnvironment(0,prev);
+  };
   if(mobile){
     document.getElementById('btn-mode-f1race').click();
     document.getElementById('gp-launch').click();
+    checkHeadlights();
     const joy=document.getElementById('mc-joy-base'),pedal=document.getElementById('mc-pedal-drift');
     const box=joy.getBoundingClientRect(),brake=pedal.getBoundingClientRect();
     check(isPhoneDevice&&box.width>0&&brake.width>0&&brake.right<=innerWidth+2,'landscape controls');
@@ -25,6 +42,47 @@ function exercise(mobile) {
     check(pedal.textContent.includes('BRAKE')&&speed<before&&!playerBoostActive,'touch brake overrides boost');
     pedal.dispatchEvent(new PointerEvent('pointercancel',{pointerId:1,bubbles:true}));
     resetJoystick();check(!keys.KeyW&&joySteerValue===0&&!phoneDriftPointers.size,'touch release');
+    const shown=id=>getComputedStyle(document.getElementById(id)).display!=='none';
+    check(shown('gp-phone-settings-tab')&&!document.querySelector('[data-tab=driving]')&&!document.getElementById('set-power'),'phone HUD settings replace the handling sliders');
+    openSettings();document.getElementById('gp-phone-settings-tab').click();
+    check(document.querySelector('[data-page=phone]').classList.contains('active'),'phone HUD settings open');
+    const set=(key,value)=>{settingsControls[key].value=value;settingsControls[key].dispatchEvent(new Event('input'));};
+    set('phoneOpacity','70');set('phonePitSize','large');set('phonePitPosition','mid');
+    const widget=document.getElementById('tyre-logo-widget');
+    const saved=JSON.parse(localStorage.getItem('brickway-settings-v2'));
+    check(getComputedStyle(widget).opacity==='0.7'&&widget.getBoundingClientRect().width>=150&&document.body.classList.contains('gp-phone-pit-mid')&&saved.phonePitSize==='large','phone layout settings apply and persist');
+    set('phoneOpacity','100');set('phonePitSize','standard');set('phonePitPosition','high');closeSettings();
+
+    check(shown('gp-phone-position')&&!shown('f1-live-ranks')&&!shown('f1-race-hud'),'mobile timing displays only the solo position badge');
+    const rank=document.getElementById('gp-phone-position').getBoundingClientRect();
+    const pit=document.getElementById('tyre-logo-widget').getBoundingClientRect();
+    check(rank.right<pit.left&&rank.left<innerWidth/2&&!document.getElementById('tyre-logo-widget').contains(document.getElementById('gp-phone-position')),'standalone left-side rank does not overlap the tyre panel');
+    check(/^[1-6]\/6$/.test(document.getElementById('gp-phone-position').textContent),'mobile rank uses live timing');
+    openSettings();phoneHudOpen.click();
+    const rankHandle=phoneHudEditor.querySelector('[data-target="#gp-phone-position"]');
+    const moveRank=()=>rankHandle.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',shiftKey:true,bubbles:true}));
+    const rankLeft=()=>document.getElementById('gp-phone-position').getBoundingClientRect().left;
+    check(phoneHudEditor.open&&settingsOpen&&!rankHandle.hidden,'editing shows the live HUD and keeps the game paused');
+    moveRank();
+    check(Math.abs(rankLeft()-rank.left-20)<1,'moving the rank updates its live preview');
+    document.getElementById('phone-hud-cancel').click();
+    check(!phoneHudEditor.open&&Math.abs(rankLeft()-rank.left)<1,'cancel restores the saved layout');
+    phoneHudOpen.click();moveRank();
+    document.getElementById('phone-hud-save').click();
+    const savedLayout=JSON.parse(localStorage.getItem('brickway-settings-v2')).phoneHudLayouts;
+    check(savedLayout.f1race['#gp-phone-position'][0]>0&&Math.abs(rankLeft()-rank.left-20)<1,'save persists a race-specific layout');
+    phoneHudOpen.click();
+    document.getElementById('phone-hud-reset').click();
+    document.getElementById('phone-hud-save').click();
+    check(Math.abs(rankLeft()-rank.left)<1,'reset restores the default rank location');
+    closeSettings();
+    const pitButton=document.getElementById('tyre-pit-btn');
+    check(shown('tyre-pit-controls')&&pitButton.disabled&&pitButton.getBoundingClientRect().height>=44,'mobile pit button is visible and thumb-sized');
+    gpTyre.wear=.5;gpPitHUD();check(!pitButton.disabled,'mobile pit unlocks when tyres wear');
+    gpTyre.wear=1;updateF1Race(.05);
+    check(f1RaceFinished&&speed===0&&document.querySelector('#f1-finish-overlay.tyre-failure.open')&&shown('gp-tyre-failure'),'zero tyre health retires the player and starts the animation');
+    document.getElementById('f1-replay-btn').click();
+    check(!f1RaceFinished&&gpTyre.wear===0&&!document.querySelector('#f1-finish-overlay.tyre-failure'),'restart clears the failed tyre');
     return {viewport:[innerWidth,innerHeight],joystickWidth:box.width,brakeWidth:brake.width};
   }
   for (const [laps, difficulty, compound,surface] of [[5,'easy','soft','dry'],[8,'pro','medium','dry'],[12,'legend','hard','dry'],[5,'pro','intermediate','damp'],[8,'legend','wet','wet']]) {
@@ -37,8 +95,20 @@ function exercise(mobile) {
     }
     document.getElementById('gp-launch').click();
     check(f1CountdownActive && F1_TOTAL_LAPS === laps,'grid and distance');
+    check(getComputedStyle(document.getElementById('f1-live-ranks')).display!=='none'&&
+      getComputedStyle(document.getElementById('gp-phone-position')).display==='none','desktop retains full live ranks');
     for(let i=0;i<65;i++) updateF1Countdown(.05);
     check(!f1CountdownActive,'countdown');
+    check(getComputedStyle(document.getElementById('gp-phone-settings-tab')).display==='none','desktop does not expose phone HUD settings');
+    checkHeadlights();
+    const sky=skyDome.material.uniforms.uNightFactor;
+    const oldTod=todIdx,oldNight=sky.value;
+    todIdx=1;sky.value=1;updateEnvironment(.05,prev);
+    check(formulaHeadlightBeams.length===2&&formulaHeadlightBeams.every(beam=>beam.visible&&beam.intensity>0)&&formulaHeadlightBeams[0].position.x<0&&formulaHeadlightBeams[1].position.x>0&&formulaPlayer.lightPool.visible&&f1Bots.every(bot=>bot.lightPool.visible),'Formula headlights are subtle at night');
+    todIdx=0;sky.value=0;updateEnvironment(.05,prev);
+    check(formulaHeadlightBeams.every(beam=>!beam.visible)&&formulaHeadlightLens.emissiveIntensity===0&&[formulaPlayer,...f1Bots].every(car=>!car.lightPool.visible),'Formula headlights switch off in daylight');
+    todIdx=oldTod;sky.value=oldNight;
+
     const tyre = {compound,wear:0};
     check(F1Core.drive(1,0,.05,tyre)===0,'brake cannot reverse');
     check(F1Core.drive(0,160,.05,tyre)>0,'acceleration');
@@ -73,6 +143,20 @@ function exercise(mobile) {
     pos.set(entry.x,0,entry.z);yaw=Math.atan2(entry.t.x,entry.t.z);speed=95;velocityX=95;
     gpRequestPit();check(gpPitPhase==='idle','fresh tyres lock pit requests');
     gpTyre.wear=.46;
+    // An AI car occupying the service box holds the approaching player outside it.
+    const blockingBot=f1Bots[0],oldBotU=blockingBot.u;
+    blockingBot.u=GP_PIT_BOX;
+    blockingBot.pit={ticket:++gpPitTicket,done:false};
+    gpRequestPit();
+    for(let i=0;i<480&&!gpPlayerPitWaiting;i++)gpPitTick(.025);
+    check(gpPlayerPitWaiting&&gpPitPhase==='entry'&&gpPitSpeed===0&&gpTyre.stops===0,'player stops behind an occupied box');
+    blockingBot.pit.done=true;blockingBot.u=GP_PIT_BOX+12/race.length;
+    gpPitTick(.025);
+    check(gpPitPhase==='entry'&&gpTyre.stops===0,'player does not start service before departure clearance');
+    blockingBot.pit=null;blockingBot.u=oldBotU;
+    setupF1RaceGrid();gpTyre.wear=.46;gpWallU=GP_PIT_ENTRY;
+    pos.set(entry.x,0,entry.z);yaw=Math.atan2(entry.t.x,entry.t.z);speed=95;velocityX=95;
+
     gpRequestPit();check(gpPitPhase==='queued','pit request unlocks at 55% health');gpRequestPit();check(gpPitPhase==='idle','cancel');
     gpRequestPit();document.getElementById('tyre-next-select').value='hard';
     let stationary=0,transit=0,largestYawStep=0;
@@ -112,6 +196,11 @@ function exercise(mobile) {
         velocityX=100*heading.x;velocityZ=100*heading.z;
       }
       updateF1Race(clockStep);
+      // The deterministic race fixture replenishes tyres at the pit entry.
+      if(!gpPlayerDone&&gpTyre.wear>.6&&gpWallU>=GP_PIT_ENTRY&&gpWallU<=GP_PIT_LAST_ENTRY){
+        F1Core.performPitStop(gpTyre,compound);
+      }
+      check(f1Bots.filter(bot=>bot.pit&&!bot.pit.done&&bot.u>=GP_PIT_BOX-1e-6).length<=1,'only one AI receives service at a time');
       const order=f1Bots.slice().sort((a,b)=>b.progress-a.progress).map(b=>b.name).join(',');
       if(previousOrder&&order!==previousOrder)orderChanges++;
       previousOrder=order;
@@ -125,7 +214,7 @@ function exercise(mobile) {
     check(orderChanges>0&&passZones.size>=3,'overtaking opportunities');
     check(f1Bots.every(b=>b.tyre.stops>0&&!b.pit),'each AI driver finishes a tyre change and rejoins');
     const topRivals=gpFinishRows.filter(row=>row.id!=='p').slice(0,2);
-    check(topRivals.some(row=>row.name===hamilton.name)&&topRivals.some(row=>row.name===max.name),'Hamilton and Verstappen are the top rated rivals in each scenario');
+    check(topRivals.some(row=>row.name===hamilton.name)&&topRivals.some(row=>row.name===max.name),'Expected Hamilton and Verstappen in '+laps+'-lap '+surface+' race. '+JSON.stringify(gpFinishRows.map(r=>({name:r.name,time:r.finishTime}))));
     results.push({laps,difficulty,compound,surface,orderChanges,attackSectors:passZones.size,
       topRivals:topRivals.map(row=>row.name),rivalGapSeconds:Number((topRivals[1].finishTime-topRivals[0].finishTime).toFixed(2)),stops:f1Bots.map(b=>b.tyre.stops),serviceSeconds:stationary,pitSeconds:transit});
     returnToStartScreen();
@@ -336,7 +425,21 @@ async function run() {
       });
       await page.goto(origin,{waitUntil:'domcontentloaded'});
       await page.waitForFunction(()=>!!window.runBrickwayRegression);
+      if(mobile)await page.click('#fs-skip');
       const result=await page.evaluate(()=>window.runBrickwayRegression());
+      if(mobile){
+        await page.tap('#settings-open');
+        await page.click('#phone-hud-open');
+        const handle=page.locator('[data-target="#gp-phone-position"]');
+        const before=await handle.boundingBox();
+        await page.mouse.move(before.x+before.width/2,before.y+before.height/2);
+        await page.mouse.down();
+        await page.mouse.move(before.x+before.width/2+80,before.y+before.height/2-20,{steps:4});
+        await page.mouse.up();
+        const after=await handle.boundingBox();
+        assert.ok(Math.abs(after.x-before.x-80)<2&&Math.abs(after.y-before.y+20)<2,'pointer drag moves rank in both directions');
+        await page.click('#phone-hud-save');
+      }
       assert.deepEqual(errors,[],mode+' browser errors');
       console.log(mode,JSON.stringify(result));
       await page.close();
