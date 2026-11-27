@@ -32,13 +32,13 @@ Ground police investigate last known positions, use both crossings, and call in 
 
 ## Grand Prix
 
-Choose 5, 8, or 12 laps. Tyre wear per lap increases in shorter races, and AI rivals plan pit stops around the selected distance and track conditions. Watch live timing for their pit status.
+Choose 3, 6, or 8 laps. The default is 3. Tyre wear per lap increases in shorter races, and AI rivals plan pit stops around the selected distance and track conditions. Watch live timing for their pit status.
 
 Lewis Hamilton #44 has the strongest power and tyre preservation. Max Verstappen #1 has the highest dry cornering multiplier and commits early to overtakes. Charles Leclerc #16 holds the longest defensive line, Lando Norris #4 preserves tyres, and Fernando Alonso #14 is tuned to attack smaller openings. These are fictional game balance profiles inspired by driving styles. The higher Legend difficulty tightens AI braking margins.
 
 Watch the ERS percentage before deploying boost. Brake to recover energy, and plan tyre changes around weather and wear. Select the next compound and request a stop before the entry boards. The game blends the driver onto the pit trajectory, limits lane speed, waits for the crew, then returns control after the merge. Track barriers are built from the same signed boundaries used to resolve vehicle contact. Cockpit mode carries through the stop.
 
-After classification, **Watch Replay** plays the latest recorded segment, up to about 25 seconds. Pause or scrub to inspect the run, then return to the results. The existing qualifying ghost, penalties, and championship scoring remain available.
+Crossing the finish line opens the results board immediately and stops the engine audio. Rivals still racing are marked On Track. **Watch Replay** plays the latest recorded segment, up to about 25 seconds. Pause or scrub to inspect the run, then return to the results. The existing qualifying ghost, penalties, and championship scoring remain available.
 
 
 ### Visuals and cockpit
@@ -65,9 +65,9 @@ Grand Prix applies a shared grip budget to the player car. Braking while turning
 
 The tyre and braking changes were inspired by [LibreCorsa](https://librecorsa.org/play).
 
-Worn tyres reduce speed, acceleration, braking and cornering performance in Grand Prix. At 0% health the car retires with a tyre-failure animation. On phones, live timing shows your position and the tyre panel keeps health, compound selection and the pit button within reach.
+Worn tyres reduce speed, acceleration, braking and cornering performance in Grand Prix. At 0% tyre health the burning wheels fly off, the car launches off the circuit and catches fire on landing, and the same You Died screen used in Open World offers a restart. On phones, the tyre panel keeps health, compound selection and the pit button within reach. The desktop race HUD shows live ranks.
 
-Phone HUD settings let touch players change opacity and the right-side pit panel’s size and height. Steering, drift and engine power use the game’s built-in tuning. Formula cars use recessed headlights at night.
+Phone HUD settings let touch players change opacity and the right-side pit panel’s size and height. Steering, drift and engine power use the game’s built-in tuning. Formula cars use recessed headlights at night. Brake while turning to carry a longer slide, then release the brake to regain grip.
 
 Formula headlights switch on as soon as night begins on desktop and phones. The warm-white lamps reach full brightness while the sky is still transitioning. Each lamp casts a rounded pool that fades outward, with a brighter patch where both pools overlap. The player’s pair also illuminates scenery with a shared procedural projector mask that models a low-beam cutoff. [Three.js SpotLight](https://threejs.org/docs/pages/SpotLight.html) · [HELLA light distribution](https://www.hella.com/techworld/us/technical/automotive-lighting/light-distribution/)
 

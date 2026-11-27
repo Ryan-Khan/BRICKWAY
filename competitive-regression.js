@@ -4,7 +4,7 @@ const path = require('node:path');
 const assert = require('node:assert/strict');
 const { chromium } = require('playwright');
 
-function exercise(mobile) {
+async function exercise(mobile) {
   const check = (condition, message) => { if (!condition) throw new Error(message); };
   const results = [];
   const [hamilton,max,leclerc]=F1Core.drivers;
@@ -53,39 +53,82 @@ function exercise(mobile) {
     check(getComputedStyle(widget).opacity==='0.7'&&widget.getBoundingClientRect().width>=150&&document.body.classList.contains('gp-phone-pit-mid')&&saved.phonePitSize==='large','phone layout settings apply and persist');
     set('phoneOpacity','100');set('phonePitSize','standard');set('phonePitPosition','high');closeSettings();
 
-    check(shown('gp-phone-position')&&!shown('f1-live-ranks')&&!shown('f1-race-hud'),'mobile timing displays only the solo position badge');
-    const rank=document.getElementById('gp-phone-position').getBoundingClientRect();
-    const pit=document.getElementById('tyre-logo-widget').getBoundingClientRect();
-    check(rank.right<pit.left&&rank.left<innerWidth/2&&!document.getElementById('tyre-logo-widget').contains(document.getElementById('gp-phone-position')),'standalone left-side rank does not overlap the tyre panel');
-    check(/^[1-6]\/6$/.test(document.getElementById('gp-phone-position').textContent),'mobile rank uses live timing');
+    check(!document.getElementById('gp-phone-position')&&!shown('f1-live-ranks')&&!shown('f1-race-hud'),'mobile has no live ranking');
+    const originalLeft=widget.getBoundingClientRect().left;
     openSettings();phoneHudOpen.click();
-    const rankHandle=phoneHudEditor.querySelector('[data-target="#gp-phone-position"]');
-    const moveRank=()=>rankHandle.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',shiftKey:true,bubbles:true}));
-    const rankLeft=()=>document.getElementById('gp-phone-position').getBoundingClientRect().left;
-    check(phoneHudEditor.open&&settingsOpen&&!rankHandle.hidden,'editing shows the live HUD and keeps the game paused');
-    moveRank();
-    check(Math.abs(rankLeft()-rank.left-20)<1,'moving the rank updates its live preview');
+    const pitHandle=phoneHudEditor.querySelector('[data-target="#tyre-logo-widget"]');
+    const movePit=()=>pitHandle.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowLeft',shiftKey:true,bubbles:true}));
+    const pitLeft=()=>widget.getBoundingClientRect().left;
+    check(phoneHudEditor.open&&settingsOpen&&!pitHandle.hidden,'editing shows the live HUD and keeps the game paused');
+    movePit();
+    check(Math.abs(pitLeft()-originalLeft+20)<1,'moving the pit panel updates its live preview');
     document.getElementById('phone-hud-cancel').click();
-    check(!phoneHudEditor.open&&Math.abs(rankLeft()-rank.left)<1,'cancel restores the saved layout');
-    phoneHudOpen.click();moveRank();
+    check(!phoneHudEditor.open&&Math.abs(pitLeft()-originalLeft)<1,'cancel restores the saved layout');
+    phoneHudOpen.click();movePit();
     document.getElementById('phone-hud-save').click();
     const savedLayout=JSON.parse(localStorage.getItem('brickway-settings-v2')).phoneHudLayouts;
-    check(savedLayout.f1race['#gp-phone-position'][0]>0&&Math.abs(rankLeft()-rank.left-20)<1,'save persists a race-specific layout');
+    check(savedLayout.f1race['#tyre-logo-widget'][0]<0&&Math.abs(pitLeft()-originalLeft+20)<1,'save persists a race-specific layout');
     phoneHudOpen.click();
     document.getElementById('phone-hud-reset').click();
     document.getElementById('phone-hud-save').click();
-    check(Math.abs(rankLeft()-rank.left)<1,'reset restores the default rank location');
+    check(Math.abs(pitLeft()-originalLeft)<1,'reset restores the default pit panel location');
     closeSettings();
     const pitButton=document.getElementById('tyre-pit-btn');
     check(shown('tyre-pit-controls')&&pitButton.disabled&&pitButton.getBoundingClientRect().height>=44,'mobile pit button is visible and thumb-sized');
     gpTyre.wear=.5;gpPitHUD();check(!pitButton.disabled,'mobile pit unlocks when tyres wear');
+    initSound();
+    await gpCrashIntroDecode;
+    check(gpCrashIntroBuffer?.duration>2.5&&gpCrashIntroBuffer.duration<3,'crash cue is predecoded with padding removed');
+    for(const voice of audio.voices)voice.gain.gain.setTargetAtTime(.25,audio.ctx.currentTime,.01);
     gpTyre.wear=1;updateF1Race(.05);
-    check(f1RaceFinished&&speed===0&&document.querySelector('#f1-finish-overlay.tyre-failure.open')&&shown('gp-tyre-failure'),'zero tyre health retires the player and starts the animation');
+    check(F1_TOTAL_LAPS===3,'mobile race defaults to three laps');
+    check(f1RaceFinished&&speed===0&&gpTyreCrash&&!deathScreenOpen,'zero tyre health starts the crash before showing results');
+    const intro=gpTyreCrash.introSound;
+    check(intro?.buffer===gpCrashIntroBuffer&&!intro.loop,'crash cue starts immediately as a one-shot');
+    const introEnded=new Promise(resolve=>intro.addEventListener('ended',resolve,{once:true}));
+    for(let i=0;i<4;i++)frame(prev+50);
+    check(gpCrashRig.wheelFire.every(flames=>flames.visible)&&formulaPlayer.wheels.every(wheel=>wheel.visible)&&!gpCrashRig.fire.visible,'tyres ignite while still attached');
+    for(let i=0;i<22;i++)frame(prev+50);
+    check(gpCrashRig.wheels.every(wheel=>wheel.visible)&&gpCrashRig.wheelFire.every(flames=>flames.visible)&&formulaPlayer.wheels.every(wheel=>!wheel.visible),'burning wheels detach');
+    check(formulaPlayer.group.position.y>6&&!gpCrashRig.fire.visible,'car lifts off before it catches fire');
+    check(!gpTyreCrash.fireSound,'fire audio waits for the cue');
+    await introEnded;
+    check(audio.voices.every(voice=>voice.gain.gain.value===0)&&audio.windGain.gain.value===0,'driving audio remains silent while the crash plays');
+    for(let i=0;i<18;i++)frame(prev+50);
+    check(formulaPlayer.group.position.y<1&&gpCrashRig.fire.visible,'the body ignites after touchdown');
+    check(!gpTyreCrash.introSound&&gpTyreCrash.fireSound?.loop,'fire audio starts after the cue ends');
+    for(let i=0;i<56;i++)frame(prev+50);
+    check(!deathScreenOpen&&gpCrashRig.fire.visible,'fire remains on screen for at least five seconds of crash time');
+    for(let i=0;i<8;i++)frame(prev+50);
+    const end=gpCurve.getPointAt(gpIncrease(gpTyreCrash.startU,gpTyreCrash.travel/race.length,1));
+    check(Math.hypot(formulaPlayer.group.position.x-end.x,formulaPlayer.group.position.z-end.z)>F1Core.widthAt(gpIncrease(gpTyreCrash.startU,gpTyreCrash.travel/race.length,1))/2,'car slides beyond the track edge');
+    check(deathScreenOpen&&document.querySelector('#death-overlay.race-death.open')&&!gpTyreCrash.fireSound,'shared death screen follows the crash and stops fire audio');
+    check(document.getElementById('death-reason').textContent==='You died due to lack of INTELLIGENCE'&&document.getElementById('death-race-quote').textContent==='"thats why she left u !!"'&&!shown('death-score'),'F1 death screen shows the racing text');
+    document.getElementById('death-respawn-btn').click();
+    check(!f1RaceFinished&&gpTyre.wear===0&&!gpTyreCrash&&!gpCrashRig.fire.visible&&gpCrashRig.wheelFire.every(flames=>!flames.visible)&&gpCrashRig.wheels.every(wheel=>!wheel.visible)&&formulaPlayer.wheels.every(wheel=>wheel.visible)&&!deathScreenOpen&&!document.querySelector('#death-overlay.open'),'restart clears the failed tyre and restores all wheels');
+    for(let i=0;i<70;i++)updateF1Countdown(.05);
+    await audio.ctx.resume();
+    for(const voice of audio.voices)voice.gain.gain.setTargetAtTime(.25,audio.ctx.currentTime,.01);
+    f1RaceTime=90;
+    f1Bots[0].finished=true;f1Bots[0].finishTime=89;f1Bots[0].progress=F1_TOTAL_LAPS;
+    f1Bots[1].finished=true;f1Bots[1].finishTime=Infinity;f1Bots[1].progress=1;
+    gpDist=F1_TOTAL_LAPS-.0001;gpCompleted=F1_TOTAL_LAPS-1;gpTimingU=.9999;gpWallU=.0001;
+    updateF1Race(.05);
+    const standings=document.getElementById('f1-standings');
+    check(f1RaceFinished&&gpPlayerDone&&document.querySelector('#f1-finish-overlay.open')&&document.getElementById('f1-finish-title').textContent.includes('YOU FINISHED 2ND'),'final lap opens the P2 board immediately');
+    check(standings.textContent.includes('ON TRACK')&&standings.lastElementChild.textContent.includes('DNF'),'unfinished rivals and retirees have distinct statuses');
+    const finishTime=f1RaceTime;
+    updateF1Race(1);
+    check(f1RaceTime===finishTime&&speed===0&&gameplayAudioBlocked(),'race simulation and driving audio stop at the finish');
+    await audio.ctx.suspend();
+    initSound();syncGameplayAudio();
+    check(audio.ctx.state==='suspended'&&audio.voices.every(voice=>voice.gain.gain.value===0),'audio stays silent on the results board');
     document.getElementById('f1-replay-btn').click();
-    check(!f1RaceFinished&&gpTyre.wear===0&&!document.querySelector('#f1-finish-overlay.tyre-failure'),'restart clears the failed tyre');
+    await audio.ctx.resume();
+    check(!gameplayAudioBlocked()&&audio.ctx.state==='running','audio returns after starting the next race');
     return {viewport:[innerWidth,innerHeight],joystickWidth:box.width,brakeWidth:brake.width};
   }
-  for (const [laps, difficulty, compound,surface] of [[5,'easy','soft','dry'],[8,'pro','medium','dry'],[12,'legend','hard','dry'],[5,'pro','intermediate','damp'],[8,'legend','wet','wet']]) {
+  for (const [laps, difficulty, compound,surface] of [[3,'easy','soft','dry'],[6,'pro','medium','dry'],[8,'legend','hard','dry'],[3,'pro','intermediate','damp'],[6,'legend','wet','wet']]) {
     document.getElementById('btn-mode-f1race').click();
     document.getElementById('gp-distance').value = laps;
     document.getElementById('gp-surface').value=surface;
@@ -95,8 +138,7 @@ function exercise(mobile) {
     }
     document.getElementById('gp-launch').click();
     check(f1CountdownActive && F1_TOTAL_LAPS === laps,'grid and distance');
-    check(getComputedStyle(document.getElementById('f1-live-ranks')).display!=='none'&&
-      getComputedStyle(document.getElementById('gp-phone-position')).display==='none','desktop retains full live ranks');
+    check(getComputedStyle(document.getElementById('f1-live-ranks')).display!=='none','desktop retains full live ranks');
     for(let i=0;i<65;i++) updateF1Countdown(.05);
     check(!f1CountdownActive,'countdown');
     check(getComputedStyle(document.getElementById('gp-phone-settings-tab')).display==='none','desktop does not expose phone HUD settings');
@@ -198,7 +240,7 @@ function exercise(mobile) {
       }
       updateF1Race(clockStep);
       // The deterministic race fixture replenishes tyres at the pit entry.
-      if(!gpPlayerDone&&gpTyre.wear>.6&&gpWallU>=GP_PIT_ENTRY&&gpWallU<=GP_PIT_LAST_ENTRY){
+      if(!gpPlayerDone&&gpTyre.wear>=.45&&gpWallU>=GP_PIT_ENTRY&&gpWallU<=GP_PIT_LAST_ENTRY){
         F1Core.performPitStop(gpTyre,compound);
       }
       check(f1Bots.filter(bot=>bot.pit&&!bot.pit.done&&bot.u>=GP_PIT_BOX-1e-6).length<=1,'only one AI receives service at a time');
@@ -216,7 +258,7 @@ function exercise(mobile) {
         if(bot.passTarget)passZones.add(Math.floor(bot.u*12));
       }
     }
-    check(f1RaceFinished&&gpFinishRows.length===6&&gpCompleted===laps,'race classification');
+    check(f1RaceFinished&&gpFinishRows.length===6&&gpCompleted===laps,'race classification '+JSON.stringify({laps,compound,surface,completed:gpCompleted,finished:f1RaceFinished,rows:gpFinishRows.length,wear:gpTyre.wear,progress:f1PlayerProgress,bots:f1Bots.map(b=>[b.lap,b.tyre.stops,b.tyre.wear])}));
     check(gpSeason.round>=1&&Object.values(gpSeason.totals).some(v=>v>=25),'championship scoring');
     check(orderChanges>0&&passZones.size>=3,'overtaking opportunities');
     check(f1Bots.every(b=>b.tyre.stops>0&&!b.pit),'each AI driver finishes a tyre change and rejoins');
@@ -416,11 +458,11 @@ async function run() {
       const errors=[];
       page.on('pageerror',error=>errors.push(error.message));
       const exerciseCode=mode==='city'?exerciseCity.toString():exercise.toString();
-      const injection=`window.runBrickwayRegression=()=>{
+      const injection=`window.runBrickwayRegression=async()=>{
  const raf=window.requestAnimationFrame,render=renderGameScene;
  window.requestAnimationFrame=()=>0;
  renderGameScene=()=>{};
- try{return (${exerciseCode})(${mobile});}
+ try{return await (${exerciseCode})(${mobile});}
  finally{window.requestAnimationFrame=raf;renderGameScene=render;}
 };
 })();`;
@@ -438,14 +480,14 @@ async function run() {
       if(mobile){
         await page.tap('#settings-open');
         await page.click('#phone-hud-open');
-        const handle=page.locator('[data-target="#gp-phone-position"]');
+        const handle=page.locator('[data-target="#tyre-logo-widget"]');
         const before=await handle.boundingBox();
         await page.mouse.move(before.x+before.width/2,before.y+before.height/2);
         await page.mouse.down();
-        await page.mouse.move(before.x+before.width/2+80,before.y+before.height/2-20,{steps:4});
+        await page.mouse.move(before.x+before.width/2-80,before.y+before.height/2-20,{steps:4});
         await page.mouse.up();
         const after=await handle.boundingBox();
-        assert.ok(Math.abs(after.x-before.x-80)<2&&Math.abs(after.y-before.y+20)<2,'pointer drag moves rank in both directions');
+        assert.ok(Math.abs(after.x-before.x+80)<2&&Math.abs(after.y-before.y+20)<2,'pointer drag moves the pit panel in both directions');
         await page.click('#phone-hud-save');
       }
       assert.deepEqual(errors,[],mode+' browser errors');

@@ -391,8 +391,8 @@ describe('Formula Sim handling', () => {
 });
 
 test('short race presets preserve proportional wear and give rivals a pit window', () => {
-  near(F.tyreWearRate('medium',5)*5,F.tyreWearRate('medium',12)*12);
-  assert.ok(F.tyreWearRate('soft',5)>F.tyreWearRate('hard',5));
+  for (const laps of [3, 6, 8]) near(F.tyreWearRate('medium',laps)*laps,F.tyreWearRate('medium',20)*20);
+  assert.ok(F.tyreWearRate('soft',3)>F.tyreWearRate('hard',3));
   const driver=F.drivers[0];
   assert.equal(F.strategy({compound:'wet',surface:'wet',wear:.63,stops:0},driver,2,5),'wet');
   assert.equal(F.strategy({compound:'medium',surface:'dry',wear:.63,stops:0},driver,.3,5),null);
