@@ -1,5 +1,7 @@
 # BRICKWAY
 
+**[Download the latest release](https://github.com/Ryan-Khan/BRICKWAY/releases/latest)** · [Play on Embarko](https://brickway.embarko.app/) · [Browse previous releases](https://github.com/Ryan-Khan/BRICKWAY/releases)
+
 A browser-based brick-built driving game with Open World pursuits and Grand Prix racing. The production game is served as static files. Use a WebGL-capable browser with hardware acceleration for normal play.
 
 ```sh
