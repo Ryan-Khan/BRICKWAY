@@ -186,6 +186,7 @@ function exercise(mobile) {
     const clockStep=.05;
     let previousOrder='',orderChanges=0;
     const passZones=new Set();
+    let sawRivalTyreSwap=false;
     for(let tick=0;tick<laps*1800&&!f1RaceFinished;tick++){
       if(!gpPlayerDone){
         // Deterministic timing driver. Steering feel is tested separately.
@@ -201,6 +202,12 @@ function exercise(mobile) {
         F1Core.performPitStop(gpTyre,compound);
       }
       check(f1Bots.filter(bot=>bot.pit&&!bot.pit.done&&bot.u>=GP_PIT_BOX-1e-6).length<=1,'only one AI receives service at a time');
+      const swapping=f1Bots.find(bot=>bot.pit&&!bot.pit.done&&bot.pit.service>1.15&&bot.pit.service<1.5);
+      if(swapping){
+        check(swapping.group.position.y>.15&&swapping.wheels.every(wheel=>!wheel.visible)&&gpPitCrew.every(member=>member.oldWheel.visible&&member.newWheel.visible),'the shared crew animates the rival tyre swap');
+        sawRivalTyreSwap=true;
+      }
+      check(f1Bots.every(bot=>!bot.pit?.done||bot.wheels.every(wheel=>wheel.visible)),'leaving rivals have all four replacement wheels visible');
       const order=f1Bots.slice().sort((a,b)=>b.progress-a.progress).map(b=>b.name).join(',');
       if(previousOrder&&order!==previousOrder)orderChanges++;
       previousOrder=order;
@@ -215,6 +222,7 @@ function exercise(mobile) {
     check(f1Bots.every(b=>b.tyre.stops>0&&!b.pit),'each AI driver finishes a tyre change and rejoins');
     const topRivals=gpFinishRows.filter(row=>row.id!=='p').slice(0,2);
     check(topRivals.some(row=>row.name===hamilton.name)&&topRivals.some(row=>row.name===max.name),'Expected Hamilton and Verstappen in '+laps+'-lap '+surface+' race. '+JSON.stringify(gpFinishRows.map(r=>({name:r.name,time:r.finishTime}))));
+    check(sawRivalTyreSwap,'at least one rival pit animation played');
     results.push({laps,difficulty,compound,surface,orderChanges,attackSectors:passZones.size,
       topRivals:topRivals.map(row=>row.name),rivalGapSeconds:Number((topRivals[1].finishTime-topRivals[0].finishTime).toFixed(2)),stops:f1Bots.map(b=>b.tyre.stops),serviceSeconds:stationary,pitSeconds:transit});
     returnToStartScreen();

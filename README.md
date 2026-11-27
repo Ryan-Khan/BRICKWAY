@@ -69,7 +69,7 @@ Phone HUD settings let touch players change opacity and the right-side pit panel
 
 Formula headlights switch on as soon as night begins on desktop and phones. The warm-white lamps reach full brightness while the sky is still transitioning. Each lamp casts a rounded pool that fades outward, with a brighter patch where both pools overlap. The player’s pair also illuminates scenery with a shared procedural projector mask that models a low-beam cutoff. [Three.js SpotLight](https://threejs.org/docs/pages/SpotLight.html) · [HELLA light distribution](https://www.hella.com/techworld/us/technical/automotive-lighting/light-distribution/)
 
-The shared pit box serves one car at a time, and drivers queue behind it until the car ahead clears the lane.
+The shared pit box serves one car at a time, and drivers queue until the car ahead clears the lane. The crew, jack and wheel animations play for both the player and rivals.
 
 ### Phone HUD layouts
 
