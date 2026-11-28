@@ -133,11 +133,55 @@ async function exercise(mobile) {
     check(!gameplayAudioBlocked()&&audio.ctx.state==='running','audio returns after starting the next race');
     return {viewport:[innerWidth,innerHeight],joystickWidth:box.width,brakeWidth:brake.width};
   }
+  const tyreTrial=(compound,surface='dry')=>{
+    document.getElementById('btn-mode-f1race').click();
+    const config=document.getElementById('gp-setup-screen');
+    config.querySelector('[name="gp-session"][value="qualifying"]').checked=true;
+    config.querySelector('#gp-surface').value=surface;
+    config.querySelector('#gp-surface').dispatchEvent(new Event('change',{bubbles:true}));
+    config.querySelector(`[name="gp-compound"][value="${compound}"]`).checked=true;
+    config.querySelector('#gp-launch').click();
+    updateF1Countdown(3.21);
+    check(gpTyre.compound===compound&&gpTyre.surface===surface,'setup fits the selected compound and surface');
+    gpTyre.temperature=F1Core.tyreWindow(compound);
+    keys={KeyW:true};
+    frame(prev+50);
+    const launch=speed;
+    const setSpeed=value=>{
+      speed=value;
+      velocityX=Math.sin(yaw)*value;
+      velocityZ=Math.cos(yaw)*value;
+    };
+    setSpeed(65);
+    keys={Space:true};
+    frame(prev+50);
+    const braking=65-speed;
+    setSpeed(105);
+    const heading=yaw;
+    gpSteering=1;
+    keys={ArrowRight:true};
+    frame(prev+50);
+    const turn=Math.abs(yaw-heading);
+    returnToStartScreen();
+    return {launch,braking,turn};
+  };
+  const soft=tyreTrial('soft'),medium=tyreTrial('medium'),hard=tyreTrial('hard');
+  for(const stat of ['launch','braking','turn']){
+    check(soft[stat]>medium[stat]&&medium[stat]>hard[stat],'dry compounds change actual player '+stat+': '+JSON.stringify({soft,medium,hard}));
+  }
+  const wet=tyreTrial('wet','wet'),wetSlick=tyreTrial('soft','wet');
+  for(const stat of ['launch','braking','turn']){
+    check(wet[stat]>wetSlick[stat],'full wets outperform slicks in the rain for '+stat);
+  }
+
   for (const [laps, difficulty, compound,surface] of [[3,'easy','soft','dry'],[6,'pro','medium','dry'],[8,'legend','hard','dry'],[3,'pro','intermediate','damp'],[6,'legend','wet','wet']]) {
     document.getElementById('btn-mode-f1race').click();
     document.getElementById('gp-distance').value = laps;
     document.getElementById('gp-surface').value=surface;
     document.getElementById('gp-surface').dispatchEvent(new Event('change',{bubbles:true}));
+    const stats=document.querySelector(`[name="gp-compound"][value="${compound}"]`).parentElement.querySelector('.gp-tyre-stats').textContent;
+    const wear=Math.round(100*F1Core.tyreWearRate(compound,laps,surface));
+    check(stats.includes('Wear '+wear+'%/lap'),'setup shows wear at the selected race length and surface');
     for (const [name,value] of [['difficulty',difficulty],['compound',compound],['session','championship']]) {
       document.querySelector('input[name="gp-'+name+'"][value="'+value+'"]').checked = true;
     }
@@ -214,7 +258,7 @@ async function exercise(mobile) {
       largestYawStep=Math.max(largestYawStep,Math.abs(Math.atan2(Math.sin(yaw-oldYaw),Math.cos(yaw-oldYaw))));
     } while(gpPitPhase!=='idle'&&transit<60);
     check(largestYawStep<.20,'pit path does not snap the car heading');
-    check(gpTyre.stops===1&&gpTyre.compound==='hard'&&gpTyre.wear===0,'tyre replacement');
+    check(gpTyre.stops===1&&gpTyre.compound==='hard'&&gpTyre.wear===0&&gpTyre.temperature===F1Core.freshTyreTemperature('hard'),'tyre replacement and temperature reset');
     check(stationary>=2.99&&stationary<3.06&&transit>6&&gpPitCrew.length===4,'physical service');
     setupF1RaceGrid();
     for(const [impact,label] of [[42,'YELLOW FLAG'],[72,'VSC'],[110,'SAFETY CAR']]){
@@ -268,10 +312,10 @@ async function exercise(mobile) {
     check(orderChanges>0&&passZones.size>=3,'overtaking opportunities');
     check(f1Bots.every(b=>b.tyre.stops>0&&!b.pit),'each AI driver finishes a tyre change and rejoins');
     const topRivals=gpFinishRows.filter(row=>row.id!=='p').slice(0,2);
-    check(topRivals.some(row=>row.name===hamilton.name)&&topRivals.some(row=>row.name===max.name),'Expected Hamilton and Verstappen in '+laps+'-lap '+surface+' race. '+JSON.stringify(gpFinishRows.map(r=>({name:r.name,time:r.finishTime}))));
+    check(topRivals.some(row=>row.name===hamilton.name)&&topRivals.some(row=>row.name===max.name),'Expected Hamilton and Verstappen in '+laps+'-lap '+surface+' race. '+JSON.stringify(gpFinishRows.map(r=>({name:r.name,time:r.finishTime,progress:r.progress}))));
     check(sawRivalTyreSwap,'at least one rival pit animation played');
     results.push({laps,difficulty,compound,surface,orderChanges,attackSectors:passZones.size,
-      topRivals:topRivals.map(row=>row.name),rivalGapSeconds:Number((topRivals[1].finishTime-topRivals[0].finishTime).toFixed(2)),stops:f1Bots.map(b=>b.tyre.stops),serviceSeconds:stationary,pitSeconds:transit});
+      topRivals:topRivals.map(row=>row.name),rivalGapSeconds:Number(F1Core.timeBetween(topRivals[0],topRivals[1],gpReference).toFixed(2)),stops:f1Bots.map(b=>b.tyre.stops),serviceSeconds:stationary,pitSeconds:transit});
     returnToStartScreen();
   }
   document.getElementById('btn-mode-f1race').click();

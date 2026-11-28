@@ -168,11 +168,13 @@ describe('tyres and pit stops', () => {
     assert.equal(F.inPitZone(0.01), false);
   });
   test('a pit stop resets wear, changes compound and costs time', () => {
-    const tyre = { compound: 'soft', wear: 0.7, stops: 0 };
+    const tyre = { compound: 'soft', wear: 0.7, stops: 0, temperature: 111, surface: 'damp' };
     const lost = F.performPitStop(tyre);
     assert.equal(tyre.compound, 'medium');
     assert.equal(tyre.wear, 0);
     assert.equal(tyre.stops, 1);
+    assert.equal(tyre.temperature, F.freshTyreTemperature('medium'));
+    assert.equal(tyre.surface, 'damp');
     assert.equal(lost, F.PIT.stopSec);
   });
 });
@@ -375,6 +377,38 @@ describe('Formula Sim handling', () => {
     assert.ok(F.tractionShare(.4) > F.tractionShare(.8));
     assert.ok(F.tractionShare(1) > 0);
     assert.equal(F.tractionShare(2), F.tractionShare(1));
+  });
+
+  test('slick compound grip changes launch, braking and cornering in the dry', () => {
+    const [soft, medium, hard] = ['soft','medium','hard'].map(compound=>({compound,surface:'dry',wear:0}));
+    const launch = tyre=>F.drive(0,160,.05,tyre);
+    const stop = tyre=>F.drive(100,0,.05,tyre);
+    const corner = tyre=>F.yawRate(100,1,tyre);
+    assert.ok(launch(soft)>launch(medium)&&launch(medium)>launch(hard));
+    assert.ok(stop(soft)<stop(medium)&&stop(medium)<stop(hard));
+    assert.ok(corner(soft)>corner(medium)&&corner(medium)>corner(hard));
+    assert.ok(launch(soft)>launch(hard)*1.15);
+    assert.ok(F.grip({...soft,wear:.65})<F.grip({...hard,wear:.25}));
+  });
+
+  test('intermediates lead in damp conditions and full wets lead in heavy rain', () => {
+    for (const [surface,best] of [['dry','soft'],['damp','intermediate'],['wet','wet']]) {
+      const tyres=Object.keys(F.TYRES).map(compound=>({compound,surface,wear:0}));
+      assert.equal(tyres.sort((a,b)=>F.grip(b)-F.grip(a))[0].compound,best);
+    }
+    const wet={compound:'wet',surface:'wet',wear:0};
+    const slick={compound:'soft',surface:'wet',wear:0};
+    assert.ok(F.drive(0,110,.05,wet)>F.drive(0,110,.05,slick));
+    assert.ok(F.drive(90,0,.05,wet)<F.drive(90,0,.05,slick));
+    assert.ok(F.tyreWearRate('wet',6,'dry')>2*F.tyreWearRate('wet',6,'wet'));
+    assert.ok(F.tyreWearRate('intermediate',6,'dry')>F.tyreWearRate('intermediate',6,'damp'));
+  });
+
+  test('softs warm up more quickly than hards under the same load', () => {
+    const soft={compound:'soft',surface:'dry'};
+    const hard={compound:'hard',surface:'dry'};
+    const warmup=tyre=>F.updateTyreTemperature(tyre,2,120,.45,.1,1)-F.freshTyreTemperature(tyre.compound);
+    assert.ok(warmup(soft)>warmup(hard));
   });
 
   test('warms loaded tyres, cools parked tyres, and rewards the compound window', () => {

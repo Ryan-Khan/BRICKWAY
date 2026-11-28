@@ -86,6 +86,18 @@ and [Three.js instancing](https://threejs.org/docs/pages/InstancedMesh.html).
 
 Grand Prix applies a shared grip budget to the player car. Braking while turning reduces the grip available for both, and hard acceleration uses some of the same grip at low speed. Brake before turn-in and ease off the pedal as you add steering. Tyre compound, wetness, wear, and temperature all influence grip. Fresh pit tyres start cooler, and the Formula cockpit shows their temperature in blue, green, or orange.
 
+The compound changes launch traction, braking distance and cornering grip. Race Control shows each compound's fresh grip relative to a dry medium tyre and expected wear per Grand Prix lap for the selected distance and surface.
+
+| Compound | Performance |
+|---|---|
+| Soft | Best dry grip and quickest slick warm-up, with the fastest dry wear |
+| Medium | Balanced dry grip, warm-up and stint length |
+| Hard | Longest dry stint, with lower initial grip and slower warm-up |
+| Intermediate | Best on damp asphalt, with higher wear on a dry track |
+| Wet | Best in heavy rain, with rapid overheating and wear on a dry track |
+
+Rivals use the same compound, weather and temperature rules. A pit stop fits fresh rubber below its optimal temperature, so it needs to warm up after the exit.
+
 The tyre and braking changes were inspired by [LibreCorsa](https://librecorsa.org/play).
 
 Worn tyres reduce speed, acceleration, braking and cornering performance in Grand Prix. At 0% tyre health you get 2.5 seconds to reach pit entry before the burning wheels fly off, the car launches off the circuit and catches fire on landing, and the same You Died screen used in Open World offers a restart. On phones, the tyre panel keeps health, compound selection and the pit button within reach. The desktop race HUD shows live ranks.
