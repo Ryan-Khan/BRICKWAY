@@ -15,12 +15,16 @@ python3 -m http.server 4173
 | A / ←, D / → | Steer left or right |
 | Space | Drift in Open World or brake in Grand Prix |
 | Shift | Boost in Open World or deploy ERS in Grand Prix |
-| C or View button | Cycle chase, hood, high chase and cockpit |
+| C or on-screen View button | Cycle Open World cameras |
 | P or Pit Stop | Queue or cancel an assisted pit stop at or below 55% tyre health |
 | Escape | Settings |
 | R | Reset to the mode's starting location |
 
 Landscape touch controls include steer, throttle, brake and a quick button for the cockpit. Connect a standard-mapped gamepad by USB or Bluetooth. If needed, press a button so the browser detects it, then choose **🎮 Use controller** or select your pad by name when more than one is connected. Losing the active controller pauses the game. Navigate menus with the D-pad or left stick, confirm with A / Cross, and go back with B / Circle. Change the focused dropdown or slider with Left / Right. The controller legend appears automatically when a pad is detected. In the phone HUD editor, select a widget with A / Cross, move it with the D-pad, then press A / Cross again to place it.
+
+### Controller
+
+![BRICKWAY v0.216 controller diagram with Xbox and PlayStation button names. The controls are listed below.](docs/brickway-controller-controls.png)
 
 | Controller | Action |
 |---|---|
@@ -28,9 +32,10 @@ Landscape touch controls include steer, throttle, brake and a quick button for t
 | RT / R2, LT / L2 | Accelerate, brake or reverse in Open World |
 | A / Cross or squeeze an analog RT / R2 | Boost or ERS |
 | X / Square | Open World handbrake |
-| Y / Triangle | Cycle camera |
-| LB / L1, RB / R1 | Cycle the next F1 tyre compound, request or cancel a pit stop |
-| Start / Options | Settings |
+| Y / Triangle | Cycle Open World cameras |
+| LB / L1 | Cycle the next F1 tyre compound or reset the car in Open World |
+| RB / R1 | Request or cancel an F1 pit stop |
+| Start / Options | Open Settings or resume |
 | View / Share | Driving actions, including Time Attack, repair, sound, reset and mode switching |
 | L3, R3 | Reset car, toggle sound |
 | D-pad ↑ / ↓ while driving | Open World Time Attack / toggle sound |
