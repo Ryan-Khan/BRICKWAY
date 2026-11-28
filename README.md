@@ -12,15 +12,33 @@ python3 -m http.server 4173
 | Control | Action |
 |---|---|
 | W / ↑, S / ↓ | Accelerate, brake or reverse |
-| A / →, D / ← | Steer right and left, following the existing BRICKWAY mapping |
+| A / ←, D / → | Steer left or right |
 | Space | Drift in Open World or brake in Grand Prix |
 | Shift | Boost in Open World or deploy ERS in Grand Prix |
-| C or View | Cycle chase, hood, high chase and cockpit |
+| C or View button | Cycle chase, hood, high chase and cockpit |
 | P or Pit Stop | Queue or cancel an assisted pit stop at or below 55% tyre health |
 | Escape | Settings |
 | R | Reset to the mode's starting location |
 
-Landscape touch controls include steer, throttle, brake and a quick button for the cockpit. A standard gamepad uses left stick, right and left triggers, and the bottom face button for boost. The optional wheel preset expects steering on axis 0 with independent inverted throttle and brake on axes 1 and 2. Hardware with another mapping needs its driver or browser to expose those axes. Reduced camera motion is the default. Settings also include optional race traction assistance.
+Landscape touch controls include steer, throttle, brake and a quick button for the cockpit. Connect a standard-mapped gamepad by USB or Bluetooth. If needed, press a button so the browser detects it, then choose **🎮 Use controller** or select your pad by name when more than one is connected. Losing the active controller pauses the game. Navigate menus with the D-pad or left stick, confirm with A / Cross, and go back with B / Circle. Change the focused dropdown or slider with Left / Right. The controller legend appears automatically when a pad is detected. In the phone HUD editor, select a widget with A / Cross, move it with the D-pad, then press A / Cross again to place it.
+
+| Controller | Action |
+|---|---|
+| Left stick or D-pad ← / → | Steer |
+| RT / R2, LT / L2 | Accelerate, brake or reverse in Open World |
+| A / Cross or squeeze an analog RT / R2 | Boost or ERS |
+| X / Square | Open World handbrake |
+| Y / Triangle | Cycle camera |
+| LB / L1, RB / R1 | Cycle the next F1 tyre compound, request or cancel a pit stop |
+| Start / Options | Settings |
+| View / Share | Driving actions, including Time Attack, repair, sound, reset and mode switching |
+| L3, R3 | Reset car, toggle sound |
+| D-pad ↑ / ↓ while driving | Open World Time Attack / toggle sound |
+| LB / L1 or RB / R1 in Settings | Switch settings tabs |
+
+Controller vibration reacts to braking, shifts, boost, drifts, uneven ground, collisions and pursuits. Switch it off under **Settings → Controls → Controller vibration**. Independent trigger feedback depends on browser and controller support.
+
+The optional wheel preset expects steering on axis 0 with independent inverted throttle and brake on axes 1 and 2. Hardware with another mapping needs its driver or browser to expose those axes. Reduced camera motion is the default. Settings also include optional race traction assistance.
 
 ## Open World
 
@@ -38,7 +56,7 @@ Lewis Hamilton #44 has the strongest power and tyre preservation. Max Verstappen
 
 Watch the ERS percentage before deploying boost. Brake to recover energy, and plan tyre changes around weather and wear. Select the next compound and request a stop before the entry boards. The game blends the driver onto the pit trajectory, limits lane speed, waits for the crew, then returns control after the merge. Track barriers are built from the same signed boundaries used to resolve vehicle contact. Cockpit mode carries through the stop.
 
-Crossing the finish line opens the results board immediately and stops the engine audio. Rivals still racing are marked On Track. **Watch Replay** plays the latest recorded segment, up to about 25 seconds. Pause or scrub to inspect the run, then return to the results. The existing qualifying ghost, penalties, and championship scoring remain available.
+Crossing the finish line opens the results board immediately and stops the engine audio. Rivals still racing are marked On Track. The existing qualifying ghost, penalties, and championship scoring remain available.
 
 
 ### Visuals and cockpit
@@ -65,7 +83,7 @@ Grand Prix applies a shared grip budget to the player car. Braking while turning
 
 The tyre and braking changes were inspired by [LibreCorsa](https://librecorsa.org/play).
 
-Worn tyres reduce speed, acceleration, braking and cornering performance in Grand Prix. At 0% tyre health the burning wheels fly off, the car launches off the circuit and catches fire on landing, and the same You Died screen used in Open World offers a restart. On phones, the tyre panel keeps health, compound selection and the pit button within reach. The desktop race HUD shows live ranks.
+Worn tyres reduce speed, acceleration, braking and cornering performance in Grand Prix. At 0% tyre health you get 2.5 seconds to reach pit entry before the burning wheels fly off, the car launches off the circuit and catches fire on landing, and the same You Died screen used in Open World offers a restart. On phones, the tyre panel keeps health, compound selection and the pit button within reach. The desktop race HUD shows live ranks.
 
 Phone HUD settings let touch players change opacity and the right-side pit panel’s size and height. Steering, drift and engine power use the game’s built-in tuning. Formula cars use recessed headlights at night. Brake while turning to carry a longer slide, then release the brake to regain grip.
 

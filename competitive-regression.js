@@ -81,6 +81,10 @@ async function exercise(mobile) {
     check(gpCrashIntroBuffer?.duration>2.5&&gpCrashIntroBuffer.duration<3,'crash cue is predecoded with padding removed');
     for(const voice of audio.voices)voice.gain.gain.setTargetAtTime(.25,audio.ctx.currentTime,.01);
     gpTyre.wear=1;updateF1Race(.05);
+    check(!gpTyreCrash&&document.getElementById('message').textContent.includes('TYRES WORN OUT'),'zero tyre health warns before triggering a crash');
+    for(let i=1;i<49;i++)updateF1Race(.05);
+    check(!gpTyreCrash,'worn-out tyres give the driver a brief chance to make pit entry');
+    updateF1Race(.05);
     check(F1_TOTAL_LAPS===3,'mobile race defaults to three laps');
     check(f1RaceFinished&&speed===0&&gpTyreCrash&&!deathScreenOpen,'zero tyre health starts the crash before showing results');
     const intro=gpTyreCrash.introSound;
@@ -116,6 +120,7 @@ async function exercise(mobile) {
     updateF1Race(.05);
     const standings=document.getElementById('f1-standings');
     check(f1RaceFinished&&gpPlayerDone&&document.querySelector('#f1-finish-overlay.open')&&document.getElementById('f1-finish-title').textContent.includes('YOU FINISHED 2ND'),'final lap opens the P2 board immediately');
+    check(!document.getElementById('gp-watch-replay'),'Grand Prix results offer no replay');
     check(standings.textContent.includes('ON TRACK')&&standings.lastElementChild.textContent.includes('DNF'),'unfinished rivals and retirees have distinct statuses');
     const finishTime=f1RaceTime;
     updateF1Race(1);
@@ -123,7 +128,7 @@ async function exercise(mobile) {
     await audio.ctx.suspend();
     initSound();syncGameplayAudio();
     check(audio.ctx.state==='suspended'&&audio.voices.every(voice=>voice.gain.gain.value===0),'audio stays silent on the results board');
-    document.getElementById('f1-replay-btn').click();
+    document.getElementById('f1-restart-btn').click();
     await audio.ctx.resume();
     check(!gameplayAudioBlocked()&&audio.ctx.state==='running','audio returns after starting the next race');
     return {viewport:[innerWidth,innerHeight],joystickWidth:box.width,brakeWidth:brake.width};
@@ -279,19 +284,12 @@ async function exercise(mobile) {
   check(Number.isFinite(gpTyre.temperature)&&formulaCockpit.reading.endsWith('|'+Math.round(gpTyre.temperature)),'formula cockpit displays live tyre temperature');
   check(formulaCockpit.wheel.children.some(mesh=>mesh.material?.map===formulaCockpit.dialTex),'formula instruments follow the wheel');
   check(formulaCockpit.dialTex.version>0&&cinematicPass.uniforms.uCockpit.value===1,'formula display updates with clear cockpit post-processing');
-  f1RaceTime+=.12;recordRaceReplay();
   check(f1Bots.every(b=>!b.group.visible),'solo qualifying');
   gpTimingU=gpDist=.9995;gpWallU=.0005;f1RaceTime=48;
   updateF1Race(.05);
   check(gpQualiTime>48&&f1RaceFinished&&gpFinishRows.length===6,'qualifying classification');
-  check(!document.getElementById('gp-watch-replay').hidden,'replay available after classification');
-  document.getElementById('gp-watch-replay').click();
-  check(raceReplay.active&&!replayPanel.hidden,'race replay starts');
-  replaySeek.value='500';replaySeek.dispatchEvent(new Event('input'));
-  check(!raceReplay.playing&&Number.isFinite(camera.position.x),'replay seeking');
-  document.getElementById('gp-replay-close').click();
-  check(!raceReplay.active&&replayPanel.hidden,'replay restores results');
-  document.getElementById('f1-replay-btn').click();
+  check(document.querySelector('#f1-finish-overlay.open')&&!document.getElementById('gp-watch-replay')&&!document.getElementById('gp-replay-controls'),'qualifying results offer no replay');
+  document.getElementById('f1-restart-btn').click();
   check(gpSession==='race'&&f1CountdownActive,'qualified race restart');
   updateF1Countdown(3.21);
   for(let i=0;i<3;i++){
@@ -317,8 +315,8 @@ function exerciseCity() {
     keys={[key]:true};frame(prev+40);keys={};
     return yaw-start;
   };
-  const keyboardTurn=turnWith('KeyA'),arrowTurn=turnWith('ArrowRight');
-  check(Math.abs(keyboardTurn)>.02&&Math.abs(keyboardTurn-arrowTurn)<.00001,'Open World keyboard steering uses the full turn rate');
+  const leftTurn=turnWith('KeyA'),rightTurn=turnWith('KeyD');
+  check(leftTurn>.02&&rightTurn<-.02&&Math.abs(leftTurn-turnWith('ArrowLeft'))<.00001&&Math.abs(rightTurn-turnWith('ArrowRight'))<.00001,'Open World keyboard steering uses the full turn rate and agrees with the arrow keys');
   reset();
   for(const {points} of cityJobs)for(const point of points){
     for(const [x,z] of Array.isArray(point[0])?point:[point]){
@@ -435,11 +433,116 @@ function exerciseCity() {
   return {crossings:crossings.length,cars:Object.keys(streetCars).length,jobs:cityJobs.length,traffic:harborTraffic.length,heat};
 }
 
+function exerciseController(mobile) {
+  const check=(condition,message)=>{if(!condition)throw Error(message);};
+  const buttons=Array.from({length:17},()=>({pressed:false,value:0}));
+  const vibration=[];
+  const pad={index:0,id:'BRICKWAY test pad',mapping:'standard',axes:[0,0],buttons,
+    vibrationActuator:{effects:['trigger-rumble'],playEffect:(effect,options)=>vibration.push({effect,options})}};
+  const spare={index:1,id:'Spare standard pad',mapping:'standard',axes:[0,0],buttons:buttons.map(button=>({...button}))};
+  let devices=[pad];
+  const prior=Object.getOwnPropertyDescriptor(navigator,'getGamepads');
+  Object.defineProperty(navigator,'getGamepads',{configurable:true,value:()=>devices});
+  const step=()=>frame(prev+50);
+  const press=index=>{
+    buttons[index].pressed=true;buttons[index].value=1;step();
+    buttons[index].pressed=false;buttons[index].value=0;step();
+  };
+  const navigate=id=>{
+    for(let i=0;i<35&&document.activeElement.id!==id;i++)press(13);
+    check(document.activeElement.id===id,'controller can reach '+id);
+  };
+  try{
+    buttons[0].pressed=true;step();
+    check(controllerPrompt.open&&!controllerEnabled&&document.body.classList.contains('controller-detected')&&getComputedStyle(document.querySelector('.controller-menu-legend')).display==='flex','controller detection turns on the legend and opens the prompt');
+    buttons[0].pressed=false;step();
+    press(1);
+    check(!controllerPrompt.open&&!readDrivingPad(devices,pad),'declining keeps current controls');
+    devices=[];step();devices=[pad];step();
+    check(controllerPrompt.open,'reconnecting prompts again');
+    press(0);
+    check(controllerEnabled&&!controllerPrompt.open,'accepting enables the controller');
+    if(document.querySelector('#fs-lock.open')){
+      press(0);
+      check(!document.querySelector('#fs-lock.open'),'controller can continue without fullscreen');
+    }
+    navigate('btn-mode-f1race');press(0);
+    check(!document.getElementById('gp-setup-screen').hidden,'D-pad and confirm open Grand Prix setup');
+    navigate('gp-distance');press(15);
+    check(document.getElementById('gp-distance').value==='6'&&document.getElementById('gp-summary').textContent.includes('6 laps'),'controller selects race distance');
+    navigate('gp-launch');press(0);
+    check(gameStarted&&gameMode==='f1race'&&F1_TOTAL_LAPS===6,'controller launches the selected race');
+    updateF1Countdown(3.3);
+    check(!controllerLegend.hidden&&getComputedStyle(controllerLegend).display==='flex','F1 driving legend displays automatically');
+    pad.axes[0]=.05;check(readDrivingPad(devices,pad).steer===0,'small stick noise stays in the deadzone');
+    buttons[15].pressed=true;check(readDrivingPad(devices,pad).steer===1,'right D-pad steers in the same direction as a right stick input');
+    buttons[15].pressed=false;
+    buttons[7].value=1;check(!readDrivingPad(devices,pad).boost,'digital throttle does not trigger boost');
+    buttons[7].value=.65;check(!readDrivingPad(devices,pad).boost,'analog throttle stays independent of boost');
+    buttons[7].value=.97;check(readDrivingPad(devices,pad).boost,'full analog throttle activates boost');
+    buttons[7].value=.85;check(readDrivingPad(devices,pad).boost,'trigger boost stays stable inside the hysteresis band');
+    buttons[7].value=.76;check(!readDrivingPad(devices,pad).boost,'easing off the analog trigger disengages boost');
+    pad.axes[0]=.75;buttons[7].value=.9;
+    for(let i=0;i<10;i++)step();
+    check(speed>5&&gpSteering>.1,'positive analog steering and acceleration drive the F1 car');
+    check(vibration.some(entry=>entry.effect==='trigger-rumble'&&entry.options.rightTrigger>0),'driving sends supported trigger haptics');
+    const before=speed;
+    buttons[6].value=.9;step();
+    check(speed<before,'left trigger brakes while the accelerator is held');
+    pad.axes[0]=0;buttons[7].value=buttons[6].value=0;
+    const compound=tyreNextSelect.value;press(4);
+    check(tyreNextSelect.value!==compound&&document.getElementById('gp-next').value===tyreNextSelect.value,'left bumper cycles the active pit compound');
+    gpTyre.wear=.5;press(5);
+    check(gpPitPhase==='queued','right bumper requests a pit stop');
+    press(5);
+    check(gpPitPhase==='idle','right bumper cancels a pit request');
+    press(9);check(settingsOpen&&gameplayAudioBlocked(),'Start pauses and silences driving audio');
+    press(4);check(document.querySelector('.settings-tabs .active').dataset.tab==='controls','shoulder buttons switch settings tabs');
+    navigate('set-controllerRumble');press(15);
+    check(controllerRumbleOff,'controller vibration can be disabled with the controller');
+    press(14);check(!controllerRumbleOff,'controller vibration can be re-enabled');
+    if(mobile){
+      navigate('gp-phone-settings-tab');press(0);
+      navigate('phone-hud-open');press(0);
+      const handle=phoneHudHandles.find(item=>item.selector==='#tyre-logo-widget').handle;
+      check(phoneHudEditor.open&&document.activeElement===handle,'controller opens the HUD editor');
+      press(0);press(14);press(0);
+      check(phoneHudDraft['#tyre-logo-widget'][0]<0,'controller places a HUD widget');
+      navigate('phone-hud-save');press(0);
+      check(!phoneHudEditor.open,'controller saves HUD changes');
+    }
+    press(1);check(!settingsOpen,'Back resumes gameplay');
+    press(8);check(controllerActions.open,'View opens driving actions');
+    const pausedRaceTime=f1RaceTime;step();
+    check(f1RaceTime===pausedRaceTime,'driving actions pause the race');
+    navigate('controller-switch-modes');press(0);
+    check(!gameStarted&&!controllerActions.open,'controller switches modes');
+    navigate('btn-mode-openworld');press(0);
+    check(gameStarted&&gameMode==='openworld','controller starts Open World');
+    press(8);navigate('controller-time-attack');press(0);
+    check(raceOn&&!controllerActions.open,'controller starts Time Attack');
+    buttons[2].pressed=true;check(readDrivingPad(devices,pad).handbrake,'face button maps to the handbrake');
+    devices=[spare];step();
+    check(!controllerEnabled&&settingsOpen&&controllerPrompt.open,'losing the active pad pauses even with a spare attached');
+    devices=[];step();
+    check(!controllerEnabled&&!controllerPrompt.open&&controllerLegend.hidden&&!readDrivingPad(devices,null),'disconnect releases the controller and hides its legend');
+    devices=[pad,spare];step();
+    const choices=document.getElementById('controller-choices');
+    check(controllerPrompt.open&&!choices.hidden&&choices.children.length===2,'detection lists the two named controllers');
+    press(13);press(13);press(13);press(0);
+    check(controllerEnabled&&drivingController(devices)===spare,'D-pad can choose the second controller');
+    return {raceLaps:6,controller:true,disconnected:true};
+  }finally{
+    if(prior)Object.defineProperty(navigator,'getGamepads',prior);
+    else delete navigator.getGamepads;
+  }
+}
+
 async function run() {
   const origin='http://brickway.test';
-  const modes=process.argv.includes('--mobile')?['mobile']:process.argv.includes('--city')?['city']:['race','mobile','city'];
+  const modes=process.argv.includes('--controller')?['controller','controller-mobile']:process.argv.includes('--mobile')?['mobile']:process.argv.includes('--city')?['city']:['race','mobile','city','controller','controller-mobile'];
   const threeRoot=process.env.THREE_ROOT||path.dirname(path.dirname(require.resolve('three')));
-  const original=fs.readFileSync(path.join(__dirname,'index.html'),'utf8');
+  const original=fs.readFileSync(process.env.BRICKWAY_TEST_HTML||path.join(__dirname,'index.html'),'utf8');
   const html=original.replaceAll('https://cdn.jsdelivr.net/npm/three@0.160.0/',origin+'/three/');
   const marker='requestAnimationFrame(frame);\n})();';
   assert(html.includes(marker),'module startup');
@@ -450,14 +553,14 @@ async function run() {
   });
   try {
     for(const mode of modes){
-      const mobile=mode==='mobile';
+      const mobile=mode==='mobile'||mode==='controller-mobile';
       const page=await browser.newPage(mobile?{
         viewport:{width:932,height:480},isMobile:true,hasTouch:true,
         userAgent:'Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 Chrome/132.0 Mobile Safari/537.36'
       }:{viewport:{width:960,height:540}});
       const errors=[];
       page.on('pageerror',error=>errors.push(error.message));
-      const exerciseCode=mode==='city'?exerciseCity.toString():exercise.toString();
+      const exerciseCode=mode==='city'?exerciseCity.toString():mode.startsWith('controller')?exerciseController.toString():exercise.toString();
       const injection=`window.runBrickwayRegression=async()=>{
  const raf=window.requestAnimationFrame,render=renderGameScene;
  window.requestAnimationFrame=()=>0;
@@ -475,9 +578,9 @@ async function run() {
       });
       await page.goto(origin,{waitUntil:'domcontentloaded'});
       await page.waitForFunction(()=>!!window.runBrickwayRegression);
-      if(mobile)await page.click('#fs-skip');
+      if(mode==='mobile')await page.click('#fs-skip');
       const result=await page.evaluate(()=>window.runBrickwayRegression());
-      if(mobile){
+      if(mode==='mobile'){
         await page.tap('#settings-open');
         await page.click('#phone-hud-open');
         const handle=page.locator('[data-target="#tyre-logo-widget"]');

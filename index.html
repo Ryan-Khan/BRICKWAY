@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="brickway-release" content="v0.215"><title>Brickway | Open World Racing</title>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="brickway-release" content="v0.216"><title>Brickway | Open World Racing</title>
 <script>if(/^https?:$/.test(location.protocol)){var m=document.createElement("link");m.rel="manifest";m.href="/manifest.webmanifest";document.head.appendChild(m);}</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -78,6 +78,38 @@ body.gp-phone-layout #map{max-width:104px;max-height:104px;top:max(10px,env(safe
 #phone-hud-toolbar{position:absolute;z-index:1;bottom:max(8px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid #6a7992;border-radius:12px;background:#101a28;max-width:95%;width:max-content}
 #phone-hud-toolbar button,#phone-hud-open{min-height:40px;padding:5px 10px;border:1px solid #697b95;border-radius:8px;background:#24334c;color:#fff;font:inherit;cursor:pointer}
 #phone-hud-toolbar #phone-hud-save{background:#ffe05a;color:#141821;border-color:#ffe05a}
+:is(#controller-prompt,#controller-actions){width:min(360px,90vw);margin:auto;padding:20px;border:1px solid #63738d;border-radius:16px;background:#152034;color:#fff;font:500 14px var(--bw-body)}
+:is(#controller-prompt,#controller-actions)::backdrop{background:#080d19b5}
+:is(#controller-prompt,#controller-actions) h2{margin:0 0 8px;font-size:20px}
+:is(#controller-prompt,#controller-actions) p{margin:0 0 14px;color:#c8d6eb}
+:is(#controller-prompt,#controller-actions) button{padding:9px 13px;margin:2px;border-radius:8px;border:1px solid #6e809b;background:#28384f;color:#fff;font:inherit;cursor:pointer}
+#controller-choices:not([hidden]){display:grid;gap:4px;margin-bottom:10px;max-height:120px;overflow:auto}
+#controller-choices button{text-align:left;overflow-wrap:anywhere}
+#controller-choices button[data-primary]{border-color:#ffe05a}
+#controller-prompt #controller-accept{background:#ffe05a;border-color:#ffe05a;color:#111827}
+body.controller-active :focus,body.controller-active .gp-option:focus-within{outline:2px solid #ffe05a;outline-offset:3px}
+#controller-legend,.controller-menu-legend{display:none}
+body.controller-detected #start-screen .ss-keys.controller-menu-legend{display:flex!important}
+@media(max-height:520px){body.controller-detected #start-screen .controller-menu-legend{margin-top:8px;padding-top:6px;font-size:10px}}
+body.controller-active #gp-main-menu .ss-keys:not(.controller-menu-legend),
+body.controller-active #footer,body.controller-active #drift-bottom-note,
+body.controller-active #mobile-controls{display:none!important}
+body.controller-detected #start-screen.hidden~#controller-legend:not([hidden]){
+ display:flex;position:fixed;z-index:21;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);
+ justify-content:center;flex-wrap:wrap;gap:4px 12px;width:max-content;max-width:min(80vw,720px);padding:6px 10px;
+ border:1px solid #4e607a;border-radius:8px;background:#101928e8;color:#e0e8f6;font:600 11px var(--bw-body);pointer-events:none
+}
+#controller-legend b{color:#ffe05a}
+#controller-legend .legend-race{display:none}
+body.mode-f1-race #controller-legend .legend-race{display:inline}
+body.mode-f1-race #controller-legend .legend-world{display:none}
+body.landscape-locked #controller-legend{display:none!important}
+#controller-actions{max-height:85vh;overflow:auto}
+#controller-actions .controller-action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+#controller-actions [hidden]{display:none}
+#phone-hud-editor .phone-hud-handle[aria-pressed=true]{border-style:solid;background:#5f482fcc}
+.hud-pad-hint,body.controller-active .hud-touch-hint{display:none}
+body.controller-active .hud-pad-hint{display:inline}
 </style><script>
 (function(){var mobile=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)||matchMedia('(pointer:coarse)').matches,root=document.documentElement,probe=null,largeProbe=null,last='',queued=false;
 function makeProbe(unit){var p=document.createElement('div');p.setAttribute('aria-hidden','true');p.style.cssText='position:fixed;left:0;top:0;width:100vw;height:'+unit+';visibility:hidden;pointer-events:none;z-index:-1;contain:strict;';root.appendChild(p);return p;}
@@ -259,7 +291,7 @@ body.mode-f1-race #f1-live-ranks{display:block}
 .f1-standings .me{color:#ffda29}
 .f1-end-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .f1-end-btns button{border:none;border-radius:10px;padding:11px 18px;font-weight:800;font-size:12px;cursor:pointer}
-#f1-replay-btn{background:#ff3b4e;color:#fff}
+#f1-restart-btn{background:#ff3b4e;color:#fff}
 #f1-menu-btn{background:#ffda29;color:#111622}
 @media(max-width:700px){
  #header{right:12px;top:9px}.brand h1{font-size:25px}.brand>div{font-size:10px}
@@ -354,10 +386,6 @@ body.touch-device #drift-bottom-note{display:none!important}
 @media (max-height:500px){
  #f1-race-hud{top:max(43px,calc(env(safe-area-inset-top) + 39px));gap:5px}
 }
-#gp-replay-controls:not([hidden]){position:fixed;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:96;display:flex;align-items:center;gap:8px;max-width:96vw;padding:8px;border-radius:9px;background:#121d2bf5;color:white;font:800 12px system-ui}
-#gp-replay-controls label{display:flex;align-items:center;gap:5px}
-#gp-replay-seek{max-width:30vw}
-#gp-replay-controls button,#gp-watch-replay{background:#ffdc61;color:#101522;border:0;border-radius:7px;padding:7px 9px;font-weight:800;cursor:pointer}
 #city-panel{width:min(600px,94vw);max-height:86dvh;overflow:auto;color:#f4f6ff;background:#131d2b;border:1px solid #6c809a;border-radius:16px;padding:16px;font:14px system-ui}
 #city-panel::backdrop{background:#030a14ce}
 #city-panel h2,#city-panel h3,#city-panel p{margin:0}
@@ -564,11 +592,11 @@ body.phone-device .mc-pedal-drift-btn{
 
 /* Brick-style button shared by finish and death screens */
 .f1-end-btns button,.mc-btn,#low-hp-btn{font-family:var(--bw-display);font-weight:400;letter-spacing:.8px;border:none;border-radius:12px;transition:transform .08s ease,box-shadow .08s ease,filter .15s ease}
-#f1-replay-btn{background:linear-gradient(180deg,#ff5a6a,#d91f35);color:#fff;text-shadow:0 2px 0 #7a0a18;box-shadow:0 5px 0 #7a0a18,0 10px 18px rgba(0,0,0,.5)}
+#f1-restart-btn{background:linear-gradient(180deg,#ff5a6a,#d91f35);color:#fff;text-shadow:0 2px 0 #7a0a18;box-shadow:0 5px 0 #7a0a18,0 10px 18px rgba(0,0,0,.5)}
 #f1-menu-btn{background:linear-gradient(180deg,#ffe14d,#f0a800);color:#131722;box-shadow:0 5px 0 #9a6d00,0 10px 18px rgba(0,0,0,.5)}
 .f1-end-btns button:hover,.mc-btn:hover,#low-hp-btn:hover{filter:brightness(1.08)}
 .f1-end-btns button:active,.mc-btn:active,#low-hp-btn:active{transform:translateY(4px)}
-#f1-replay-btn:active{box-shadow:0 1px 0 #7a0a18,0 4px 8px rgba(0,0,0,.5)}
+#f1-restart-btn:active{box-shadow:0 1px 0 #7a0a18,0 4px 8px rgba(0,0,0,.5)}
 #f1-menu-btn:active{box-shadow:0 1px 0 #9a6d00,0 4px 8px rgba(0,0,0,.5)}
 #low-hp-btn{background:linear-gradient(180deg,#ffe14d,#f0a800);color:#131722;font-size:12px;box-shadow:0 4px 0 #9a6d00,0 8px 14px rgba(0,0,0,.45)}
 
@@ -673,6 +701,7 @@ body.phone-device .mc-pedal-drift-btn{
  <span><b>SHIFT</b> Boost</span>
  <span><b>SPACE</b> Drift / F1 Brake</span>
  </div>
+ <div class="ss-keys controller-menu-legend"><span><b>D-pad / Stick</b> Navigate</span><span><b>A / Cross</b> Select</span><span><b>B / Circle</b> Back</span></div>
  </div>
 <section id="gp-setup-screen" class="gp-setup" hidden aria-labelledby="gp-setup-title"><header class="gp-head"><button type="button" id="gp-back" class="gp-back">← &nbsp; MODES</button><span class="gp-eyebrow">BRICKWAY &nbsp; / &nbsp; MOTORSPORT</span><span class="gp-head-tag">RACE WEEKEND</span></header>
 <div class="gp-hero"><div><span class="gp-kicker">01 &nbsp; / &nbsp; GRAND PRIX</span><h2 id="gp-setup-title" tabindex="-1">RACE<br><i>CONTROL.</i></h2><p>Configure your race weekend before heading to the grid.</p></div><div class="gp-circuit"><svg viewBox="0 0 780 770" role="img" aria-label="Schematic of Brickway Autodromo GP circuit"><path d="M330 620 L530 620 L635 620 L661 611 L672 590 L664 569 L636 562 L550 559 L490 526 L462 470 L485 418 L548 398 L591 362 L597 305 L566 259 L497 236 L348 236 L285 236 L262 221 L239 193 L208 190 L160 209 L133 257 L151 318 L197 359 L205 401 L174 436 L115 444 L87 464 L84 495 L110 525 L148 549 L171 591 L205 618 L250 620 Z" stroke="#182635" stroke-width="70" fill="none" stroke-linejoin="round"/><path d="M330 620 L530 620 L635 620 L661 611 L672 590 L664 569 L636 562 L550 559 L490 526 L462 470 L485 418 L548 398 L591 362 L597 305 L566 259 L497 236 L348 236 L285 236 L262 221 L239 193 L208 190 L160 209 L133 257 L151 318 L197 359 L205 401 L174 436 L115 444 L87 464 L84 495 L110 525 L148 549 L171 591 L205 618 L250 620 Z" stroke="#5d7387" stroke-width="43" fill="none" stroke-linejoin="round"/><path d="M330 620 L530 620 L635 620 L661 611 L672 590 L664 569 L636 562 L550 559 L490 526 L462 470 L485 418 L548 398 L591 362 L597 305 L566 259 L497 236 L348 236 L285 236 L262 221 L239 193 L208 190 L160 209 L133 257 L151 318 L197 359 L205 401 L174 436 L115 444 L87 464 L84 495 L110 525 L148 549 L171 591 L205 618 L250 620 Z" stroke="#f5f7fa" stroke-width="20" fill="none" stroke-linejoin="round"/><circle cx="330" cy="620" r="22" fill="#ed364e" stroke="white" stroke-width="5"/></svg><div><b>AUTODROMO GP</b><small>6 CARS · <select aria-label="Track condition" id="gp-surface"><option value="dry">Dry</option><option value="damp">Damp</option><option value="wet">Wet</option></select> <select id="gp-distance" aria-label="Race distance"><option value="3" selected>Short · 3 laps</option><option value="6">Standard · 6 laps</option><option value="8">Long · 8 laps</option></select></small></div></div></div>
@@ -680,6 +709,11 @@ body.phone-device .mc-pedal-drift-btn{
 <fieldset><legend><span>02</span> &nbsp; AI DIFFICULTY</legend><label class="gp-option "><input type="radio" name="gp-difficulty" value="easy"><span class="gp-option-copy"><strong>Easy</strong><small>Approachable pace</small><em>● ○ ○</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label class="gp-option "><input type="radio" name="gp-difficulty" value="pro" checked><span class="gp-option-copy"><strong>Pro</strong><small>Fast, defensive opponents</small><em>● ● ○</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label class="gp-option "><input type="radio" name="gp-difficulty" value="legend"><span class="gp-option-copy"><strong>Legend</strong><small>Elite pace & relentless attacks</small><em>● ● ●</em></span><span class="gp-tick" aria-hidden="true">✓</span></label></fieldset>
 <fieldset><legend><span>03</span> &nbsp; STARTING TYRES</legend><label class="gp-option gp-soft"><input type="radio" name="gp-compound" value="soft"><span class="gp-option-copy"><strong>Soft</strong><small>Higher grip / faster wear</small><em>11.3% base wear per lap</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label class="gp-option gp-medium"><input type="radio" name="gp-compound" value="medium" checked><span class="gp-option-copy"><strong>Medium</strong><small>Balanced performance</small><em>7.7% base wear per lap</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label class="gp-option gp-hard"><input type="radio" name="gp-compound" value="hard"><span class="gp-option-copy"><strong>Hard</strong><small>Durability / lower pace</small><em>5.2% base wear per lap</em></span><span class="gp-tick" aria-hidden="true">✓</span></label><label hidden class="gp-option gp-weather-tyre"><input type="radio" name="gp-compound" value="intermediate"><span class="gp-option-copy"><strong>Intermediate</strong><small>Grooved tread for damp asphalt</small></span></label><label hidden class="gp-option gp-weather-tyre"><input type="radio" name="gp-compound" value="wet"><span class="gp-option-copy"><strong>Wet</strong><small>Deep tread for a wet circuit</small></span></label></fieldset></div>
 <footer class="gp-footer"><div><span class="gp-kicker">YOUR RACE</span><div id="gp-summary" aria-live="polite">Grand Prix · Pro · Medium</div><small>DRS · Slipstream · Pit stops · Race control</small></div><button type="button" id="gp-launch" class="gp-launch">GO TO GRID <span>→</span></button></footer></section>
+</div>
+<div id="controller-legend" role="group" aria-label="Controller controls" hidden>
+ <span><b><span aria-hidden="true">🎮</span> Stick / D-pad</b> Steer</span><span><b>RT / R2</b> Gas</span><span><b>LT / L2</b> Brake</span>
+ <span><b>A / Cross</b> Boost / ERS</span><span class="legend-world"><b>X / Square</b> Drift</span><span class="legend-world"><b>Y / Triangle</b> Camera</span>
+ <span class="legend-race"><b>LB / RB</b> Tyres / Pit</span><span><b>Start / Options</b> Settings</span><span><b>View / Share</b> Actions</span>
 </div>
 <div id="race-countdown" aria-live="assertive"><div id="race-countdown-num">3</div></div>
 <div id="gui-top-bar" aria-label="Quick controls">
@@ -703,8 +737,7 @@ body.phone-device .mc-pedal-drift-btn{
  <p id="f1-finish-sub" style="margin:0;color:#cbd8ea;font-size:13px;font-weight:700">Grand Prix Completed</p>
  <div class="f1-standings" id="f1-standings"></div>
  <div class="f1-end-btns">
- <button id="f1-replay-btn">↺ RACE AGAIN</button>
- <button id="gp-watch-replay" type="button" hidden>WATCH REPLAY</button>
+ <button id="f1-restart-btn">↺ RACE AGAIN</button>
  <button id="f1-menu-btn">⇄ SWITCH MODE</button>
  </div>
  </div>
@@ -746,11 +779,6 @@ body.phone-device .mc-pedal-drift-btn{
  <div class="mc-death-hint">Would you like to respawn? · Press Enter or Space to Respawn</div>
  </div>
 </div>
-<div id="gp-replay-controls" hidden aria-label="Race replay">
- <button id="gp-replay-play" type="button">PAUSE</button>
- <label>Replay <input id="gp-replay-seek" type="range" min="0" max="1000" value="0"></label>
- <button id="gp-replay-close" type="button">RESULTS</button>
-</div>
 <dialog id="city-panel" aria-labelledby="city-title">
  <div class="city-heading"><h2 id="city-title">BRICKWAY CITY</h2><button id="city-close" type="button">RESUME</button></div>
  <p id="city-balance"></p>
@@ -758,6 +786,31 @@ body.phone-device .mc-pedal-drift-btn{
  <section><h3>Jobs</h3><div id="city-jobs"></div></section>
 </dialog>
 <div id="city-objective" hidden aria-live="polite"></div>
+<dialog id="controller-prompt" aria-labelledby="controller-title">
+ <h2 id="controller-title"><span aria-hidden="true">🎮</span> Use controller?</h2>
+ <p id="controller-blurb">Controller detected. Press A / Cross to use it or B / Circle to keep your current controls.</p>
+ <div id="controller-choices" hidden></div>
+ <button id="controller-accept" type="button" autofocus>Use controller</button>
+ <button id="controller-decline" type="button">Keep current controls</button>
+</dialog>
+<dialog id="controller-actions" aria-labelledby="controller-actions-title">
+ <h2 id="controller-actions-title"><span aria-hidden="true">🎮</span> Driving actions</h2>
+ <p>D-pad to navigate · A / Cross to select · B / Circle to resume</p>
+ <div class="controller-action-grid">
+  <button id="controller-resume" type="button" autofocus>Resume</button>
+  <button type="button" data-action="settings">Settings</button>
+  <button type="button" data-action="reset">Reset car</button>
+  <button type="button" data-action="sound">Toggle sound</button>
+  <button id="controller-fullscreen" type="button" data-action="fullscreen">Fullscreen</button>
+  <button type="button" data-action="camera" data-drive-mode="openworld">Change camera</button>
+  <button id="controller-time-attack" type="button" data-action="time-attack" data-drive-mode="openworld">Time attack</button>
+  <button type="button" data-action="repair" data-drive-mode="openworld">Repair armor</button>
+  <button type="button" data-action="dismiss-repair" data-drive-mode="openworld">Dismiss repair</button>
+  <button type="button" data-action="compound" data-drive-mode="f1race">Next tyre compound</button>
+  <button type="button" data-action="pit" data-drive-mode="f1race">Request / cancel pit</button>
+  <button id="controller-switch-modes" type="button" data-action="modes">Switch modes</button>
+ </div>
+</dialog>
 <div id="settings-overlay" role="dialog" aria-modal="true" aria-label="Game settings">
  <div class="settings-panel">
  <div class="settings-top"><div><h2>⚙ BRICK<span>WAY</span> SETTINGS</h2><small>Paused · Customize your driving experience</small></div><button id="settings-close">✕ RESUME</button></div>
@@ -794,12 +847,14 @@ body.phone-device .mc-pedal-drift-btn{
  <label class="setting"><span>Pit panel position</span><select id="set-phonePitPosition"><option value="high">Upper right</option><option value="mid">Lower on the right</option></select></label>
  </div>
  <div class="settings-page" data-page="controls">
+ <p>Controller: D-pad or left stick to navigate, A / Cross to select, B / Circle to go back. Start / Options pauses during a race.</p>
  <label class="setting"><span>Input device</span><select id="set-inputDevice"><option value="standard">Standard gamepad</option><option value="wheel">Wheel · axes 0/1/2</option></select></label>
+ <label class="setting"><span>Controller vibration<small>Feedback for boost, drift, braking and impacts</small></span><select id="set-controllerRumble"><option value="on">On</option><option value="off">Off</option></select></label>
  <label class="setting"><span>Race driving assists</span><select id="set-raceAssist"><option value="standard">Traction assistance</option><option value="off">Off</option></select></label>
- <p style="color:#c2d1e3;font-size:13px">These are the current controls. The A/D steering swap is preserved. <b>Drift note:</b> hold <b>W</b>/<b>↑</b> + <b>SPACE</b> while steering to kick out the rear and build drift combos in Open World. In F1, Space brakes; A/D steering is half sensitivity.</p>
+ <p style="color:#c2d1e3;font-size:13px">These are the current controls. <b>Drift note:</b> hold <b>W</b>/<b>↑</b> + <b>SPACE</b> while steering to kick out the rear and build drift combos in Open World. In F1, Space brakes; A/D steering is half sensitivity.</p>
  <div class="controls-grid">
  <div><kbd>W</kbd><kbd>↑</kbd> Accelerate</div><div><kbd>S</kbd><kbd>↓</kbd> Brake / reverse</div>
- <div><kbd>A</kbd><kbd>→</kbd> Steer right</div><div><kbd>D</kbd><kbd>←</kbd> Steer left</div>
+ <div><kbd>A</kbd><kbd>←</kbd> Steer left</div><div><kbd>D</kbd><kbd>→</kbd> Steer right</div>
  <div><kbd>W</kbd> + <kbd>SPACE</kbd> + steer: Drift (Open World); SPACE: Brake (F1)</div><div><kbd>SHIFT</kbd> Boost</div>
 <div><kbd>R</kbd> Reset car</div>
  <div><kbd>M</kbd> Mute / unmute</div><div><kbd>C</kbd> Cycle camera</div>
@@ -812,7 +867,7 @@ body.phone-device .mc-pedal-drift-btn{
 <dialog id="phone-hud-editor" aria-labelledby="phone-hud-title">
  <div id="phone-hud-bounds" aria-hidden="true"></div>
  <div id="phone-hud-toolbar">
-  <span id="phone-hud-title">Drag to move</span>
+  <span id="phone-hud-title"><span class="hud-touch-hint">Drag to move</span><span class="hud-pad-hint">A picks up / places · D-pad moves</span></span>
   <button type="button" id="phone-hud-reset">Reset</button>
   <button type="button" id="phone-hud-cancel">Cancel</button>
   <button type="button" id="phone-hud-save">Save</button>
@@ -3332,7 +3387,7 @@ function gpApplyBoundary(dt,throttle,steer,quiet=false){if(!gpProfile)return;con
   if(gpPenalty.limits%3===0){gpPenalty.penaltySec=(gpPenalty.penaltySec||0)+3;show('TRACK LIMITS · +3 seconds');}
   else show('TRACK LIMITS · warning '+(gpPenalty.limits%3)+'/3');
  }
- if(!quiet)gpOutside=outside;pos.x=r.x;pos.z=r.z;velocityX=r.vx;velocityZ=r.vz;gpWallU=r.proj.u;if(!quiet)gpWallContact=Math.max(0,gpWallContact-dt);if(r.hit){const pr=r.proj,along=velocityX*pr.tx+velocityZ*pr.tz,forward=Math.sin(yaw)*pr.tx+Math.cos(yaw)*pr.tz;if(!quiet&&throttle!==0&&Math.abs(steer)<.15&&Math.abs(along)<12){const sg=forward>=0?1:-1,goal=Math.atan2(pr.tx*sg,pr.tz*sg);let d=goal-yaw;d=Math.atan2(Math.sin(d),Math.cos(d));yaw+=d*(1-Math.exp(-dt*4));}speed=velocityX*Math.sin(yaw)+velocityZ*Math.cos(yaw);if(!quiet&&r.impact>12&&gpWallContact===0){incident(r.impact);crashSound(Math.min(110,r.impact));gpWallContact=.3;previousRear=null;const ev=F1Core.registerBarrierHit(gpPenalty,r.impact,f1RaceTime);if(ev)show(ev==='penalty'?'RACE CONTROL: +3s penalty':'RACE CONTROL: barrier warning');}}}
+ if(!quiet)gpOutside=outside;pos.x=r.x;pos.z=r.z;velocityX=r.vx;velocityZ=r.vz;gpWallU=r.proj.u;if(!quiet)gpWallContact=Math.max(0,gpWallContact-dt);if(r.hit){const pr=r.proj,along=velocityX*pr.tx+velocityZ*pr.tz,forward=Math.sin(yaw)*pr.tx+Math.cos(yaw)*pr.tz;if(!quiet&&throttle!==0&&Math.abs(steer)<.15&&Math.abs(along)<12){const sg=forward>=0?1:-1,goal=Math.atan2(pr.tx*sg,pr.tz*sg);let d=goal-yaw;d=Math.atan2(Math.sin(d),Math.cos(d));yaw+=d*(1-Math.exp(-dt*4));}speed=velocityX*Math.sin(yaw)+velocityZ*Math.cos(yaw);if(!quiet&&r.impact>12&&gpWallContact===0){incident(r.impact);crashSound(Math.min(110,r.impact));padCrash(.55+r.impact/80,side);gpWallContact=.3;previousRear=null;const ev=F1Core.registerBarrierHit(gpPenalty,r.impact,f1RaceTime);if(ev)show(ev==='penalty'?'RACE CONTROL: +3s penalty':'RACE CONTROL: barrier warning');}}}
 function gpBuildMarkers(){const markers=new T.Group();f1TrackProps.add(markers);const white=new T.MeshBasicMaterial({color:0xf4f6fb}),labels={};function label(n){if(labels[n])return labels[n];const c=document.createElement('canvas');c.width=128;c.height=64;const x=c.getContext('2d');x.fillStyle='#f8fafc';x.fillRect(0,0,128,64);x.fillStyle='#111827';x.font='bold 36px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(n,64,32);return labels[n]=new T.MeshBasicMaterial({map:new T.CanvasTexture(c),side:T.DoubleSide});}
 function board(u,text){const q=gpCurve.getPointAt(u),t=gpCurve.getTangentAt(u),off=F1Core.widthAt(u)*.5+7,g=new T.Group();g.position.set(q.x+t.z*off,0,q.z-t.x*off);g.rotation.y=Math.atan2(t.x,t.z);markers.add(g);box(0,1.2,0,.3,2.4,.3,white,g);const m=new T.Mesh(new T.PlaneGeometry(5,2.5),label(text));m.position.y=3.2;g.add(m);}
 for(const [u] of gpZones)board(u,'DRS');board(.91,'PIT');board(.955,'BOX');board(.985,'EXIT');gpBuildPitLane(markers);
@@ -3618,13 +3673,13 @@ function updateTyreLogoWidget(){
 
 function gpPitHUD(){updateTyreLogoWidget();const h=document.getElementById('gp-pit-status');if(!h)return;h.hidden=gpPitPhase==='idle';const label={queued:'PIT REQUESTED · approach yellow pit entry',entry:gpPlayerPitWaiting?'PIT QUEUE · waiting for the box':'PIT ENTRY · automatic limiter',service:(gpPitRemaining>2.25?'JACKING CAR':gpPitRemaining>1.58?'REMOVING TYRES':gpPitRemaining>.93?'FITTING FRESH TYRES':'RELEASE CHECK')+' · '+gpPitRemaining.toFixed(1)+'s',exit:'PIT EXIT · rejoining circuit'};h.textContent=label[gpPitPhase]||'';}
 function gpRaceAssist(){gpDRS=false;gpDraft=1;if(gpSession==='qualifying'||gpPlayerDone||gpFlag)return;let gap=Infinity;for(const b of f1Bots){if(b.finished||b.pit)continue;const d=(b.progress-f1PlayerProgress)*race.length,dx=b.x-pos.x,dz=b.z-pos.z;if(d>8&&d<220&&Math.abs(dx*Math.cos(yaw)-dz*Math.sin(yaw))<12)gap=Math.min(gap,d/Math.max(35,b.speed));}gpDraft=F1Core.slipstreamPowerMult(gap);gpDRS=F1Core.drsOpen({inZone:F1Core.inZones(gpWallU,gpZones),lap:f1PlayerLap,gapAheadSec:gap});}
-function gpResetSession(){resetGpTyreCrash();gpPitTicket=0;gpPlayerPitTicket=0;gpPlayerPitWaiting=false;drawTyreLogo(100,gpChoice('gp-compound'));updateTyreLogoWidget();resetRaceReplay();gpPitResetVisual();gpEnergy=1;gpSteering=0;gpOutside=false;gpFlag='';gpNextIncident=0;gpDist=0;gpTimingU=0;gpWallU=0;gpWallContact=0;gpHudTime=0;gpWrongWay=0;gpCompleted=0;gpTimer=F1Core.createLapTimer();F1Core.startLap(gpTimer,0);gpTyre={compound:gpChoice('gp-compound'),surface:document.getElementById('gp-surface').value,wear:0,stops:0};(document.getElementById('gp-next')||{style:{}}).value=gpTyre.compound;gpPenalty={};gpPitRemaining=0;gpPitPhase='idle';gpPitGrace=0;gpPitHUD();gpDRS=false;gpDraft=1;gpPlayerDone=false;gpPlayerRawFinish=0;gpSeasonScored=false;gpFinishRows=null;gpGhostRec=F1Core.createGhostRecorder(10);displayKmh=0;ghostGroup.visible=false;try{const g=JSON.parse(localStorage.getItem('bw-gp-ghost-grandprix-v54')||'null');gpGhostFrames=g&&Array.isArray(g.frames)?g.frames:[];gpGhostBest=g&&Number.isFinite(g.time)?g.time:Infinity;}catch(e){gpGhostFrames=[];gpGhostBest=Infinity;}}
+function gpResetSession(){resetGpTyreCrash();gpTyreFailTimer=0;gpPitTicket=0;gpPlayerPitTicket=0;gpPlayerPitWaiting=false;drawTyreLogo(100,gpChoice('gp-compound'));updateTyreLogoWidget();gpPitResetVisual();gpEnergy=1;gpSteering=0;gpOutside=false;gpFlag='';gpNextIncident=0;gpDist=0;gpTimingU=0;gpWallU=0;gpWallContact=0;gpHudTime=0;gpWrongWay=0;gpCompleted=0;gpTimer=F1Core.createLapTimer();F1Core.startLap(gpTimer,0);gpTyre={compound:gpChoice('gp-compound'),surface:document.getElementById('gp-surface').value,wear:0,stops:0};(document.getElementById('gp-next')||{style:{}}).value=gpTyre.compound;gpPenalty={};gpPitRemaining=0;gpPitPhase='idle';gpPitGrace=0;gpPitHUD();gpDRS=false;gpDraft=1;gpPlayerDone=false;gpPlayerRawFinish=0;gpSeasonScored=false;gpFinishRows=null;gpGhostRec=F1Core.createGhostRecorder(10);displayKmh=0;ghostGroup.visible=false;try{const g=JSON.parse(localStorage.getItem('bw-gp-ghost-grandprix-v54')||'null');gpGhostFrames=g&&Array.isArray(g.frames)?g.frames:[];gpGhostBest=g&&Number.isFinite(g.time)?g.time:Infinity;}catch(e){gpGhostFrames=[];gpGhostBest=Infinity;}}
 function gpSelectNew(){gpLoadSettings();gpSession=gpChoice('gp-session');gpQualiTime=null;if(gpSession==='championship'){try{gpSeason=F1Core.parseSeason(localStorage.getItem('bw-gp-season-'+f1Difficulty)||'');}catch(e){gpSeason=null;}if(!gpSeason||F1Core.isSeasonComplete(gpSeason))gpSeason=F1Core.createSeason(5,gpDrivers());else gpSeason.drivers=gpDrivers();}else gpSeason=null;keys={};selectGameMode('f1race');}
 function gpGrid(){return F1Core.planGrid([{id:'p',qualiTime:gpQualiTime??undefined},...f1Bots.map((b,j)=>({id:'b'+j,qualiTime:F1Core.botQualiTime(b.pace,F1Core.drivers[0].pace,gpReference)}))]);}
 function gpFinishLap(){const r=F1Core.finishLap(gpTimer,f1RaceTime);if(r.isBest&&r.time<gpGhostBest&&gpGhostRec.frames.length>3&&!(gpPenalty.penaltySec||0)){gpGhostFrames=gpGhostRec.frames.slice();gpGhostBest=r.time;try{localStorage.setItem('bw-gp-ghost-grandprix-v54',JSON.stringify({time:r.time,frames:gpGhostFrames}));}catch(e){}}F1Core.startLap(gpTimer,f1RaceTime);gpGhostRec=F1Core.createGhostRecorder(10);}
-function gpFinishUI(rows){if(gpFinishRows)return;gpFinishRows=rows;f1RaceFinished=true;(document.getElementById('gp-watch-replay')||{style:{}}).hidden=raceReplay.frames.length<2;ghostGroup.visible=false;const rank=rows.findIndex(r=>r.id==='p')+1,fin=document.getElementById('f1-finish-overlay'),replay=document.getElementById('f1-replay-btn');(document.getElementById('f1-finish-title')||{style:{}}).textContent=gpSession==='qualifying'?'QUALIFYING COMPLETE · P'+rank:(rank===1?'🏆 ':'🏁 ')+'YOU FINISHED '+ordinalSuffix(rank).toUpperCase();(document.getElementById('f1-finish-sub')||{style:{}}).textContent='TIME '+F1Core.formatLapTime(f1PlayerFinishTime)+' · BEST '+F1Core.formatLapTime(gpTimer.bestLap)+(gpPenalty.penaltySec?' · +'+gpPenalty.penaltySec+'s penalty':'');
+function gpFinishUI(rows){if(gpFinishRows)return;gpFinishRows=rows;f1RaceFinished=true;ghostGroup.visible=false;const rank=rows.findIndex(r=>r.id==='p')+1,fin=document.getElementById('f1-finish-overlay'),restart=document.getElementById('f1-restart-btn');(document.getElementById('f1-finish-title')||{style:{}}).textContent=gpSession==='qualifying'?'QUALIFYING COMPLETE · P'+rank:(rank===1?'🏆 ':'🏁 ')+'YOU FINISHED '+ordinalSuffix(rank).toUpperCase();(document.getElementById('f1-finish-sub')||{style:{}}).textContent='TIME '+F1Core.formatLapTime(f1PlayerFinishTime)+' · BEST '+F1Core.formatLapTime(gpTimer.bestLap)+(gpPenalty.penaltySec?' · +'+gpPenalty.penaltySec+'s penalty':'');
 let content=rows.map((r,i)=>'<div class="'+(r.id==='p'?'me':'')+'"><span><b>P'+(i+1)+'</b> · '+r.name+'</span><span>'+(gpSession!=='qualifying'&&!r.finished?'ON TRACK':Number.isFinite(r.finishTime)?F1Core.formatLapTime(r.finishTime):'DNF')+'</span></div>').join('');
-if(gpSeason&&!gpSeasonScored){gpSeasonScored=true;const classified=rows.filter(r=>gpSession==='qualifying'?Number.isFinite(r.finishTime):!r.finished||Number.isFinite(r.finishTime));const fastest=classified.filter(r=>Number.isFinite(r.best)).sort((a,b)=>a.best-b.best)[0];F1Core.scoreRound(gpSeason,classified.map(r=>r.id),fastest?.id);try{localStorage.setItem('bw-gp-season-'+f1Difficulty,F1Core.serializeSeason(gpSeason));}catch(e){}content+='<div><b>CHAMPIONSHIP · '+gpSeason.round+'/'+gpSeason.rounds+'</b></div>'+F1Core.seasonStandings(gpSeason).map(r=>'<div><span>'+r.name+'</span><b>'+r.points+' PTS</b></div>').join('');}replay.textContent=gpSession==='qualifying'?'START GRAND PRIX':gpSeason&&!F1Core.isSeasonComplete(gpSeason)?'NEXT ROUND':'RACE AGAIN';(document.getElementById('f1-standings')||{style:{}}).innerHTML=content;fin.classList.add('open');silenceDrivingAudio();syncGameplayAudio();replay.focus();}
+if(gpSeason&&!gpSeasonScored){gpSeasonScored=true;const classified=rows.filter(r=>gpSession==='qualifying'?Number.isFinite(r.finishTime):!r.finished||Number.isFinite(r.finishTime));const fastest=classified.filter(r=>Number.isFinite(r.best)).sort((a,b)=>a.best-b.best)[0];F1Core.scoreRound(gpSeason,classified.map(r=>r.id),fastest?.id);try{localStorage.setItem('bw-gp-season-'+f1Difficulty,F1Core.serializeSeason(gpSeason));}catch(e){}content+='<div><b>CHAMPIONSHIP · '+gpSeason.round+'/'+gpSeason.rounds+'</b></div>'+F1Core.seasonStandings(gpSeason).map(r=>'<div><span>'+r.name+'</span><b>'+r.points+' PTS</b></div>').join('');}restart.textContent=gpSession==='qualifying'?'START GRAND PRIX':gpSeason&&!F1Core.isSeasonComplete(gpSeason)?'NEXT ROUND':'RACE AGAIN';(document.getElementById('f1-standings')||{style:{}}).innerHTML=content;fin.classList.add('open');silenceDrivingAudio();syncGameplayAudio();restart.focus();}
 const f1TrackProps=new T.Group();
 scene.add(f1TrackProps);
 
@@ -4156,7 +4211,8 @@ function ordinalSuffix(n){
 }
 
 const GP_CRASH_DURATION=5.2;
-let gpTyreCrash=null,gpCrashRig=null;
+const GP_TYRE_FAILURE_DELAY=2.5;
+let gpTyreCrash=null,gpCrashRig=null,gpTyreFailTimer=0;
 
 function resetGpTyreCrash(){
  if(!gpTyreCrash)return;
@@ -4295,7 +4351,11 @@ function updateF1Race(dt){
  if(gameMode!=='f1race'||f1CountdownActive||!gpProfile||f1RaceFinished)return;f1RaceTime+=dt;if(gpFlag&&f1RaceTime>=gpFlagUntil){gpFlag='';show('GREEN FLAG');}
  const qualifying=gpSession==='qualifying',laps=qualifying?1:F1_TOTAL_LAPS;
  if(!gpPlayerDone){const bestU=gpWallU,du=gpSignedDelta(bestU,gpTimingU),maxStep=Math.max(.0035,(Math.hypot(velocityX,velocityZ)*dt+gpProfile.ds*1.3)/race.length);if(gpPitActive()||gpPitGrace>0||Math.abs(du)<=maxStep)gpDist=gpClamp(gpDist+du,-.05,laps+.01);if(!gpPitActive())gpTyre.wear=Math.min(1,gpTyre.wear+Math.max(0,Math.min(maxStep,du))*F1Core.tyreWearRate(gpTyre.compound,qualifying?20:laps));
- if(gpTyre.wear>=1&&!gpPitActive()&&gpDist<laps){gpRetireWithTyreFailure();return;}
+ if(gpTyre.wear>=1&&!gpPitActive()&&gpDist<laps){
+  if(gpTyreFailTimer===0)show('TYRES WORN OUT · PIT FOR FRESH RUBBER');
+  gpTyreFailTimer+=dt;
+  if(gpTyreFailTimer+1e-9>=GP_TYRE_FAILURE_DELAY){gpRetireWithTyreFailure();return;}
+ }else gpTyreFailTimer=0;
  gpTimingU=bestU;f1PlayerPrevU=bestU;f1PlayerProgress=gpClamp(gpDist,0,laps);const completed=Math.floor(f1PlayerProgress);
  if(completed>gpCompleted){gpFinishLap();gpCompleted=completed;}else{F1Core.markSector(gpTimer,f1PlayerProgress%1,f1RaceTime);F1Core.recordGhostSample(gpGhostRec,dt,F1Core.currentLapTime(gpTimer,f1RaceTime),pos.x,pos.z,yaw);}
  f1PlayerLap=Math.min(laps,Math.floor(f1PlayerProgress)+1);
@@ -4358,7 +4418,7 @@ function updateF1Race(dt){
  }
  if(!b.finished&&b.u<prevU){if(b.lap>1)b.best=Math.min(b.best,f1RaceTime-b.lapStart);b.lapStart=f1RaceTime;b.lap++;if(b.lap>laps){b.finished=true;b.finishTime=f1RaceTime;b.lap=laps+1;}}b.progress=b.finished?laps:(b.lap-1)+b.u;
  const q=gpCurve.getPointAt(b.u),t=gpCurve.getTangentAt(b.u);b.x=q.x+t.z*b.lane;b.z=q.z-t.x*b.lane;const targetYaw=b.pit?gpPitHeading(b.u,b.pit.start,b.pit.from):Math.atan2(t.x,t.z);b.yaw+=Math.atan2(Math.sin(targetYaw-b.yaw),Math.cos(targetYaw-b.yaw))*(1-Math.exp(-dt*13));b.group.position.set(b.x,.15+serviceLift,b.z);b.group.rotation.set(0,b.yaw+Math.PI,0);for(const w of b.wheels)w.rotation.x+=b.speed*dt*.5;if(b.boostFlames)for(const fg of b.boostFlames)fg.visible=b.boosting;
- if(!b.finished&&!b.pit&&!gpPlayerDone&&!gpPitActive()&&!gpPitGrace){const dx=pos.x-b.x,dz=pos.z-b.z,dist=Math.hypot(dx,dz);if(dist<9.4&&dist>.001){const nx=dx/dist,nz=dz/dist,pen=9.4-dist,tx=Math.sin(b.yaw),tz=Math.cos(b.yaw);pos.x+=nx*pen*.7;pos.z+=nz*pen*.7;b.lane=gpClamp(b.lane-(nx*tz-nz*tx)*pen*.3,-bound,bound);const rel=(velocityX-tx*b.speed)*nx+(velocityZ-tz*b.speed)*nz,imp=Math.max(0,-rel)*.55;velocityX+=nx*imp;velocityZ+=nz*imp;b.speed=gpClamp(b.speed-(tx*nx+tz*nz)*imp*.55,0,tune.cap*1.09);speed=velocityX*Math.sin(yaw)+velocityZ*Math.cos(yaw);if(imp>6&&!b.contactTimer){incident(imp*1.8);crashSound(Math.min(110,imp*1.8));b.contactTimer=.25;}}}}
+ if(!b.finished&&!b.pit&&!gpPlayerDone&&!gpPitActive()&&!gpPitGrace){const dx=pos.x-b.x,dz=pos.z-b.z,dist=Math.hypot(dx,dz);if(dist<9.4&&dist>.001){const nx=dx/dist,nz=dz/dist,pen=9.4-dist,tx=Math.sin(b.yaw),tz=Math.cos(b.yaw);pos.x+=nx*pen*.7;pos.z+=nz*pen*.7;b.lane=gpClamp(b.lane-(nx*tz-nz*tx)*pen*.3,-bound,bound);const rel=(velocityX-tx*b.speed)*nx+(velocityZ-tz*b.speed)*nz,imp=Math.max(0,-rel)*.55;velocityX+=nx*imp;velocityZ+=nz*imp;b.speed=gpClamp(b.speed-(tx*nx+tz*nz)*imp*.55,0,tune.cap*1.09);speed=velocityX*Math.sin(yaw)+velocityZ*Math.cos(yaw);if(imp>6&&!b.contactTimer){incident(imp*1.8);crashSound(Math.min(110,imp*1.8));padCrash(.6+imp/40,-(nx*Math.cos(yaw)-nz*Math.sin(yaw)));b.contactTimer=.25;}}}}
  if(!qualifying){for(let i=0;i<f1Bots.length;i++)for(let j=i+1;j<f1Bots.length;j++){const b=f1Bots[i],o=f1Bots[j];if(b.finished||o.finished||b.pit||o.pit)continue;const dx=b.x-o.x,dz=b.z-o.z,d=Math.hypot(dx,dz);if(d>=9.4)continue;const t=gpCurve.getTangentAt(b.u),lat=dx*t.z-dz*t.x,sg=Math.abs(lat)>.01?Math.sign(lat):(i%2?1:-1),sep=(9.4-d)*.65;b.lane=gpClamp(b.lane+sg*sep,-race.width*.31,race.width*.31);o.lane=gpClamp(o.lane-sg*sep,-race.width*.31,race.width*.31);const rear=b.progress<o.progress?b:o,front=rear===b?o:b;if(rear.speed>front.speed&&!rear.contactTimer){incident(rear.speed-front.speed);rear.speed=front.speed+(rear.speed-front.speed)*.35;rear.contactTimer=.25;}}for(const b of f1Bots){const q=gpCurve.getPointAt(b.u),t=gpCurve.getTangentAt(b.u);b.x=q.x+t.z*b.lane;b.z=q.z-t.x*b.lane;b.group.position.x=b.x;b.group.position.z=b.z;}if(!gpPlayerDone&&!gpPitActive()&&!gpPitGrace){gpApplyBoundary(dt,0,0,true);player.position.x=pos.x;player.position.z=pos.z;}}
  const entrants=[{id:'p',name:'YOU · BRICKWAY GP',progress:f1PlayerProgress,finished:gpPlayerDone,finishTime:f1PlayerFinishTime,best:gpTimer.bestLap},
   ...(!qualifying?f1Bots.map((b,i)=>({id:'b'+i,name:b.name,progress:b.progress,finished:b.finished,finishTime:b.finishTime,best:b.best})):[])];
@@ -5002,7 +5062,7 @@ const chaseUsesWebAudio=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAg
 let chaseBuffer=null,chaseDecode=null,chaseSource=null,chaseGain=null,chaseWanted=false,chaseDecodeError=false,chaseAudioStartedAt=0;
 function gameplayAudioBlocked(){
  const resultsOpen=gameMode==='f1race'&&f1RaceFinished&&!gpTyreCrash;
- return document.hidden||deathScreenOpen||resultsOpen||gpTyreCrash?.elapsed>=GP_CRASH_DURATION;
+ return document.hidden||deathScreenOpen||resultsOpen||(gameStarted&&(settingsOpen||controllerActions.open||controllerPrompt.open))||gpTyreCrash?.elapsed>=GP_CRASH_DURATION;
 }
 function syncGameplayAudio(){
  if(gameplayAudioBlocked()){
@@ -5343,9 +5403,11 @@ function applyPreferences(){
 }
 function openSettings(){
  settingsOpen=true;settingsOverlay.classList.add('open');keys={};
+ silenceDrivingAudio();syncGameplayAudio();
 }
 function closeSettings(){
  settingsOpen=false;settingsOverlay.classList.remove('open');keys={};
+ syncGameplayAudio();
 }
 document.getElementById('settings-open').addEventListener('click',openSettings);
 document.getElementById('settings-close').addEventListener('click',closeSettings);
@@ -5359,7 +5421,7 @@ document.querySelectorAll('.settings-tabs button').forEach(btn=>btn.addEventList
  document.querySelectorAll('.settings-page').forEach(p=>p.classList.toggle('active',p.dataset.page===btn.dataset.tab));
 }));
 window.addEventListener('keydown',e=>{
- if(document.getElementById('phone-hud-editor').open)return;
+ if(document.getElementById('phone-hud-editor').open||document.getElementById('controller-prompt').open||document.getElementById('controller-actions').open)return;
  if(e.code==='Escape'){e.preventDefault();settingsOpen?closeSettings():openSettings()}
  if(settingsOpen&&['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
 },true);
@@ -5581,7 +5643,7 @@ function selectGameMode(mode){
 
 function returnToStartScreen(){
  resetGpTyreCrash();
- resetRaceReplay();leaveWalk();cancelCityJob();cityPanel.close();
+ leaveWalk();cancelCityJob();cityPanel.close();
  for(const car of harborTraffic)car.group.visible=false;
  stopChaseSong();
  gameStarted=false;
@@ -5623,10 +5685,11 @@ document.getElementById('view-switch-btn').addEventListener('click',cycleCamera)
 window.addEventListener('keydown',e=>{
  if(e.code==='KeyC'&&!e.repeat&&gameStarted&&!settingsOpen&&!deathScreenOpen)cycleCamera();
 });
-document.getElementById('f1-replay-btn').addEventListener('click',()=>{if(gpSession==='qualifying'){gpSession='race';}else if(gpSeason&&F1Core.isSeasonComplete(gpSeason))gpSeason=F1Core.createSeason(5,gpDrivers());selectGameMode('f1race');});
+document.getElementById('f1-restart-btn').addEventListener('click',()=>{if(gpSession==='qualifying'){gpSession='race';}else if(gpSeason&&F1Core.isSeasonComplete(gpSeason))gpSeason=F1Core.createSeason(5,gpDrivers());selectGameMode('f1race');});
 document.getElementById('f1-menu-btn').addEventListener('click',returnToStartScreen);
 
-window.addEventListener('keydown',e=>{if(!gameStarted)return;if(deathScreenOpen){if(e.target.id==='death-race-menu'&&e.code!=='KeyR')return;if(['Enter','Space','KeyR'].includes(e.code)){e.preventDefault();respawnFromDeath();}return;}if(settingsOpen)return;if(!e.repeat){initSound();if(e.code==='KeyM')setSoundMuted(!audio.muted)}keys[e.code]=true;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(e.repeat)return;if(e.code==='KeyR')reset();if(e.code==='Enter'&&gameMode==='openworld'){raceOn=!raceOn;checkpoint=0;lap=0;taTimeLeft=45;taCurrentTrace=[];ghostGroup.visible=raceOn&&taBestTrace.length>1;markers.forEach((o,i)=>o.visible=raceOn&&i===0);renderTaBoard();show(raceOn?'⏱️ TIME-ATTACK STARTED! 45s to clear checkpoint!':'Free roam mode')}});window.addEventListener('keyup',e=>keys[e.code]=false);window.addEventListener('blur',()=>{keys={};if(typeof resetJoystick==='function')resetJoystick();});
+function toggleTimeAttack(){raceOn=!raceOn;checkpoint=0;lap=0;taTimeLeft=45;taCurrentTrace=[];ghostGroup.visible=raceOn&&taBestTrace.length>1;markers.forEach((o,i)=>o.visible=raceOn&&i===0);renderTaBoard();show(raceOn?'⏱️ TIME-ATTACK STARTED! 45s to clear checkpoint!':'Free roam mode')}
+window.addEventListener('keydown',e=>{if(!gameStarted)return;if(deathScreenOpen){if(e.target.id==='death-race-menu'&&e.code!=='KeyR')return;if(['Enter','Space','KeyR'].includes(e.code)){e.preventDefault();respawnFromDeath();}return;}if(settingsOpen)return;if(!e.repeat){initSound();if(e.code==='KeyM')setSoundMuted(!audio.muted)}keys[e.code]=true;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(e.repeat)return;if(e.code==='KeyR')reset();if(e.code==='Enter'&&gameMode==='openworld')toggleTimeAttack()});window.addEventListener('keyup',e=>keys[e.code]=false);window.addEventListener('blur',()=>{keys={};if(typeof resetJoystick==='function')resetJoystick();});
 const minimap=document.getElementById('map'),ctx=minimap.getContext('2d');
 const minimapPaths=new WeakMap();
 let nextMinimapFrame=0;
@@ -5701,6 +5764,7 @@ function automaticShift(next){
  shiftJerk=0;
  shiftSnapApplied=true;
  gearChangeSound(next>gear);
+ padShift();
 }
 let visibilityClock=0;
 function updateBuildingVisibility(dt){
@@ -5903,6 +5967,13 @@ function frame(now){
  const elapsed=Math.max(0,(now-prev)/1000);
  const dt=Math.min(elapsed,.05);
  prev=now;
+ let devices=[];
+ try{devices=Array.from(navigator.getGamepads?.()||[]);}catch(e){}
+ const controller=drivingController(devices);
+ if(processController(controller,now,devices)){
+  renderGameScene();
+  return;
+ }
 if(deathScreenOpen){
  if(deathLockRemaining>0){
   deathLockRemaining=Math.max(0,deathLockRemaining-dt);
@@ -5910,17 +5981,13 @@ if(deathScreenOpen){
  }
  muteAllAudioForDeath();
 }
- if(raceReplay.active){
- updateRaceReplay(dt);
- renderGameScene();
- return;
-}
+
 if(gpTyreCrash&&gpTyreCrash.elapsed<GP_CRASH_DURATION&&!settingsOpen){
  updateGpTyreCrash(dt);
  renderGameScene();
  return;
 }
-if(!gameStarted||settingsOpen||cityPanel.open||deathScreenOpen||f1RaceFinished){
+if(!gameStarted||settingsOpen||cityPanel.open||controllerActions.open||deathScreenOpen||f1RaceFinished){
  clearPhoneDrift();resetChaseBeatVisual();keys={};
  if(!gameStarted){
   // Gentle cinematic orbit around the supercar while on the Start Screen
@@ -5937,19 +6004,19 @@ if(onFoot){
  return;
 }
 const holdingStartCountdown=(gameMode==='f1race'&&f1CountdownActive)?updateF1Countdown(dt):false;
-const gamepad=readDrivingPad();
-if(isPhoneDevice&&gameStarted&&!settingsOpen&&!deathScreenOpen){document.body.classList.remove('cinematic-off');preferences.vivid=true;keys['ShiftLeft']=true;}
-let throttle=holdingStartCountdown?0:((keys.KeyW||keys.ArrowUp)?1:((keys.KeyS||keys.ArrowDown)?-1:0)),steer=holdingStartCountdown?0:(Math.abs(joySteerValue)>0.01?joySteerValue:((keys.KeyD||keys.ArrowLeft?1:0)-(keys.KeyA||keys.ArrowRight?1:0)));
+const gamepad=readDrivingPad(devices,controller);
+if(isPhoneDevice&&gameStarted&&!settingsOpen&&!deathScreenOpen){document.body.classList.remove('cinematic-off');preferences.vivid=true;if(!controllerEnabled)keys['ShiftLeft']=true;}
+let throttle=holdingStartCountdown?0:((keys.KeyW||keys.ArrowUp)?1:((keys.KeyS||keys.ArrowDown)?-1:0)),steer=holdingStartCountdown?0:(Math.abs(joySteerValue)>0.01?joySteerValue:((keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)));
 const phoneDrift=isPhoneDevice&&!holdingStartCountdown&&(phoneDriftPointers.size>0||now<phoneDriftUntil);
 if(gamepad&&!holdingStartCountdown){
- if(Math.abs(gamepad.steer)>.09)steer=-gamepad.steer;
+ if(gamepad.steer!==0)steer=gamepad.steer;
  if(gamepad.throttle>.03)throttle=gamepad.throttle;
  if(gameMode==='openworld'&&gamepad.brake>.05)throttle=-gamepad.brake;
 }
 const brakeDemand=keys.Space||phoneDrift?1:Math.max(0,gamepad?.brake||0);
 const f1Brake=gameMode==='f1race'&&!holdingStartCountdown&&brakeDemand>.06;
 if(f1Brake)throttle=0;
-const driftInput=gameMode!=='f1race'&&!holdingStartCountdown&&(!!keys.Space||phoneDrift);
+const driftInput=gameMode!=='f1race'&&!holdingStartCountdown&&(!!keys.Space||phoneDrift||gamepad?.handbrake);
 const driftRequested=driftInput&&Math.abs(speed)>(phoneDrift?4:7);
 const activelyDrifting=driftRequested&&(Math.abs(steer)>(phoneDrift?.06:.10)||driftAmount>.22)&&Math.abs(speed)>(phoneDrift?8:12);
 const braking=!!(keys.KeyS||keys.ArrowDown||driftInput||f1Brake);
@@ -5985,6 +6052,9 @@ if(gameMode==='f1race'&&!holdingStartCountdown){
  gpEnergy=F1Core.energyStep(gpEnergy,dt,boosting&&throttle>0,(f1Brake&&speed>3)||(throttle<0&&speed>3));
 }
 playerBoostActive=boosting;
+if(controllerEnabled&&controller&&!controllerRumbleOff&&!holdingStartCountdown){
+ driveRumble(controller,now,kmh,boosting,activelyDrifting,onRoad,throttle,Math.max(brakeDemand,throttle<0&&speed>1?1:0),steer);
+}
 playerBoostCooldown=0;
 if(boosting&&!shiftWasDown){
  show('⚡ SHIFT BOOST!');
@@ -6792,6 +6862,7 @@ for(const ms of policeHeli.missiles){
   }
  }
  if(hitCopDirect){
+  padMissileBlast(ms.x,ms.z);
   ms.active=false;ms.group.visible=false;
   const blasted=blastNearbyCops(ms.x,ms.z,22);
   burstPropBricks(ms.x,1.2,ms.z,ms.vx*.25,ms.vz*.25);
@@ -6806,6 +6877,7 @@ for(const ms of policeHeli.missiles){
 
  const hitDist=Math.hypot(ms.x-pos.x,ms.z-pos.z);
  if(!isCovered(pos.x,pos.z)&&Math.abs(ms.y-pos.y)<=2.8&&hitDist<6.4){
+  padMissileBlast(ms.x,ms.z);
   ms.active=false;ms.group.visible=false;
   blastNearbyCops(pos.x,pos.z,16);
   burstPropBricks(pos.x,1.2,pos.z,ms.vx*.3,ms.vz*.3);
@@ -6817,6 +6889,7 @@ for(const ms of policeHeli.missiles){
   break;
  }else if(ms.y<=0.3||ms.life<=0){
   if(ms.y<=0.3){
+   padMissileBlast(ms.x,ms.z);
    const blasted=blastNearbyCops(ms.x,ms.z,20);
    burstPropBricks(ms.x,0.4,ms.z,0,0);
    missileExplosionSound();
@@ -7109,7 +7182,6 @@ if(gaugeNeedleEl)gaugeNeedleEl.style.transform='rotate('+needleDeg.toFixed(1)+'d
  nextMinimapFrame=now+1000/30-1;
 }
 updateEnvironment(dt,now);
-if(formulaView&&!holdingStartCountdown)recordRaceReplay();
 updateChaseBeatVisual();
 renderGameScene();}
 let bwLastW=0,bwLastH=0;function bwResizeRenderer(){const s=bwSize(),w=s.rw,h=s.rh;if(w===bwLastW&&h===bwLastH)return;bwLastW=w;bwLastH=h;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);try{if(composer)composer.setSize(w,h);}catch(_e){}}window.addEventListener('resize',bwResizeRenderer);window.addEventListener('bwviewportchange',bwResizeRenderer);bwResizeRenderer();
@@ -7430,67 +7502,6 @@ function renderGameScene(){
   usePostFX=false;renderer.render(scene,camera);
  }
 }
-const raceReplay={frames:[],elapsed:0,time:0,active:false,playing:false,restore:null};
-const replayPanel=document.getElementById('gp-replay-controls'),replaySeek=document.getElementById('gp-replay-seek'),replayPlay=document.getElementById('gp-replay-play');
-const replayTargets=[formulaPlayer.group,...f1Bots.map(bot=>bot.group)];
-function resetRaceReplay(){
- if(raceReplay.active)closeRaceReplay();
- raceReplay.frames.length=0;raceReplay.elapsed=0;
- (document.getElementById('gp-watch-replay')||{style:{}}).hidden=true;
-}
-function recordRaceReplay(){
- if(f1RaceTime+1e-8<raceReplay.elapsed)return;
- raceReplay.elapsed=f1RaceTime+.098;
- raceReplay.frames.push({time:f1RaceTime,poses:replayTargets.map(car=>[car.position.x,car.position.y,car.position.z,car.rotation.y])});
- if(raceReplay.frames.length>251)raceReplay.frames.shift();
-}
-function updateRaceReplay(dt){
- const {frames}=raceReplay,first=frames[0].time,last=frames.at(-1).time;
- if(raceReplay.playing)raceReplay.time=Math.min(last,raceReplay.time+dt);
- if(raceReplay.time===last&&raceReplay.playing){raceReplay.playing=false;replayPlay.textContent='PLAY';}
- const right=frames.findIndex(frame=>frame.time>=raceReplay.time);
- const left=frames[Math.max(0,right-1)],next=frames[right===-1?frames.length-1:right];
- const mix=left===next?0:(raceReplay.time-left.time)/(next.time-left.time);
- for(let i=0;i<replayTargets.length;i++){
-  const a=left.poses[i],b=next.poses[i],car=replayTargets[i],angle=b[3]-a[3];
-  car.position.set(T.MathUtils.lerp(a[0],b[0],mix),T.MathUtils.lerp(a[1],b[1],mix),T.MathUtils.lerp(a[2],b[2],mix));
-  car.rotation.set(0,a[3]+Math.atan2(Math.sin(angle),Math.cos(angle))*mix,0);
- }
- const car=replayTargets[0],heading=car.rotation.y-Math.PI;
- camera.position.set(car.position.x-Math.sin(heading)*24,car.position.y+10,car.position.z-Math.cos(heading)*24);
- camera.lookAt(car.position.x+Math.sin(heading)*8,2.2,car.position.z+Math.cos(heading)*8);
- replaySeek.value=String(Math.round((raceReplay.time-first)/(last-first)*1000));
-}
-function openRaceReplay(){
- if(!f1RaceFinished||raceReplay.frames.length<2||raceReplay.active)return;
- raceReplay.restore={cars:replayTargets.map(car=>[car.position.clone(),car.rotation.clone()]),camera:[camera.position.clone(),camera.quaternion.clone()]};
- raceReplay.active=raceReplay.playing=true;
- raceReplay.time=raceReplay.frames[0].time;
- replayPlay.textContent='PAUSE';replayPanel.hidden=false;
- document.getElementById('f1-finish-overlay').classList.remove('open');
- updateRaceReplay(0);
-}
-function closeRaceReplay(){
- if(!raceReplay.active)return;
- raceReplay.restore.cars.forEach(([position,rotation],i)=>{replayTargets[i].position.copy(position);replayTargets[i].rotation.copy(rotation);});
- camera.position.copy(raceReplay.restore.camera[0]);camera.quaternion.copy(raceReplay.restore.camera[1]);
- raceReplay.active=raceReplay.playing=false;raceReplay.restore=null;replayPanel.hidden=true;
- if(f1RaceFinished)document.getElementById('f1-finish-overlay').classList.add('open');
-}
-document.getElementById('gp-watch-replay').addEventListener('click',openRaceReplay);
-document.getElementById('gp-replay-close').addEventListener('click',closeRaceReplay);
-replayPlay.addEventListener('click',()=>{
- const {frames}=raceReplay;
- if(raceReplay.time===frames.at(-1).time)raceReplay.time=frames[0].time;
- raceReplay.playing=!raceReplay.playing;
- replayPlay.textContent=raceReplay.playing?'PAUSE':'PLAY';
-});
-replaySeek.addEventListener('input',()=>{
- const {frames}=raceReplay;
- raceReplay.time=T.MathUtils.lerp(frames[0].time,frames.at(-1).time,Number(replaySeek.value)/1000);
- raceReplay.playing=false;replayPlay.textContent='PLAY';
- updateRaceReplay(0);
-});
 const streetCars={
  turbo:{name:'Turbo GT',description:'Balanced starter with a forgiving rear axle',cost:0,power:1,top:1,steering:1,pitch:1},
  v12:{name:'V12 Vesper',description:'Wedge supercar · highest road speed',cost:950,shape:'wedge',bodyHex:0xffb933,highlightHex:0xffea85,shadowHex:0x854619,helmetHex:0xf8a525,power:1.11,top:1.13,steering:.95,pitch:1.20},
@@ -7786,7 +7797,7 @@ const cityWalkBtn=document.getElementById('city-walk');
 if(cityWalkBtn)cityWalkBtn.addEventListener('click',toggleWalk);
 function updateWalker(dt,now){
  const forward=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0);
- const side=Math.abs(joySteerValue)>.09?-joySteerValue:(keys.KeyA||keys.ArrowRight?1:0)-(keys.KeyD||keys.ArrowLeft?1:0);
+ const side=Math.abs(joySteerValue)>.09?-joySteerValue:(keys.KeyA||keys.ArrowLeft?1:0)-(keys.KeyD||keys.ArrowRight?1:0);
  const walking=!!(forward||side);
  if(walking){
   walkMotion.set(Math.sin(yaw)*forward+Math.cos(yaw)*side,0,Math.cos(yaw)*forward-Math.sin(yaw)*side).normalize().multiplyScalar(dt*13);
@@ -7800,17 +7811,439 @@ function updateWalker(dt,now){
  camera.position.lerp(walkMotion.set(walkLook.x-Math.sin(walkHeading)*11,walkLook.y+5.5,walkLook.z-Math.cos(walkHeading)*11),1-Math.exp(-dt*9));
  camera.lookAt(walkLook);updateEnvironment(dt,now);
 }
-function readDrivingPad(){
- const devices=Array.from(navigator.getGamepads?.()||[]);
+const controllerActions=document.getElementById('controller-actions');
+const controllerLegend=document.getElementById('controller-legend');
+const quickActions={
+ settings:openSettings,reset,sound:()=>setSoundMuted(!audio.muted),
+ fullscreen:()=>document.getElementById('gui-fs-btn')?.click(),
+ camera:cycleCamera,'time-attack':toggleTimeAttack,
+ repair:()=>document.getElementById('low-hp-btn').click(),
+ 'dismiss-repair':()=>document.getElementById('low-hp-close').click(),
+ compound:()=>changeControllerSelect(tyreNextSelect,1,true),pit:gpRequestPit,modes:returnToStartScreen
+};
+function openControllerActions(){
+ const repairVisible=document.getElementById('low-hp-popup').classList.contains('open');
+ const fullscreenButton=document.getElementById('gui-fs-btn');
+ const fullscreenAction=document.getElementById('controller-fullscreen');
+ fullscreenAction.hidden=!fullscreenButton;
+ if(fullscreenButton)fullscreenAction.textContent=fullscreenButton.textContent;
+ for(const button of controllerActions.querySelectorAll('[data-drive-mode]')){
+  const repairAction=button.dataset.action==='repair'||button.dataset.action==='dismiss-repair';
+  button.hidden=button.dataset.driveMode!==gameMode||(repairAction&&!repairVisible);
+ }
+ keys={};resetJoystick();clearPhoneDrift();
+ controllerActions.showModal();
+ silenceDrivingAudio();syncGameplayAudio();
+}
+controllerActions.addEventListener('close',syncGameplayAudio);
+document.getElementById('controller-resume').addEventListener('click',()=>controllerActions.close());
+controllerActions.addEventListener('click',event=>{
+ const button=event.target.closest('[data-action]');
+ if(!button)return;
+ controllerActions.close();
+ quickActions[button.dataset.action]();
+});
+const controllerPrompt=document.getElementById('controller-prompt');
+let connectedController=null,controllerEnabled=false,controllerButtons=0,controllerDirection='',controllerRepeatAt=0,controllerHudItem=null;
+let controllerRumbleOff=false,rumbleAt=0,activePad=null,triggerBoostOn=false,analogTriggerSeen=false;
+try{controllerRumbleOff=localStorage.getItem('brickway-rumble')==='off';}catch(e){}
+const rumbleSelect=document.getElementById('set-controllerRumble');
+ function controllerRumble(pad, now, weak, strong, ms, lt, rt) {
+   if (!pad || controllerRumbleOff || now < rumbleAt) return;
+   const actuator = pad.vibrationActuator;
+   if (!actuator || !actuator.playEffect) return;
+   rumbleAt = now + 45;
+   lt = lt || 0;
+   rt = rt || 0;
+   try {
+     const hasTriggers = !!(actuator.effects && actuator.effects.includes && actuator.effects.includes("trigger-rumble"));
+     const p = hasTriggers ? actuator.playEffect("trigger-rumble", { startDelay: 0, duration: ms, weakMagnitude: weak, strongMagnitude: strong, leftTrigger: lt, rightTrigger: rt }) : actuator.playEffect("dual-rumble", { startDelay: 0, duration: ms, weakMagnitude: Math.max(weak, rt * 0.6), strongMagnitude: Math.max(strong, lt * 0.6) });
+     p?.catch?.(() => {});
+   } catch (e) {
+   }
+ }
+ if (rumbleSelect) {
+   rumbleSelect.value = controllerRumbleOff ? "off" : "on";
+   rumbleSelect.addEventListener("change", () => {
+     controllerRumbleOff = rumbleSelect.value === "off";
+     try {
+       localStorage.setItem("brickway-rumble", controllerRumbleOff ? "off" : "on");
+     } catch (e) {
+     }
+     if (controllerRumbleOff) padPulses.length = 0;
+     if (!controllerRumbleOff && controllerEnabled) {
+       rumbleAt = 0;
+       controllerRumble(activePad, performance.now(), 0.5, 0.5, 70);
+     }
+   });
+ }
+ const padPulses = [], passPrev = new Map();
+ let rumblePrevHealth = null, rumblePrevMissiles = 0;
+ const clamp01 = (v) => Math.max(0, Math.min(1, v));
+ function padPulse(weak, strong, ms, queued, lt, rt, duck) {
+   if (!controllerEnabled || controllerRumbleOff || !activePad) return;
+   padPulses.push({ w: weak, s: strong, l: lt || 0, r: rt || 0, until: performance.now() + ms, duck: !!duck });
+   if (padPulses.length > 12) padPulses.shift();
+   if (queued) return;
+   rumbleAt = 0;
+   controllerRumble(activePad, performance.now(), clamp01(weak), clamp01(strong), ms, clamp01(lt || 0), clamp01(rt || 0));
+ }
+ function padCrash(power, side) {
+   const k = clamp01(power), sd = side || 0, l = sd <= 0 ? 1 : 0.3, r = sd >= 0 ? 1 : 0.3;
+   padPulse(0.75 + 0.25 * k, 0.9 + 0.1 * k, 130, false, l * (0.7 + 0.3 * k), r * (0.7 + 0.3 * k), true);
+   padPulse(0.4 + 0.3 * k, 0.55 + 0.35 * k, 330, true, 0.3 * l, 0.3 * r, true);
+   padPulse(0.15, 0.25 + 0.15 * k, 560, true, 0, 0, false);
+ }
+ function padShift() {
+   padPulse(0.1, 0.22, 90, false, 0, 0.85, false);
+ }
+ function padMissileBlast(x, z) {
+   const d = Math.hypot(x - pos.x, z - pos.z), k = Math.max(0, 1 - d / 70);
+   if (k > 0) padPulse(0.5 + 0.5 * k, 0.6 + 0.4 * k, 260 + 380 * k, false, k, k, true);
+ }
+ function driveRumble(pad, now, kmh, boosting, drifting, onRoad, throttle, brake, steer) {
+   let w = 0, s = 0, l = 0, r = 0;
+   const add = (a, b, c, d) => {
+     if (a > w) w = a;
+     if (b > s) s = b;
+     if (c > l) l = c;
+     if (d > r) r = d;
+   };
+   const f1 = gameMode === "f1race", fx = Math.sin(yaw), fz = Math.cos(yaw);
+   if (boosting) add(0.15, 0.4, 0, 0.55);
+   if (drifting) {
+     const d = Math.min(0.4, (driftAmount || 0) * 0.4);
+     const heavy = Math.min(1, 0.7 + (driftAmount || 0) * 0.6 + d * 0.3);
+     add(0.75 * heavy, 0.9 * heavy, 0.2 * heavy, 0.3 * heavy);
+     if (Math.floor(now / 110) % 2 === 0) add(1, 1, 0, 0.7);
+   } else if (!boosting && !onRoad && Math.abs(speed) > 10) {
+     // Off-road: a textured rumble that scales with speed (grass and gravel feel different)
+     const sp = Math.min(1, Math.abs(speed) / 40);
+     const tex = 0.5 + 0.5 * Math.sin(now * 0.047) * Math.sin(now * 0.0131);
+     const grit = now % 90 < 45 ? 1 : 0.6;
+     add((0.12 + 0.28 * tex) * sp * grit, (0.06 + 0.18 * tex) * sp, 0, 0);
+   }
+   // Cornering: a shudder that builds toward the grip limit before a slide takes over
+   const cornerLoad = Math.min(1, Math.abs(steer || 0)) * Math.min(1, kmh / (f1 ? 360 : 220));
+   if (!drifting && cornerLoad > 0.5) {
+     const q = (cornerLoad - 0.5) / 0.5;
+     add((0.12 + 0.5 * q) * (now % 70 < 35 ? 1 : 0.55), 0.05 * q + 0.12 * q * q, 0, 0);
+   }
+   // ABS: hard braking pumps the left trigger
+   if (!drifting && brake > 0.45 && kmh > 25) {
+     const hard = Math.min(1, (brake - 0.45) / 0.55) * Math.min(1, kmh / 160);
+     const pump = Math.floor(now / 65) % 2 === 0;
+     add(0.05 * hard, 0.1 * hard, pump ? 0.55 + 0.4 * hard : 0.1, 0);
+   }
+   // Launch: hard throttle from low speed chatters the right trigger like wheelspin
+   if (!drifting && throttle > 0.7 && kmh < 70) {
+     const q = (1 - kmh / 70) * Math.min(1, (throttle - 0.7) / 0.3);
+     if (q > 0.1) add(0.1 * q, 0.15 * q, 0, (0.35 + 0.6 * q) * (Math.floor(now / 45) % 2 === 0 ? 1 : 0.35));
+   }
+   const top = f1 ? 450 : 330, k = Math.max(0, Math.min(1, (kmh - 15) / (top - 15)));
+   if (k > 0) {
+     const flutter = k > 0.6 ? 0.88 + 0.12 * Math.sin(now * 0.05) : 1;
+     add((0.03 + 0.5 * k * k) * flutter, 0.05 + 0.32 * Math.pow(k, 1.3), 0, 0);
+   }
+   let behind = Infinity;
+   for (const c of policePool) {
+     if (!c.active) continue;
+     const dx = c.x - pos.x, dz = c.z - pos.z;
+     if (dx * fx + dz * fz < 0) behind = Math.min(behind, Math.hypot(dx, dz));
+   }
+   if (behind < 45 && now % 560 < 140) {
+     const q = 1 - behind / 45;
+     add(0.15 + 0.4 * q, 0.05 + 0.25 * q, 0, 0);
+   }
+   if (policeHeli.active) {
+     const near = Math.max(0, 1 - Math.hypot(policeHeli.x - pos.x, policeHeli.z - pos.z) / 210);
+     if ((policeHeli.entryAnimTimer || 0) > 0) add(0.3, 0.45 + 0.4 * Math.min(1, policeHeli.entryAnimTimer / 3.2), 0.3, 0.3);
+     else if (now % 260 < 90) {
+       const leftBeat = Math.floor(now / 260) % 2 === 0;
+       add(0.05 + 0.15 * near, 0.1 + 0.35 * near, leftBeat ? 0.1 + 0.3 * near : 0, leftBeat ? 0 : 0.1 + 0.3 * near);
+     }
+     if (policeHeli.lockRing.visible) {
+       const lockT = Math.max(0, Math.min(1, 1 - (policeHeli.fireTimer || 0) / 1.55)), period = 380 - 250 * lockT;
+       if (now % period < period * 0.45) add(0.35 + 0.65 * lockT, 0.2 + 0.6 * lockT, 0.3 + 0.6 * lockT, 0.3 + 0.6 * lockT);
+     }
+     let missiles = 0, closest = Infinity;
+     for (const ms of policeHeli.missiles) {
+       if (!ms.active) continue;
+       missiles++;
+       closest = Math.min(closest, Math.hypot(ms.x - pos.x, ms.z - pos.z));
+     }
+     if (missiles > rumblePrevMissiles) padPulse(0.8, 0.9, 260, false, 0.8, 0.8, false);
+     rumblePrevMissiles = missiles;
+     if (missiles) {
+       const q = Math.max(0, 1 - closest / 130);
+       add(0.25 + 0.6 * q, 0.25 + 0.7 * q, 0.2 + 0.5 * q, 0.2 + 0.5 * q);
+     }
+   } else rumblePrevMissiles = 0;
+   const others = f1 ? f1Bots : policePool;
+   for (const o of others) {
+     if (f1 ? o.finished || o.pit : !o.active) {
+       passPrev.delete(o);
+       continue;
+     }
+     const dx = o.x - pos.x, dz = o.z - pos.z, fwd = dx * fx + dz * fz, lat = dx * fz - dz * fx, prev = passPrev.get(o);
+     passPrev.set(o, fwd);
+     if (prev === undefined || Math.abs(prev) > 30 || Math.abs(fwd) > 30 || Math.abs(lat) > 10) continue;
+     const q = 1 - Math.abs(lat) / 10, sd = Math.sign(lat) || 1, big = prev < 0 && fwd >= 0;
+     if (!big && !(prev > 0 && fwd <= 0)) continue;
+     const m = big ? 1 : 0.5;
+     padPulse((0.15 + 0.55 * q) * m, (0.1 + 0.5 * q) * m, big ? 190 : 130, false, sd < 0 ? 0.6 * q * m : 0.1 * q * m, sd > 0 ? 0.6 * q * m : 0.1 * q * m, false);
+   }
+   if (typeof carHealth === "number") {
+     if (rumblePrevHealth !== null && carHealth < rumblePrevHealth - 0.4) padCrash(0.5 + (rumblePrevHealth - carHealth) / 20);
+     rumblePrevHealth = carHealth;
+   }
+   const t = performance.now();
+   let pw = 0, ps = 0, pl = 0, pr = 0, duck = false;
+   for (let i = padPulses.length - 1; i >= 0; i--) {
+     const q = padPulses[i];
+     if (q.until <= t) {
+       padPulses.splice(i, 1);
+       continue;
+     }
+     pw = Math.max(pw, q.w);
+     ps = Math.max(ps, q.s);
+     pl = Math.max(pl, q.l);
+     pr = Math.max(pr, q.r);
+     if (q.duck) duck = true;
+   }
+   const g = duck ? 0.25 : 1;
+   w = Math.max(pw, w * g);
+   s = Math.max(ps, s * g);
+   l = Math.max(pl, l * g);
+   r = Math.max(pr, r * g);
+   if (w > 0.02 || s > 0.02 || l > 0.02 || r > 0.02) controllerRumble(pad, now, clamp01(w), clamp01(s), 70, clamp01(l), clamp01(r));
+ }
+
+function shapeSteer(axis){
+ const magnitude=Math.abs(axis);
+ if(magnitude<=.08)return 0;
+ return Math.sign(axis)*Math.pow(Math.min(1,(magnitude-.08)/.88),1.3);
+}
+function controllerIdentity(pad){return pad?pad.index+':'+pad.id:null;}
+function drivingController(devices){
+ return devices.find(pad=>pad?.mapping==='standard'&&controllerIdentity(pad)===connectedController)
+  ||devices.find(pad=>pad?.mapping==='standard')||null;
+}
+function controllerName(pad){return pad.id?.replace(/\s*\(.*$/,'').trim()||'Controller '+(pad.index+1);}
+function populatePadChoices(devices,active){
+ const choices=document.getElementById('controller-choices');
+ const pads=devices.filter(pad=>pad?.mapping==='standard');
+ const signature=JSON.stringify(pads.map(controllerIdentity));
+ if(choices.dataset.devices===signature)return;
+ choices.dataset.devices=signature;
+ choices.replaceChildren();
+ choices.hidden=pads.length<2;
+ document.getElementById('controller-blurb').textContent=controllerName(active)+' detected. Press A / Cross to select or B / Circle to keep your current controls.';
+ if(choices.hidden)return;
+ for(const pad of pads){
+  const button=document.createElement('button');
+  button.type='button';
+  button.textContent=controllerName(pad);
+  button.toggleAttribute('data-primary',pad===active);
+  button.addEventListener('click',()=>{
+   connectedController=controllerIdentity(pad);
+   activePad=pad;
+   const isCurrent=pad.index===active.index;
+   if(!isCurrent)controllerButtons=pad.buttons.reduce((mask,entry,index)=>index<16&&entry.pressed?mask|(1<<index):mask,0);
+   chooseController(true);
+  });
+  choices.appendChild(button);
+ }
+}
+function cycleSettingsTab(step){
+ const tabs=Array.from(settingsOverlay.querySelectorAll('.settings-tabs button')).filter(button=>button.getClientRects().length);
+ if(tabs.length<2)return;
+ const index=tabs.findIndex(button=>button.classList.contains('active'));
+ const next=tabs[(Math.max(0,index)+step+tabs.length)%tabs.length];
+ next.click();
+ next.focus();
+}
+function chooseController(enabled){
+ controllerEnabled=enabled&&connectedController!==null;
+ document.body.classList.toggle('controller-active',controllerEnabled);
+ if(controllerPrompt.open)controllerPrompt.close();
+ if(!controllerEnabled&&controllerActions.open)controllerActions.close();
+ if(controllerEnabled){
+  if(settingsControls.inputDevice.value!=='standard'){
+   settingsControls.inputDevice.value='standard';
+   settingsControls.inputDevice.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+  initSound();
+ }
+}
+document.getElementById('controller-accept').addEventListener('click',()=>chooseController(true));
+document.getElementById('controller-decline').addEventListener('click',()=>chooseController(false));
+controllerPrompt.addEventListener('close',syncGameplayAudio);
+controllerPrompt.addEventListener('cancel',event=>{event.preventDefault();chooseController(false);});
+
+function controllerMenu(){
+ const install=document.querySelector('#bw-ios-install:not([hidden])');
+ if(install)return {root:install,back:'bwi-continue'};
+ const fullscreen=document.querySelector('#fs-lock.open');
+ if(fullscreen)return {root:fullscreen,back:'fs-skip',first:'fs-skip'};
+ if(deathScreenOpen)return {root:deathOverlayEl,back:gameMode==='f1race'?'death-race-menu':null};
+ if(phoneHudEditor.open)return {root:phoneHudEditor,back:'phone-hud-cancel'};
+ if(settingsOpen)return {root:settingsOverlay,back:'settings-close'};
+ if(cityPanel.open)return {root:cityPanel,back:'city-close'};
+ if(controllerActions.open)return {root:controllerActions,back:'controller-resume'};
+ if(gameStarted&&f1RaceFinished)return {root:document.getElementById('f1-finish-overlay'),back:'f1-menu-btn'};
+ if(!gameStarted){
+  const setup=document.getElementById('gp-setup-screen');
+  return setup.hidden?{root:document.getElementById('gp-main-menu')}:{root:setup,back:'gp-back'};
+ }
+ return null;
+}
+function changeControllerSelect(select,step,wrap=false){
+ const options=Array.from(select.options).filter(option=>!option.disabled&&!option.hidden);
+ const index=options.findIndex(option=>option.selected)+step;
+ const next=options[wrap?(index+options.length)%options.length:Math.max(0,Math.min(options.length-1,index))];
+ if(!next||select.value===next.value)return;
+ select.value=next.value;
+ select.dispatchEvent(new Event('input',{bubbles:true}));
+ select.dispatchEvent(new Event('change',{bubbles:true}));
+}
+function releaseControllerHudItem(){
+ controllerHudItem?.handle.removeAttribute('aria-pressed');
+ controllerHudItem=null;
+}
+function moveControllerFocus(menu,direction,confirm){
+ const items=Array.from(menu.root.querySelectorAll('button,input,select'))
+  .filter(element=>!element.disabled&&element.type!=='hidden'&&element.getClientRects().length&&getComputedStyle(element).visibility==='visible');
+ if(!items.length)return;
+ let index=items.indexOf(document.activeElement);
+ if(index<0){
+  index=Math.max(0,items.findIndex(element=>element.id===menu.first));
+  items[index].focus();
+  if(!confirm)return;
+ }
+ const active=items[index];
+ if(menu.root===phoneHudEditor){
+  if(controllerHudItem){
+   if(confirm)releaseControllerHudItem();
+   else{
+    const delta={up:[0,-8],down:[0,8],left:[-8,0],right:[8,0]}[direction];
+    if(delta)movePhoneHudItem(controllerHudItem,...delta);
+   }
+   return;
+  }
+  if(confirm){
+   controllerHudItem=phoneHudHandles.find(item=>item.handle===active);
+   if(controllerHudItem){active.setAttribute('aria-pressed','true');return;}
+  }
+ }
+ if(confirm){
+  if(active instanceof HTMLButtonElement||active.matches('input[type=radio],input[type=checkbox]'))active.click();
+  return;
+ }
+ const horizontal=direction==='left'||direction==='right';
+ const step=direction==='up'||direction==='left'?-1:1;
+ if(horizontal&&active instanceof HTMLSelectElement){
+  changeControllerSelect(active,step);
+  return;
+ }
+ if(horizontal&&active.matches('input[type=range]')){
+  const old=active.value;
+  if(step>0)active.stepUp();else active.stepDown();
+  if(active.value!==old)active.dispatchEvent(new Event('input',{bubbles:true}));
+  return;
+ }
+ items[(index+step+items.length)%items.length].focus();
+}
+function processController(pad,now,devices=pad?[pad]:[]){
+ const identity=controllerIdentity(pad);
+ const buttons=pad?pad.buttons.reduce((mask,button,index)=>index<16&&button.pressed?mask|(1<<index):mask,0):0;
+ const pressed=buttons&~controllerButtons;
+ controllerButtons=buttons;
+ if(identity!==connectedController){
+  const lostWhileDriving=controllerEnabled&&gameStarted&&!settingsOpen&&!deathScreenOpen&&!f1RaceFinished;
+  chooseController(false);
+  triggerBoostOn=false;analogTriggerSeen=false;rumbleAt=0;
+  padPulses.length=0;passPrev.clear();rumblePrevHealth=null;rumblePrevMissiles=0;
+  if(lostWhileDriving){
+   openSettings();
+   show('CONTROLLER DISCONNECTED · PAUSED');
+  }
+  connectedController=identity;
+  document.body.classList.toggle('controller-detected',identity!==null);
+  controllerLegend.hidden=true;
+  releaseControllerHudItem();
+  controllerDirection='';
+  if(identity!==null){
+   keys={};resetJoystick();clearPhoneDrift();
+   populatePadChoices(devices,pad);
+   controllerPrompt.showModal();
+   silenceDrivingAudio();syncGameplayAudio();
+   activePad=pad;
+   return true;
+  }
+ }
+ activePad=pad;
+ if(controllerPrompt.open){
+  populatePadChoices(devices,pad);
+  if(pressed&2)chooseController(false);
+  else if(pressed&1)moveControllerFocus({root:controllerPrompt,first:'controller-accept'},'',true);
+  else if(pressed&((1<<12)|(1<<13)))moveControllerFocus({root:controllerPrompt,first:'controller-accept'},pressed&(1<<12)?'up':'down',false);
+  return true;
+ }
+ if(!pad)return false;
+ const menu=controllerMenu();
+ controllerLegend.hidden=!!menu||!!gpTyreCrash;
+ if(!controllerEnabled)return false;
+ if(!phoneHudEditor.open&&controllerHudItem)releaseControllerHudItem();
+ if(menu){
+  if(menu.root===settingsOverlay&&pressed&((1<<4)|(1<<5))){
+   cycleSettingsTab(pressed&(1<<5)?1:-1);
+   return false;
+  }
+  if(pressed&2||(settingsOpen&&pressed&(1<<9))){
+   if(controllerHudItem)releaseControllerHudItem();
+   else if(menu.back)document.getElementById(menu.back)?.click();
+   return false;
+  }
+  const x=pad.axes[0]||0,y=pad.axes[1]||0;
+  const direction=buttons&(1<<12)?'up':buttons&(1<<13)?'down':buttons&(1<<14)?'left':buttons&(1<<15)?'right':
+   Math.max(Math.abs(x),Math.abs(y))<.58?'':Math.abs(x)>Math.abs(y)?(x<0?'left':'right'):(y<0?'up':'down');
+  if(pressed&1)moveControllerFocus(menu,'',true);
+  else if(direction&&(direction!==controllerDirection||now>=controllerRepeatAt)){
+   moveControllerFocus(menu,direction,false);
+   controllerRepeatAt=now+(direction===controllerDirection?135:350);
+  }
+  controllerDirection=direction;
+  return false;
+ }
+ controllerDirection='';
+ if(pressed&(1<<9))openSettings();
+ else if(pressed&(1<<8))openControllerActions();
+ else if(!gpTyreCrash){
+  if(pressed&(1<<3))cycleCamera();
+  if(gameMode==='f1race'&&pressed&(1<<5))gpRequestPit();
+  if(gameMode==='f1race'&&pressed&(1<<4))changeControllerSelect(tyreNextSelect,1,true);
+  if(pressed&(1<<10)||(gameMode==='openworld'&&pressed&(1<<4)))reset();
+  if(gameMode==='openworld'&&pressed&(1<<12))toggleTimeAttack();
+  if(pressed&((1<<11)|(1<<13)))setSoundMuted(!audio.muted);
+ }
+ return false;
+}
+function readDrivingPad(devices,pad){
  if(preferences.inputDevice==='wheel'){
-  const wheel=devices.find(p=>p&&p.mapping!=='standard'&&p.axes.length>=3);
+  const wheel=devices.find(device=>device&&device.mapping!=='standard'&&device.axes.length>=3);
   if(!wheel)return null;
   const pedal=axis=>Math.max(0,Math.min(1,(1-axis)*.5));
-  return {steer:wheel.axes[0],throttle:pedal(wheel.axes[1]),brake:pedal(wheel.axes[2]),boost:!!wheel.buttons[0]?.pressed};
+  return {steer:Math.abs(wheel.axes[0])>.09?wheel.axes[0]:0,throttle:pedal(wheel.axes[1]),brake:pedal(wheel.axes[2]),boost:!!wheel.buttons[0]?.pressed};
  }
- const pad=devices.find(p=>p?.mapping==='standard');
- if(!pad)return null;
- return {steer:pad.axes[0]||0,throttle:pad.buttons[7]?.value||0,brake:pad.buttons[6]?.value||0,boost:!!pad.buttons[0]?.pressed};
+ if(!controllerEnabled||!pad)return null;
+ const throttle=pad.buttons[7]?.value||0;
+ if(throttle>.1&&throttle<.9)analogTriggerSeen=true;
+ if(!analogTriggerSeen||throttle<.78)triggerBoostOn=false;
+ else if(throttle>.93)triggerBoostOn=true;
+ const dpadSteer=Number(!!pad.buttons[15]?.pressed)-Number(!!pad.buttons[14]?.pressed);
+ return {steer:shapeSteer(pad.axes[0]||0)||dpadSteer,throttle,brake:pad.buttons[6]?.value||0,
+  boost:!!pad.buttons[0]?.pressed||triggerBoostOn,handbrake:!!pad.buttons[2]?.pressed};
 }
 const ldEl=document.getElementById('loading');if(ldEl)ldEl.remove();show('New LEGO supercar! Press W to hear the engine.');requestAnimationFrame(frame);
 })();
@@ -7889,7 +8322,7 @@ const ldEl=document.getElementById('loading');if(ldEl)ldEl.remove();show('New LE
  document.addEventListener('fullscreenchange',render);
  document.addEventListener('webkitfullscreenchange',render);
  window.addEventListener('keydown',function(e){
-   if(!document.body.classList.contains('fs-locked'))return;
+   if(!document.body.classList.contains('fs-locked')||document.getElementById('controller-prompt').open)return;
    if(e.target===enterBtn||e.target===skipBtn)return;
    e.stopImmediatePropagation();e.preventDefault();
  },true);
