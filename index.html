@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="brickway-release" content="v0.217"><title>Brickway | Open World Racing</title>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="brickway-release" content="v0.218"><title>Brickway | Open World Racing</title>
 <script>if(/^https?:$/.test(location.protocol)){var m=document.createElement("link");m.rel="manifest";m.href="/manifest.webmanifest";document.head.appendChild(m);}</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -165,6 +165,7 @@ body.cinematic-off canvas:not(#map){filter:none}
 .setting small{display:block;color:#9eb1ca;font-size:11px;font-weight:400;margin-top:3px}
 .setting input[type=range]{width:min(200px,37vw);accent-color:#ffce33}
 .setting input[type=checkbox]{accent-color:#ffce33;width:19px;height:19px}
+.setting #test-controllerRumble{background:#29384c;color:#fff;border:1px solid #7e8da4;border-radius:7px;padding:8px 12px;font:inherit;cursor:pointer}
 .setting select{background:#1b283b;color:#fff;border:1px solid #7e8da4;border-radius:7px;padding:8px}
 .settings-actions{display:flex;justify-content:space-between;gap:12px;margin-top:20px}
 .controls-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -283,6 +284,9 @@ body.mode-f1-race #f1-live-ranks{display:block}
 #mode-switch-btn:hover{background:#25334d;border-color:#ffda29}
 #f1-finish-overlay{position:fixed;inset:0;z-index:95;background:radial-gradient(circle at 50% 40%,rgba(22,34,62,0.88),rgba(6,10,18,0.96));backdrop-filter:blur(8px);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;color:#fff;text-align:center}
 #f1-finish-overlay.open{display:flex}
+#gp-finish-banner:not([hidden]){position:fixed;top:max(14%,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:94;display:flex;align-items:center;gap:12px;padding:clamp(8px,2vw,14px) clamp(12px,3vw,23px);border:1px solid #ffda29;border-radius:12px;background:#101827eb;color:#fff;box-shadow:0 8px 26px #05101bb5;font:900 clamp(14px,3.5vw,26px) var(--bw-body);white-space:nowrap;pointer-events:none}
+#gp-finish-banner::before{content:"";width:1.2em;height:1.2em;border-radius:2px;background:conic-gradient(#f8fafc 25%,#253044 0 50%,#f8fafc 0 75%,#253044 0) 0 0/.6em .6em}
+body.gp-finish-view #f1-race-hud,body.gp-finish-view #f1-live-ranks,body.gp-finish-view #f1-telemetry,body.gp-finish-view #tyre-logo-widget,body.gp-finish-view #mobile-controls,body.gp-finish-view #gauge{visibility:hidden}
 .f1-podium-box{background:linear-gradient(155deg,#1d273d,#0f1625);border:2px solid #ffda29;border-radius:20px;padding:26px 28px;width:min(480px,94vw);box-shadow:0 24px 70px #000c}
 .f1-podium-box h2{margin:0 0 6px;font-size:30px;font-weight:900;font-style:italic;color:#ffda29}
 .f1-standings{margin:16px 0 22px;text-align:left;background:#0a0f1a;border:1px solid #ffffff24;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:800}
@@ -360,7 +364,7 @@ body.touch-device #drift-bottom-note{display:none!important}
 #rotate-overlay{position:fixed;inset:0;z-index:10000;background:radial-gradient(circle at 50% 45%,#162338,#080d17 85%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif}
 @media (max-width:900px) and (orientation:portrait){
  #rotate-overlay{display:flex}
- body.landscape-locked #ui,body.landscape-locked #mobile-controls,body.landscape-locked #start-screen,body.landscape-locked #settings-open,body.landscape-locked #mode-switch-btn,body.landscape-locked #f1-race-hud,body.landscape-locked #f1-live-ranks,body.landscape-locked #f1-finish-overlay,body.landscape-locked #death-overlay{visibility:hidden}
+ body.landscape-locked #ui,body.landscape-locked #mobile-controls,body.landscape-locked #start-screen,body.landscape-locked #settings-open,body.landscape-locked #mode-switch-btn,body.landscape-locked #f1-race-hud,body.landscape-locked #f1-live-ranks,body.landscape-locked #f1-finish-overlay,body.landscape-locked #gp-finish-banner,body.landscape-locked #death-overlay{visibility:hidden}
 }
 
 
@@ -653,7 +657,12 @@ body.phone-device .mc-pedal-drift-btn{
 .mc-gas-btn{background:linear-gradient(180deg,rgba(64,226,124,.55),rgba(20,130,64,.72));border-color:rgba(170,255,205,.8)}
 .mc-brake-btn{background:linear-gradient(180deg,rgba(255,88,112,.55),rgba(190,18,60,.72));border-color:rgba(255,185,195,.8)}
 .mc-joy-base{box-shadow:0 10px 26px rgba(0,0,0,.55),inset 0 0 20px rgba(255,212,42,.12)}
-</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@500;600;700;800;900&display=swap" rel="stylesheet"><style>.gp-option[hidden]{display:none!important}#gp-next,#gp-distance,#gp-surface{background:#192636;color:white;border:1px solid #66798a;border-radius:4px;font:inherit;pointer-events:auto;padding:3px}</style></head>
+</style><style>.gp-option[hidden]{display:none!important}#gp-next,#gp-distance,#gp-surface{background:#192636;color:white;border:1px solid #66798a;border-radius:4px;font:inherit;pointer-events:auto;padding:3px}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
 <body>
 <div id="bw-ios-install" hidden role="dialog" aria-modal="true" aria-labelledby="bwi-title">
 <div class="bwi-card"><div class="bwi-inner"><div class="bwi-brand">BRICKWAY · OPEN CITY</div><h2 id="bwi-title">Play in Fullscreen</h2><p>Install the game on your Home Screen to play without Safari's browser bars.</p>
@@ -731,6 +740,7 @@ body.phone-device .mc-pedal-drift-btn{
  <div class="f1-rk-title"><span>🏁 LIVE RANKS</span><span id="f1-rk-diff">PRO</span></div>
  <div id="f1-live-ranks-list"></div>
 </div>
+<div id="gp-finish-banner" role="status" hidden></div>
 <div id="f1-finish-overlay" role="dialog" aria-modal="true" aria-label="Race Results">
  <div class="f1-podium-box">
  <h2 id="f1-finish-title">🏆 P1 · WINNER!</h2>
@@ -850,6 +860,7 @@ body.phone-device .mc-pedal-drift-btn{
  <p>Controller: D-pad or left stick to navigate, A / Cross to select, B / Circle to go back. Start / Options pauses during a race.</p>
  <label class="setting"><span>Input device</span><select id="set-inputDevice"><option value="standard">Standard gamepad</option><option value="wheel">Wheel · axes 0/1/2</option></select></label>
  <label class="setting"><span>Controller vibration<small>Feedback for boost, drift, braking and impacts</small></span><select id="set-controllerRumble"><option value="on">On</option><option value="off">Off</option></select></label>
+ <div class="setting"><span>Vibration test<small id="controller-rumble-status" role="status">Plays a test pulse on your active controller.</small></span><button type="button" id="test-controllerRumble">Test vibration</button></div>
  <label class="setting"><span>Race driving assists</span><select id="set-raceAssist"><option value="standard">Traction assistance</option><option value="off">Off</option></select></label>
  <p style="color:#c2d1e3;font-size:13px">These are the current controls. <b>Drift note:</b> hold <b>W</b>/<b>↑</b> + <b>SPACE</b> while steering to kick out the rear and build drift combos in Open World. In F1, Space brakes; A/D steering is half sensitivity.</p>
  <div class="controls-grid">
@@ -893,7 +904,7 @@ body.phone-device .mc-pedal-drift-btn{
  </div>
 </div>
 <div id="gauge"><svg id="gauge-svg" viewBox="0 0 250 250"><defs><linearGradient id="speedGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2ee8ff"/><stop offset="55%" stop-color="#ffda29"/><stop offset="100%" stop-color="#ff2b36"/></linearGradient></defs><circle cx="125" cy="125" r="102" fill="none" stroke="#ffffff24" stroke-width="14" stroke-linecap="round" stroke-dasharray="427.26 640.88" transform="rotate(150 125 125)"/><circle id="gauge-arc" cx="125" cy="125" r="102" fill="none" stroke="url(#speedGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 640.88" transform="rotate(150 125 125)"/><g id="gauge-dial-ticks" stroke="#ffffffaa" stroke-width="2" fill="#e6edf5" font-size="10.5" font-weight="900" text-anchor="middle" dominant-baseline="central"></g><g id="gauge-needle" style="transform:rotate(-120deg)"><polygon points="122,125 128,125 126,36 124,36" fill="#ff2731"/><circle cx="125" cy="125" r="8.5" fill="#181c24" stroke="#ff2731" stroke-width="3"/></g></svg><div id="speed">0</div><div class="kmh">km/h</div><div class="gear-box"><b id="gear">1</b><small>AUTO</small></div><div class="gauge-meta"><span id="race">FREE ROAM</span> · <span id="police">OFF</span></div></div></div><canvas id="map" width="250" height="250"></canvas><div id="wanted-hud"><div id="wanted-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div><div id="loot-box">💵 $<span id="studs-banked">0</span><span id="studs-unbanked" class="unbanked"></span></div><div id="health-box"><div id="health-top"><span>❤️ ARMOR</span><span id="health-num">100</span></div><div id="health-track"><div id="health-fill"></div></div></div></div><div id="low-hp-popup" role="alert"><div class="lp-text">⚠️ ARMOR LOW! Repair car?<small id="lp-sub">Cost: 🪙 150 · Restores 100% Armor</small></div><button id="low-hp-btn">🔧 REPAIR</button><button id="low-hp-close">✕</button></div><div id="status-bar-wrap"><div id="status-bar-label">HEIST</div><div id="status-bar-track"><div id="status-bar-fill"></div></div></div><div id="arcade-hud"><div class="ah-pill" id="drift-pill">🔥 DRIFT: <span id="drift-pts">0</span><span class="mult" id="drift-mult">x1</span></div><div class="ah-pill gold" id="hunt-pill">🏆 GOLD STUDS: <span id="hunt-count">0</span>/25</div><div class="ah-pill ta" id="ta-pill" style="display:none">⏱️ <span id="ta-time">45.0s</span></div><div class="ah-pill chase" id="chase-pill" style="display:none">🚨 CHASE: <span id="chase-time">0.0s</span></div></div><div id="ta-board"></div><div id="message"></div><div id="drift-bottom-note">Drift: hold W/↑ + SPACE while steering (A/D or ←/→)</div><div id="footer"><div class="controls"><div><kbd>W</kbd><kbd>↑</kbd> Accelerate</div><div><kbd>S</kbd><kbd>↓</kbd> Brake / Reverse</div><div><kbd>A</kbd><kbd>→</kbd> Steer Right</div><div><kbd>D</kbd><kbd>←</kbd> Steer Left</div><div><kbd>SPACE</kbd> Drift / Handbrake</div><div><kbd>SHIFT</kbd> Boost</div><div class="extras">C Camera · R Reset · M Sound · Enter Race</div></div></div></div>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script><script>
+<script>
 // Dismiss the loading overlay as soon as the script tag executes so it never gets stuck
 (function(){
  function hideLoadingOverlay(){
@@ -906,6 +917,299 @@ body.phone-device .mc-pedal-drift-btn{
  window.addEventListener('unhandledrejection',hideLoadingOverlay);
  setTimeout(hideLoadingOverlay,2500);
 })();
+</script>
+<script id="rumble-core">
+/* RumbleCore: pure controller-vibration logic.
+ * Picks the driving pad (including non-standard pads from hubs and third-party
+ * controllers), lists the vibration outputs a pad exposes, and delivers pulses
+ * with per-output failure tracking so a single failed call never disables
+ * vibration for good. */
+const RumbleCore = (function () {
+  'use strict';
+  const FAIL_LIMIT = 2;          // consecutive hard failures before an output cools down
+  const COOLDOWN_MS = 3000;      // how long a failing output sits out before it is retried
+
+  const isUsablePad = (pad) => !!pad && pad.connected !== false &&
+    (pad.buttons?.length > 0 || pad.axes?.length >= 2);
+
+  // Chooses the pad that drives the game. Order: the pad already in use, then a
+  // standard-mapping pad, then any usable pad (generic profile, e.g. through a hub).
+  function pickDrivingPad(devices, currentId, identityOf) {
+    const usable = (devices || []).filter(isUsablePad);
+    const current = usable.find((p) => identityOf(p) === currentId);
+    if (current) return { pad: current, generic: current.mapping !== 'standard' };
+    const standard = usable.find((p) => p.mapping === 'standard');
+    if (standard) return { pad: standard, generic: false };
+    if (usable.length) return { pad: usable[0], generic: true };
+    return null;
+  }
+
+  // Every vibration output a pad exposes, most capable first, without duplicates.
+  function hapticOutputs(pad) {
+    const out = [];
+    const add = (type, actuator) => {
+      if (!actuator) return;
+      if (out.some((o) => o.type === type && o.actuator === actuator)) return;
+      out.push({ type, actuator });
+    };
+    const va = pad && pad.vibrationActuator;
+    if (va && typeof va.playEffect === 'function') {
+      if (va.effects?.includes?.('trigger-rumble')) add('trigger-rumble', va);
+      add('dual-rumble', va);
+    }
+    const others = [va, ...((pad && pad.hapticActuators) || [])];
+    for (const h of others) {
+      if (!h) continue;
+      if (h !== va && typeof h.playEffect === 'function') add('dual-rumble', h);
+      if (typeof h.pulse === 'function') add('pulse', h);
+    }
+    return out;
+  }
+
+  const ids = new WeakMap();
+  let nextId = 1;
+  const idOf = (obj) => {
+    if (!ids.has(obj)) ids.set(obj, nextId++);
+    return ids.get(obj);
+  };
+  const keyOf = (o) => o.type + ':' + idOf(o.actuator);
+
+  function createChannel() {
+    return { stats: new Map() };
+  }
+  function statFor(ch, key) {
+    if (!ch.stats.has(key)) ch.stats.set(key, { fails: 0, until: 0 });
+    return ch.stats.get(key);
+  }
+
+  // Maps a thrown error to an outcome.
+  function classifyError(err) {
+    const name = err && err.name;
+    if (name === 'InvalidStateError' || name === 'AbortError' || name === 'NotAllowedError') return 'inactive';
+    if (name === 'NotSupportedError' || name === 'TypeError') return 'unsupported';
+    return 'failed';
+  }
+
+  // Maps a resolved playEffect()/pulse() value to an outcome.
+  // playEffect resolves 'complete' or 'preempted'; pulse() and some builds resolve false when unsupported.
+  function classifyResult(result) {
+    if (result === false) return 'unsupported';
+    if (result === 'preempted') return 'interrupted';
+    return 'sent';
+  }
+
+  function recordOutcome(ch, key, outcome, now) {
+    const s = statFor(ch, key);
+    if (outcome === 'sent' || outcome === 'interrupted') { s.fails = 0; return; }
+    if (outcome === 'unsupported' || outcome === 'failed') {
+      s.fails++;
+      if (s.fails >= FAIL_LIMIT) { s.until = now + COOLDOWN_MS; s.fails = 0; }
+    }
+    // 'inactive' (page hidden, no gesture yet) is not the output's fault.
+  }
+
+  // Outputs allowed to fire right now. Empty means everything is cooling down.
+  function readyOutputs(ch, outputs, now) {
+    return outputs.filter((o) => statFor(ch, keyOf(o)).until <= now);
+  }
+
+  // Tries ready outputs in order until one accepts the pulse.
+  // `call(output)` must return (or resolve to) the playEffect/pulse result.
+  async function deliver(outputs, ch, now, call) {
+    if (!outputs.length) return 'unavailable';
+    const ready = readyOutputs(ch, outputs, now);
+    if (!ready.length) return 'cooling';
+    for (const o of ready) {
+      const key = keyOf(o);
+      let outcome;
+      try {
+        outcome = classifyResult(await call(o));
+      } catch (err) {
+        outcome = classifyError(err);
+      }
+      recordOutcome(ch, key, outcome, now);
+      if (outcome === 'sent' || outcome === 'interrupted') return outcome;
+      if (outcome === 'inactive') return 'inactive';
+    }
+    return 'rejected';
+  }
+
+  const MESSAGES = {
+    sent: 'Test pulse sent. You should feel a short vibration.',
+    interrupted: 'The test pulse was interrupted. Try again.',
+    inactive: 'The test could not start. Keep the game tab active and try again.',
+    cooling: 'The controller refused vibration a moment ago. It will retry automatically.',
+    unavailable: 'This controller or hub does not pass vibration to the browser. Connect the controller directly over USB or Bluetooth, or try a Chromium browser.',
+    rejected: 'The browser rejected vibration for this controller. Try the test again.',
+  };
+  function statusMessage(result) {
+    return MESSAGES[result] || MESSAGES.rejected;
+  }
+
+  // The brake pulse: a pumped left-trigger buzz. Open-world drift uses the same pattern.
+  // Returns the strongest weak/strong/left/right magnitudes for the current instant.
+  function brakePulse(nowMs, hard) {
+    const h = Math.max(0, Math.min(1, hard));
+    const pump = Math.floor(nowMs / 65) % 2 === 0;
+    return { w: 0.05 * h, s: 0.1 * h, l: pump ? 0.55 + 0.4 * h : 0.1, r: 0 };
+  }
+
+  return {
+    FAIL_LIMIT, COOLDOWN_MS, brakePulse,
+    isUsablePad, pickDrivingPad, hapticOutputs,
+    createChannel, classifyError, classifyResult, recordOutcome, readyOutputs, deliver,
+    statusMessage, keyOf,
+  };
+})();
+
+</script>
+<script id="show-core">
+/* ShowCore: pure timing and shape maths for the finish clip, the car pass-by
+ * sound and the pit-stop choreography. */
+const ShowCore = (function () {
+  'use strict';
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  const smooth = (x) => { const k = clamp01(x); return k * k * k * (k * (k * 6 - 15) + 10); };       // smootherstep
+  const easeOutBack = (x) => { const k = clamp01(x), c = 1.4; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+
+  // ---- Finish clip ----
+  const FINISH = { seconds: 6.2, holdAt: 0.7, minSpeed: 0.35, launchSpeed: 2.4, passSoundSec: 2.9, passAt: 0.78 };
+
+  // Speed relative to the crossing speed. Slows through the finish, then floors it away.
+  function finishSpeedFactor(p) {
+    const q = clamp01(p);
+    if (q <= FINISH.holdAt) {
+      const k = q / FINISH.holdAt;
+      return 1 - (1 - FINISH.minSpeed) * smooth(k);
+    }
+    const k = (q - FINISH.holdAt) / (1 - FINISH.holdAt);
+    return FINISH.minSpeed + (FINISH.launchSpeed - FINISH.minSpeed) * k * k;
+  }
+
+  // Distance travelled by progress p (0..1) from the crossing speed v0, integrated numerically.
+  function finishDistance(p, v0, seconds = FINISH.seconds) {
+    const q = clamp01(p), steps = 240;
+    let sum = 0;
+    for (let i = 0; i < steps; i++) {
+      const a = (q * i) / steps, b = (q * (i + 1)) / steps;
+      sum += (finishSpeedFactor(a) + finishSpeedFactor(b)) * 0.5 * (b - a);
+    }
+    return v0 * seconds * sum;
+  }
+
+  // Where the pass-by sound sits in the clip: centred on the car's closest approach.
+  function passWindow(seconds = FINISH.seconds) {
+    const mid = seconds * FINISH.passAt, half = FINISH.passSoundSec / 2;
+    return { start: Math.max(0, mid - half), end: Math.min(seconds, mid + half) };
+  }
+
+  // Camera stays put from holdAt on (one roadside point), zooming in on the car as it leaves.
+  function finishZoom(p) {
+    return clamp01((p - FINISH.holdAt) / (1 - FINISH.holdAt));
+  }
+
+  // ---- Pass-by sound ----
+  const PASS = { depth: 0.35, beta: 0.22, width: 0.45, panAmount: 0.85 };
+  // Samples tau from -1 (far away, approaching from one side) to 1 (far away, gone).
+  // Each sample: pitch ratio (Doppler: above 1 while approaching, below 1 after the pass),
+  // gain (peaks at the pass), and stereo pan (sweeps across from one side to the other).
+  function passCurve(samples) {
+    const out = [];
+    for (let i = 0; i <= samples; i++) {
+      const tau = -1 + (2 * i) / samples;
+      const radial = -tau / Math.sqrt(tau * tau + PASS.depth * PASS.depth);
+      const ratio = 1 / (1 - PASS.beta * radial);
+      const body = Math.exp(-(tau * tau) / (2 * PASS.width * PASS.width));
+      const fade = 1 - Math.pow(Math.max(0, tau), 3);
+      out.push({ tau, ratio, gain: body * fade, pan: Math.max(-PASS.panAmount, Math.min(PASS.panAmount, tau * PASS.panAmount)) });
+    }
+    return out;
+  }
+
+  // ---- Pit stop ----
+  const PIT = {
+    seconds: 3.0,
+    liftMax: 0.38,
+    jackUp: [0.15, 0.6], jackDown: [2.3, 2.75],
+    removeStart: 0.45, stagger: 0.14, removeSpan: 0.85,   // each corner: wheel off over 0.85s
+    installGap: 0.95, installSpan: 0.8,                   // new wheel goes on 0.95s after its old one started
+    reachOut: 6.0,                                        // how far the old wheel travels out from the hub
+    rollAway: 9.0,                                        // how far it rolls down the lane
+    rollIn: 4.0,                                          // how far behind the corner the new wheel starts
+    lateralIn: 12.0,                                      // the new wheel is carried in from the pit-wall side
+    lamp: [2.7, 2.95],
+  };
+
+  function jackLift(t) {
+    const up = smooth((t - PIT.jackUp[0]) / (PIT.jackUp[1] - PIT.jackUp[0]));
+    const down = smooth((t - PIT.jackDown[0]) / (PIT.jackDown[1] - PIT.jackDown[0]));
+    return PIT.liftMax * up * (1 - down);
+  }
+
+  const removeAt = (i) => PIT.removeStart + i * PIT.stagger;
+  const installAt = (i) => removeAt(i) + PIT.installGap;
+
+  // Old wheel: wrenched off, arcs out, then rolls away down the pit lane and is hidden.
+  // `side` is the car side and `z` the corner's sign, applied by the caller.
+  function oldWheelPose(t, i, lift) {
+    const start = removeAt(i);
+    const r = smooth((t - start) / PIT.removeSpan);
+    const roll = clamp01((t - (start + PIT.removeSpan)) / 0.6);
+    return {
+      visible: t >= start && t < start + PIT.removeSpan + 0.65,
+      x: 4.23 + PIT.reachOut * r,
+      y: 1.48 + lift * (1 - r) + 0.9 * Math.sin(Math.PI * r) * (1 - r),
+      zRoll: PIT.rollAway * roll,
+      spin: r * 9,
+    };
+  }
+
+  // New wheel: rolls in from behind the corner, settles on the hub with a small overshoot.
+  function newWheelPose(t, i, lift) {
+    const start = installAt(i);
+    const r = easeOutBack((t - start) / PIT.installSpan);
+    const arrive = clamp01((t - start) / PIT.installSpan);
+    return {
+      visible: t >= start && t < start + PIT.installSpan,
+      x: 4.23 + PIT.lateralIn * (1 - r),
+      y: 1.48 + lift * clamp01(r),
+      zBehind: PIT.rollIn * (1 - arrive),
+      spin: (1 - arrive) * 9,
+    };
+  }
+
+  // True while the car's own wheel at corner i should be hidden (its swap wheels are on show).
+  function carWheelHidden(t, i) {
+    return t >= removeAt(i) && t < installAt(i) + PIT.installSpan;
+  }
+
+  // Wrench is working whenever a wheel is being removed or fitted.
+  function wrenchActive(t) {
+    for (let i = 0; i < 4; i++) {
+      if (t >= removeAt(i) && t < removeAt(i) + PIT.removeSpan) return 1;
+      if (t >= installAt(i) && t < installAt(i) + PIT.installSpan) return 1;
+    }
+    return 0;
+  }
+
+  // Real brakes: decelerate hard, scaled by how hard the brake is pressed, tyre grip and corner load.
+  // Never stops the car in reverse; never adds speed. `afterDrive` is the speed the normal drive model produced.
+  const BRAKE = { decel: 230, cornerFloor: 0.5 };
+  function brakeSpeed(prev, afterDrive, dt, demand, grip, cornerTraction) {
+    const d = clamp01(demand);
+    if (d <= 0 || prev <= 0) return afterDrive;
+    const decel = BRAKE.decel * Math.max(0, grip) * (BRAKE.cornerFloor + (1 - BRAKE.cornerFloor) * clamp01(cornerTraction)) * d;
+    return Math.max(0, Math.min(afterDrive, prev - decel * dt));
+  }
+
+  return {
+    FINISH, PASS, PIT, BRAKE, brakeSpeed, carWheelHidden,
+    smooth, easeOutBack, finishSpeedFactor, finishDistance, finishZoom, passWindow,
+    passCurve,
+    jackLift, removeAt, installAt, oldWheelPose, newWheelPose, wrenchActive,
+  };
+})();
+
 </script>
 <script id="f1-core">
 const F1Core=(()=>{
@@ -3515,14 +3819,51 @@ function gpBuildPitLane(parent){
   box(0,-1.04,.84,.12,.12,.22,yellow,arm);
   body.add(arm);
 
-  const wheel=sports.wheels.reduce((best,w)=>Math.abs(w.position.x+side*4.23)+Math.abs(w.position.z+z)<Math.abs(best.position.x+side*4.23)+Math.abs(best.position.z+z)?w:best,sports.wheels[0]);
-  const oldWheel=wheel.clone(),newWheel=wheel.clone();for(const w of [oldWheel,newWheel]){w.rotation.set(0,0,0);g.add(w);w.visible=false;}newWheel.position.set(side*8,1.48,z);oldWheel.position.set(side*4.23,1.48,z);
-  const lamp=box(side*6.6,.12,z,.8,.12,.8,green,g);lamp.visible=false;gpPitCrew.push({crew,body,arm,armL,head,helmet,glove,side,z,legs,oldWheel,newWheel,lamp});}
+  // The pit rig faces +Z and the Formula car faces -Z.
+  const corner=formulaPlayer.wheels.findIndex(wheel=>Math.sign(wheel.position.x)===-side&&Math.sign(wheel.position.z)===-Math.sign(z));
+  const oldWheel=formulaPlayer.wheels[corner].clone(),newWheel=formulaPlayer.wheels[corner].clone();
+  for(const wheel of [oldWheel,newWheel]){
+   for(const mesh of wheel.children){mesh.geometry=mesh.geometry.clone();mesh.material=mesh.material.clone();}
+   wheel.rotation.set(0,0,0);
+   wheel.visible=false;
+   g.add(wheel);
+  }
+  const lamp=box(side*6.6,.12,z,.8,.12,.8,green,g);
+  lamp.visible=false;
+  gpPitCrew.push({crew,body,arm,armL,side,z,legs,oldWheel,newWheel,lamp,corner});
  }
-function gpPitAnimate(t,car){const enter=gpPitSmooth(t/.65),leave=gpPitSmooth((t-2.35)/.65),work=enter*(1-leave);const lift=.38*gpPitSmooth(t/.5)*(1-gpPitSmooth((t-2.25)/.45));
- for(const wheel of car.wheels)wheel.visible=t<.78||t>=2.07;if(gpPitJack){gpPitJack.visible=t>0&&t<2.85;gpPitJack.position.z=-1.6*enter+1.6*leave;gpPitJack.position.y=lift;}
- for(const c of gpPitCrew){c.crew.position.x=c.side*(8.4-2.4*work);c.body.rotation.x=.22*work;c.body.position.y=-.26*work;for(let i=0;i<c.legs.length;i++)c.legs[i].rotation.x=Math.sin(t*16+i*Math.PI)*.45*(1-work)*(1-leave);c.arm.rotation.x=-(.55+Math.sin(t*26)*.12)*work;if(c.armL)c.armL.rotation.x=-(.35+Math.cos(t*22)*.10)*work;
- const remove=gpPitSmooth((t-.75)/.55),install=gpPitSmooth((t-1.42)/.65);c.oldWheel.visible=t>=.78&&t<2.7;c.oldWheel.position.set(c.side*(4.23+3.8*remove),1.48+lift*(1-remove),c.z);c.oldWheel.rotation.x=remove*2;c.newWheel.visible=t>=1.25&&t<2.07;c.newWheel.position.set(c.side*(8.1-3.87*install),1.48+lift*install,c.z);c.newWheel.rotation.x=(1-install)*2;c.lamp.visible=t>=2.07&&t<2.9;}
+}
+function gpPitAnimate(t,car){
+ const enter=gpPitSmooth(t/.65),leave=gpPitSmooth((t-2.35)/.65),work=enter*(1-leave);
+ const lift=ShowCore.jackLift(t);
+ if(gpPitJack){
+  gpPitJack.visible=t>0&&t<ShowCore.PIT.jackDown[1];
+  gpPitJack.position.z=-1.6*enter+1.6*leave;
+  gpPitJack.position.y=lift;
+ }
+ gpPitCrew.forEach((c,i)=>{
+  const attached=car.wheels[c.corner],hubX=Math.abs(attached.position.x),hubZ=-attached.position.z;
+  const removing=t>=ShowCore.removeAt(i)&&t<ShowCore.removeAt(i)+ShowCore.PIT.removeSpan;
+  const installing=t>=ShowCore.installAt(i)&&t<ShowCore.installAt(i)+ShowCore.PIT.installSpan;
+  attached.visible=!ShowCore.carWheelHidden(t,i);
+  c.crew.position.x=c.side*(8.4-2.4*work);
+  c.body.rotation.x=.22*work;
+  c.body.position.y=-.26*work;
+  for(let k=0;k<c.legs.length;k++)c.legs[k].rotation.x=Math.sin(t*16+k*Math.PI)*.45*(1-work)*(1-leave);
+  c.arm.rotation.x=removing||installing?-(.62+Math.sin(t*34+i)*.18):-.55*work;
+  c.armL.rotation.x=-(.35+Math.cos(t*22+i)*.1)*work;
+  const old=ShowCore.oldWheelPose(t,i,lift),fresh=ShowCore.newWheelPose(t,i,lift);
+  c.oldWheel.visible=old.visible;
+  c.oldWheel.position.set(c.side*(hubX+old.x-4.23),old.y,hubZ+Math.sign(hubZ)*old.zRoll);
+  c.oldWheel.rotation.x=c.side*old.spin;
+  c.newWheel.visible=fresh.visible;
+  c.newWheel.position.set(c.side*(hubX+fresh.x-4.23),fresh.y,hubZ-Math.sign(hubZ)*fresh.zBehind);
+  c.newWheel.rotation.x=c.side*fresh.spin;
+  for(const wheel of [c.oldWheel,c.newWheel]){
+   if(wheel.visible)wheel.children[1].material.color.copy(attached.children[1].material.color);
+  }
+  c.lamp.visible=t>=ShowCore.PIT.lamp[0]&&t<ShowCore.PIT.lamp[1];
+ });
  return lift;
 }
 function gpPitResetVisual(){gpPitLift=0;for(const car of [formulaPlayer,...f1Bots])for(const wheel of car.wheels)wheel.visible=true;if(gpPitJack)gpPitJack.visible=false;for(const c of gpPitCrew){c.crew.position.x=c.side*8.4;c.body.position.y=0;c.body.rotation.x=0;c.body.rotation.z=0;c.arm.rotation.x=0;c.arm.rotation.z=0;if(c.armL)c.armL.rotation.x=0;for(const leg of c.legs)leg.rotation.x=leg.rotation.z=0;c.oldWheel.visible=c.newWheel.visible=c.lamp.visible=false;}}
@@ -3686,13 +4027,100 @@ function updateTyreLogoWidget(){
 
 function gpPitHUD(){updateTyreLogoWidget();const h=document.getElementById('gp-pit-status');if(!h)return;h.hidden=gpPitPhase==='idle';const label={queued:'PIT REQUESTED · approach yellow pit entry',entry:gpPlayerPitWaiting?'PIT QUEUE · waiting for the box':'PIT ENTRY · automatic limiter',service:(gpPitRemaining>2.25?'JACKING CAR':gpPitRemaining>1.58?'REMOVING TYRES':gpPitRemaining>.93?'FITTING FRESH TYRES':'RELEASE CHECK')+' · '+gpPitRemaining.toFixed(1)+'s',exit:'PIT EXIT · rejoining circuit'};h.textContent=label[gpPitPhase]||'';}
 function gpRaceAssist(){gpDRS=false;gpDraft=1;if(gpSession==='qualifying'||gpPlayerDone||gpFlag)return;let gap=Infinity;for(const b of f1Bots){if(b.finished||b.pit)continue;const d=(b.progress-f1PlayerProgress)*race.length,dx=b.x-pos.x,dz=b.z-pos.z;if(d>8&&d<220&&Math.abs(dx*Math.cos(yaw)-dz*Math.sin(yaw))<12)gap=Math.min(gap,d/Math.max(35,b.speed));}gpDraft=F1Core.slipstreamPowerMult(gap);gpDRS=F1Core.drsOpen({inZone:F1Core.inZones(gpWallU,gpZones),lap:f1PlayerLap,gapAheadSec:gap});}
-function gpResetSession(){resetGpTyreCrash();gpTyreFailTimer=0;gpPitTicket=0;gpPlayerPitTicket=0;gpPlayerPitWaiting=false;drawTyreLogo(100,gpChoice('gp-compound'));updateTyreLogoWidget();gpPitResetVisual();gpEnergy=1;gpSteering=0;gpOutside=false;gpFlag='';gpNextIncident=0;gpDist=0;gpTimingU=0;gpWallU=0;gpWallContact=0;gpHudTime=0;gpWrongWay=0;gpCompleted=0;gpTimer=F1Core.createLapTimer();F1Core.startLap(gpTimer,0);gpTyre={compound:gpChoice('gp-compound'),surface:document.getElementById('gp-surface').value,wear:0,stops:0};(document.getElementById('gp-next')||{style:{}}).value=gpTyre.compound;gpPenalty={};gpPitRemaining=0;gpPitPhase='idle';gpPitGrace=0;gpPitHUD();gpDRS=false;gpDraft=1;gpPlayerDone=false;gpPlayerRawFinish=0;gpSeasonScored=false;gpFinishRows=null;gpGhostRec=F1Core.createGhostRecorder(10);displayKmh=0;ghostGroup.visible=false;try{const g=JSON.parse(localStorage.getItem('bw-gp-ghost-grandprix-v54')||'null');gpGhostFrames=g&&Array.isArray(g.frames)?g.frames:[];gpGhostBest=g&&Number.isFinite(g.time)?g.time:Infinity;}catch(e){gpGhostFrames=[];gpGhostBest=Infinity;}}
+function gpResetSession(){resetGpTyreCrash();resetGpFinishPresentation();gpTyreFailTimer=0;gpPitTicket=0;gpPlayerPitTicket=0;gpPlayerPitWaiting=false;drawTyreLogo(100,gpChoice('gp-compound'));updateTyreLogoWidget();gpPitResetVisual();gpEnergy=1;gpSteering=0;gpOutside=false;gpFlag='';gpNextIncident=0;gpDist=0;gpTimingU=0;gpWallU=0;gpWallContact=0;gpHudTime=0;gpWrongWay=0;gpCompleted=0;gpTimer=F1Core.createLapTimer();F1Core.startLap(gpTimer,0);gpTyre={compound:gpChoice('gp-compound'),surface:document.getElementById('gp-surface').value,wear:0,stops:0};(document.getElementById('gp-next')||{style:{}}).value=gpTyre.compound;gpPenalty={};gpPitRemaining=0;gpPitPhase='idle';gpPitGrace=0;gpPitHUD();gpDRS=false;gpDraft=1;gpPlayerDone=false;gpPlayerRawFinish=0;gpSeasonScored=false;gpFinishRows=null;gpGhostRec=F1Core.createGhostRecorder(10);displayKmh=0;ghostGroup.visible=false;try{const g=JSON.parse(localStorage.getItem('bw-gp-ghost-grandprix-v54')||'null');gpGhostFrames=g&&Array.isArray(g.frames)?g.frames:[];gpGhostBest=g&&Number.isFinite(g.time)?g.time:Infinity;}catch(e){gpGhostFrames=[];gpGhostBest=Infinity;}}
 function gpSelectNew(){gpLoadSettings();gpSession=gpChoice('gp-session');gpQualiTime=null;if(gpSession==='championship'){try{gpSeason=F1Core.parseSeason(localStorage.getItem('bw-gp-season-'+f1Difficulty)||'');}catch(e){gpSeason=null;}if(!gpSeason||F1Core.isSeasonComplete(gpSeason))gpSeason=F1Core.createSeason(5,gpDrivers());else gpSeason.drivers=gpDrivers();}else gpSeason=null;keys={};selectGameMode('f1race');}
 function gpGrid(){return F1Core.planGrid([{id:'p',qualiTime:gpQualiTime??undefined},...f1Bots.map((b,j)=>({id:'b'+j,qualiTime:F1Core.botQualiTime(b.pace,F1Core.drivers[0].pace,gpReference)}))]);}
 function gpFinishLap(){const r=F1Core.finishLap(gpTimer,f1RaceTime);if(r.isBest&&r.time<gpGhostBest&&gpGhostRec.frames.length>3&&!(gpPenalty.penaltySec||0)){gpGhostFrames=gpGhostRec.frames.slice();gpGhostBest=r.time;try{localStorage.setItem('bw-gp-ghost-grandprix-v54',JSON.stringify({time:r.time,frames:gpGhostFrames}));}catch(e){}}F1Core.startLap(gpTimer,f1RaceTime);gpGhostRec=F1Core.createGhostRecorder(10);}
-function gpFinishUI(rows){if(gpFinishRows)return;gpFinishRows=rows;f1RaceFinished=true;ghostGroup.visible=false;const rank=rows.findIndex(r=>r.id==='p')+1,fin=document.getElementById('f1-finish-overlay'),restart=document.getElementById('f1-restart-btn');(document.getElementById('f1-finish-title')||{style:{}}).textContent=gpSession==='qualifying'?'QUALIFYING COMPLETE · P'+rank:(rank===1?'🏆 ':'🏁 ')+'YOU FINISHED '+ordinalSuffix(rank).toUpperCase();(document.getElementById('f1-finish-sub')||{style:{}}).textContent='TIME '+F1Core.formatLapTime(f1PlayerFinishTime)+' · BEST '+F1Core.formatLapTime(gpTimer.bestLap)+(gpPenalty.penaltySec?' · +'+gpPenalty.penaltySec+'s penalty':'');
+function gpFinishUI(rows,crossingSpeed=0){if(gpFinishRows)return;gpFinishRows=rows;f1RaceFinished=true;ghostGroup.visible=false;const rank=rows.findIndex(r=>r.id==='p')+1,restart=document.getElementById('f1-restart-btn');(document.getElementById('f1-finish-title')||{style:{}}).textContent=gpSession==='qualifying'?'QUALIFYING COMPLETE · P'+rank:(rank===1?'🏆 ':'🏁 ')+'YOU FINISHED '+ordinalSuffix(rank).toUpperCase();(document.getElementById('f1-finish-sub')||{style:{}}).textContent='TIME '+F1Core.formatLapTime(f1PlayerFinishTime)+' · BEST '+F1Core.formatLapTime(gpTimer.bestLap)+(gpPenalty.penaltySec?' · +'+gpPenalty.penaltySec+'s penalty':'');
 let content=rows.map((r,i)=>'<div class="'+(r.id==='p'?'me':'')+'"><span><b>P'+(i+1)+'</b> · '+r.name+'</span><span>'+(gpSession!=='qualifying'&&!r.finished?'ON TRACK':Number.isFinite(r.finishTime)?F1Core.formatLapTime(r.finishTime):'DNF')+'</span></div>').join('');
-if(gpSeason&&!gpSeasonScored){gpSeasonScored=true;const classified=rows.filter(r=>gpSession==='qualifying'?Number.isFinite(r.finishTime):!r.finished||Number.isFinite(r.finishTime));const fastest=classified.filter(r=>Number.isFinite(r.best)).sort((a,b)=>a.best-b.best)[0];F1Core.scoreRound(gpSeason,classified.map(r=>r.id),fastest?.id);try{localStorage.setItem('bw-gp-season-'+f1Difficulty,F1Core.serializeSeason(gpSeason));}catch(e){}content+='<div><b>CHAMPIONSHIP · '+gpSeason.round+'/'+gpSeason.rounds+'</b></div>'+F1Core.seasonStandings(gpSeason).map(r=>'<div><span>'+r.name+'</span><b>'+r.points+' PTS</b></div>').join('');}restart.textContent=gpSession==='qualifying'?'START GRAND PRIX':gpSeason&&!F1Core.isSeasonComplete(gpSeason)?'NEXT ROUND':'RACE AGAIN';(document.getElementById('f1-standings')||{style:{}}).innerHTML=content;fin.classList.add('open');silenceDrivingAudio();syncGameplayAudio();restart.focus();}
+if(gpSeason&&!gpSeasonScored){gpSeasonScored=true;const classified=rows.filter(r=>gpSession==='qualifying'?Number.isFinite(r.finishTime):!r.finished||Number.isFinite(r.finishTime));const fastest=classified.filter(r=>Number.isFinite(r.best)).sort((a,b)=>a.best-b.best)[0];F1Core.scoreRound(gpSeason,classified.map(r=>r.id),fastest?.id);try{localStorage.setItem('bw-gp-season-'+f1Difficulty,F1Core.serializeSeason(gpSeason));}catch(e){}content+='<div><b>CHAMPIONSHIP · '+gpSeason.round+'/'+gpSeason.rounds+'</b></div>'+F1Core.seasonStandings(gpSeason).map(r=>'<div><span>'+r.name+'</span><b>'+r.points+' PTS</b></div>').join('');}restart.textContent=gpSession==='qualifying'?'START GRAND PRIX':gpSeason&&!F1Core.isSeasonComplete(gpSeason)?'NEXT ROUND':'RACE AGAIN';(document.getElementById('f1-standings')||{style:{}}).innerHTML=content;
+silenceDrivingAudio();
+if(gpSession==='qualifying'){
+ showGpFinishResults();
+}else{
+ const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ if(reduceMotion)showGpFinishResults();
+ else beginGpFinishSequence(rank,crossingSpeed);
+ playGpFinishCue(!reduceMotion);
+}
+syncGameplayAudio();
+}
+const GP_FINISH_SECONDS=ShowCore.FINISH.seconds;
+const gpFinishBanner=document.getElementById('gp-finish-banner');
+let gpFinishSequence=null,gpFinishCue=null;
+
+function showGpFinishResults(){
+ gpFinishBanner.hidden=true;
+ document.body.classList.remove('gp-finish-view');
+ document.getElementById('f1-finish-overlay').classList.add('open');
+ document.getElementById('f1-restart-btn').focus();
+}
+function resetGpFinishPresentation(){
+ gpFinishSequence=null;
+ gpFinishBanner.hidden=true;
+ document.body.classList.remove('gp-finish-view');
+ stopGpFinishCue();
+}
+function beginGpFinishSequence(rank,crossingSpeed){
+ const start=gpCurve.getPointAt(gpWallU),tangent=gpCurve.getTangentAt(gpWallU);
+ const offset=(pos.x-start.x)*tangent.z-(pos.z-start.z)*tangent.x;
+ gpFinishSequence={
+  elapsed:0,startU:gpWallU,offset,crossingYaw:yaw,crossingSpeed:gpClamp(crossingSpeed,0,155),distance:0,
+  cameraStart:camera.position.clone(),cameraRotation:camera.quaternion.clone(),cameraFov:camera.fov,
+  shot:new T.Vector3(),shotRotation:new T.Quaternion(),hold:null,point:start,tangent
+ };
+ gpFinishBanner.textContent='RACE FINISHED · P'+rank;
+ gpFinishBanner.hidden=false;
+ document.body.classList.add('gp-finish-view');
+ formulaCockpit.group.visible=false;
+ formulaPlayer.face.visible=formulaPlayer.visorPanel.visible=true;
+ for(const flame of formulaPlayer.boostFlames||[])flame.visible=false;
+ cinematicPass.uniforms.uCockpit.value=0;
+ camera.near=.1;
+ camera.updateProjectionMatrix();
+ updateGpFinishSequence(0);
+}
+function updateGpFinishSequence(dt){
+ const finish=gpFinishSequence;
+ finish.elapsed=Math.min(GP_FINISH_SECONDS,finish.elapsed+dt);
+ const progress=finish.elapsed/GP_FINISH_SECONDS;
+ const distance=ShowCore.finishDistance(progress,finish.crossingSpeed,GP_FINISH_SECONDS);
+ const u=gpIncrease(finish.startU,distance/race.length,1);
+ gpCurve.getPointAt(u,finish.point);
+ gpCurve.getTangentAt(u,finish.tangent);
+ const point=finish.point,tangent=finish.tangent;
+ const offset=finish.offset*(1-.45*gpPitSmooth(progress));
+ const car=formulaPlayer.group;
+ car.position.set(point.x+tangent.z*offset,.15,point.z-tangent.x*offset);
+ const tangentYaw=Math.atan2(tangent.x,tangent.z);
+ const turn=Math.atan2(Math.sin(tangentYaw-finish.crossingYaw),Math.cos(tangentYaw-finish.crossingYaw));
+ car.rotation.set(.035*Math.sin(Math.PI*progress),finish.crossingYaw+turn*gpPitSmooth(finish.elapsed/.34)+Math.PI,0);
+ for(const wheel of formulaPlayer.wheels){
+  wheel.visible=true;
+  wheel.rotation.x+=(distance-finish.distance)*.48;
+ }
+ finish.distance=distance;
+
+ const blend=gpPitSmooth(finish.elapsed/.48);
+ const fullMotion=preferences.cameraMotion==='full';
+ const side=19+(fullMotion?progress*9:0),back=23-(fullMotion?progress*17:0);
+ finish.shot.set(car.position.x-tangent.x*back+tangent.z*side,8.5,car.position.z-tangent.z*back-tangent.x*side);
+ if(progress>=ShowCore.FINISH.holdAt){
+  if(!finish.hold)finish.hold=finish.shot.clone();
+  finish.shot.copy(finish.hold);
+ }
+ camera.position.copy(finish.cameraStart).lerp(finish.shot,blend);
+ camera.lookAt(car.position.x+tangent.x*2,car.position.y+1.15,car.position.z+tangent.z*2);
+ finish.shotRotation.copy(camera.quaternion);
+ camera.quaternion.copy(finish.cameraRotation).slerp(finish.shotRotation,blend);
+ camera.fov=T.MathUtils.lerp(finish.cameraFov,60,blend)*(1-.35*ShowCore.finishZoom(progress));
+ camera.updateProjectionMatrix();
+ if(progress===1){
+  gpFinishSequence=null;
+  showGpFinishResults();
+  syncGameplayAudio();
+ }
+}
 const f1TrackProps=new T.Group();
 scene.add(f1TrackProps);
 
@@ -4363,6 +4791,7 @@ function updateGpTyreCrash(dt){
 function updateF1Race(dt){
  if(gameMode!=='f1race'||f1CountdownActive||!gpProfile||f1RaceFinished)return;f1RaceTime+=dt;if(gpFlag&&f1RaceTime>=gpFlagUntil){gpFlag='';show('GREEN FLAG');}
  const qualifying=gpSession==='qualifying',laps=qualifying?1:F1_TOTAL_LAPS;
+ let crossingSpeed=0;
  if(!gpPlayerDone){const bestU=gpWallU,du=gpSignedDelta(bestU,gpTimingU),maxStep=Math.max(.0035,(Math.hypot(velocityX,velocityZ)*dt+gpProfile.ds*1.3)/race.length);if(gpPitActive()||gpPitGrace>0||Math.abs(du)<=maxStep)gpDist=gpClamp(gpDist+du,-.05,laps+.01);if(!gpPitActive())gpTyre.wear=Math.min(1,gpTyre.wear+Math.max(0,Math.min(maxStep,du))*F1Core.tyreWearRate(gpTyre.compound,qualifying?20:laps,gpTyre.surface));
  if(gpTyre.wear>=1&&!gpPitActive()&&gpDist<laps){
   if(gpTyreFailTimer===0)show('TYRES WORN OUT · PIT FOR FRESH RUBBER');
@@ -4373,7 +4802,7 @@ function updateF1Race(dt){
  if(completed>gpCompleted){gpFinishLap();gpCompleted=completed;}else{F1Core.markSector(gpTimer,f1PlayerProgress%1,f1RaceTime);F1Core.recordGhostSample(gpGhostRec,dt,F1Core.currentLapTime(gpTimer,f1RaceTime),pos.x,pos.z,yaw);}
  f1PlayerLap=Math.min(laps,Math.floor(f1PlayerProgress)+1);
  const tv=gpCurve.getTangentAt(gpTimingU);gpWrongWay=(velocityX*tv.x+velocityZ*tv.z)<-7?gpWrongWay+dt:Math.max(0,gpWrongWay-dt*3);
- if(f1PlayerProgress>=laps){gpPlayerDone=true;gpPlayerRawFinish=f1RaceTime;f1PlayerFinishTime=f1RaceTime+(gpPenalty.penaltySec||0);speed=velocityX=velocityZ=0;if(qualifying){gpQualiTime=f1PlayerFinishTime;const rows=gpGrid().map(r=>({...r,name:r.id==='p'?'YOU':f1Bots[Number(r.id.slice(1))].name,finishTime:r.qualiTime}));gpFinishUI(rows);return;}}}
+ if(f1PlayerProgress>=laps){crossingSpeed=Math.max(0,velocityX*tv.x+velocityZ*tv.z);gpPlayerDone=true;gpPlayerRawFinish=f1RaceTime;f1PlayerFinishTime=f1RaceTime+(gpPenalty.penaltySec||0);speed=velocityX=velocityZ=0;if(qualifying){gpQualiTime=f1PlayerFinishTime;const rows=gpGrid().map(r=>({...r,name:r.id==='p'?'YOU':f1Bots[Number(r.id.slice(1))].name,finishTime:r.qualiTime}));gpFinishUI(rows);return;}}}
  if(qualifying){const ghost=F1Core.ghostFrameAt(gpGhostFrames,F1Core.currentLapTime(gpTimer,f1RaceTime));ghostGroup.visible=!!ghost;if(ghost){ghostGroup.position.set(ghost.x,.15,ghost.z);ghostGroup.rotation.y=ghost.yaw+Math.PI;}}
  else for(let bi=0;bi<f1Bots.length;bi++){
  const b=f1Bots[bi];
@@ -4444,7 +4873,7 @@ function updateF1Race(dt){
  ordered.push(...entrants.filter(isRetired).sort((a,b)=>b.progress-a.progress));
  const rows=F1Core.timingTable(ordered,gpReference);
  const me=rows.find(r=>r.id==='p');if(f1RaceTime>=gpHudTime||gpPlayerDone){gpHudTime=f1RaceTime+.12;(document.getElementById('f1-pos')||{style:{}}).textContent=qualifying?'QUALIFYING':'POS: '+me.position+' / 6';(document.getElementById('f1-lap')||{style:{}}).textContent='LAP: '+f1PlayerLap+' / '+laps;(document.getElementById('f1-timer')||{style:{}}).textContent=F1Core.formatLapTime(gpPlayerDone?gpPlayerRawFinish:f1RaceTime);(document.getElementById('f1-rk-diff')||{style:{}}).textContent=f1Difficulty.toUpperCase();(document.getElementById('f1-telemetry')||{style:{}}).textContent=(gpPlayerDone?'FINISHED':gpWrongWay>.6?'WRONG WAY':'S'+(F1Core.sectorIndexOf(f1PlayerProgress%1)+1)+' · '+F1Core.formatLapTime(F1Core.currentLapTime(gpTimer,f1RaceTime)))+' · ERS '+Math.round(gpEnergy*100)+'% · BEST '+F1Core.formatLapTime(gpTimer.bestLap)+' · AHEAD '+F1Core.formatGap(me.gapToAhead)+' · LEAD '+F1Core.formatGap(me.gapToLeader)+(gpTimer.splits.length?' · S'+gpTimer.splits.length+' '+F1Core.formatLapTime(gpTimer.splits.at(-1)):'');(document.getElementById('gp-tyres')||{style:{}}).textContent=(gpTyre.surface!=='dry'?gpTyre.surface.toUpperCase()+' · ':'')+gpTyre.compound.toUpperCase()+' · TYRE LIFE '+Math.round((1-gpTyre.wear)*100)+'%'+(gpTyre.wear>.8?' · BOX SOON':'')+' · STOPS '+gpTyre.stops+(gpFlag?' · '+gpFlag:'')+(gpPenalty.penaltySec?' · +'+gpPenalty.penaltySec+'s':'');const dr=document.getElementById('gp-drs');dr.textContent=gpDRS?'DRS OPEN':F1Core.inZones(gpWallU,gpZones)?'DRS ZONE':gpDraft>1?'SLIPSTREAM':'DRS OFF';dr.classList.toggle('active',gpDRS);updateTyreLogoWidget();gpPitHUD();(document.getElementById('f1-live-ranks-list')||{style:{}}).innerHTML=rows.map(r=>'<div class="f1-rk-row'+(r.id==='p'?' me':'')+'"><span class="rk-pos">P'+r.position+'</span><span>'+r.name+'</span><span>'+(r.finished?(Number.isFinite(r.finishTime)?'FIN':'DNF'):r.id!=='p'&&f1Bots[Number(r.id.slice(1))].pit?'PIT':F1Core.formatGap(r.gapToLeader))+'</span></div>').join('');}
- if(gpPlayerDone)gpFinishUI(rows);
+ if(gpPlayerDone)gpFinishUI(rows,crossingSpeed);
 }
 
 const checkpoints=[.03,.13,.23,.34,.45,.55,.66,.77,.89,.98],markers=[];
@@ -5078,14 +5507,15 @@ const chaseSong=new Audio(CHASE_SONG_SRC);chaseSong.preload='auto';chaseSong.loo
 const chaseUsesWebAudio=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 let chaseBuffer=null,chaseDecode=null,chaseSource=null,chaseGain=null,chaseWanted=false,chaseDecodeError=false,chaseAudioStartedAt=0;
 function gameplayAudioBlocked(){
- const resultsOpen=gameMode==='f1race'&&f1RaceFinished&&!gpTyreCrash;
+ const resultsOpen=gameMode==='f1race'&&f1RaceFinished&&!gpTyreCrash&&!gpFinishSequence;
  return document.hidden||deathScreenOpen||resultsOpen||(gameStarted&&(settingsOpen||controllerActions.open||controllerPrompt.open))||gpTyreCrash?.elapsed>=GP_CRASH_DURATION;
 }
 function syncGameplayAudio(){
  if(gameplayAudioBlocked()){
   resetChaseBeatVisual();
   chaseSong.pause();
-  audio.ctx?.suspend().catch(()=>{});
+  if(document.hidden)stopGpFinishCue();
+  if(!gpFinishCue)audio.ctx?.suspend().catch(()=>{});
   return;
  }
  if(audio.ctx?.state==='suspended')audio.ctx.resume().catch(()=>{});
@@ -5094,6 +5524,115 @@ function syncGameplayAudio(){
   if(chaseUsesWebAudio&&!chaseDecodeError)playChaseBuffer();
   else if(chaseSong.paused)chaseSong.play().catch(()=>{});
  }
+}
+function stopGpFinishCue(){
+ if(!gpFinishCue)return;
+ const cue=gpFinishCue;
+ gpFinishCue=null;
+ for(const note of cue.nodes)try{note.stop();}catch(error){}
+}
+function playGpFinishCue(withPassBy){
+ if(!audio.ctx||audio.ctx.state!=='running'||audio.muted||!preferences.sound||document.hidden)return;
+ stopGpFinishCue();
+ const ctx=audio.ctx,cue={nodes:[]},now=ctx.currentTime;
+ gpFinishCue=cue;
+ // Original race-finish sting: three quick brass-like notes and a resolving chord.
+ const notes=[
+  [0,440,.12,.12,'triangle'],[.12,554.37,.12,.13,'triangle'],[.24,659.25,.15,.15,'triangle'],
+  [.39,880,.43,.15,'triangle'],[.39,440,.43,.10,'triangle'],[.39,554.37,.40,.045,'sine'],
+  [.39,220,.47,.08,'sine']
+ ];
+ for(const [delay,frequency,duration,peak,wave] of notes){
+  const note=ctx.createOscillator(),gain=ctx.createGain(),start=now+delay,end=start+duration;
+  note.type=wave;
+  note.frequency.setValueAtTime(frequency,start);
+  gain.gain.setValueAtTime(.0001,start);
+  gain.gain.exponentialRampToValueAtTime(peak,start+.014);
+  gain.gain.exponentialRampToValueAtTime(.0001,end);
+  note.connect(gain);
+  gain.connect(audio.master);
+  cue.nodes.push(note);
+  note.onended=()=>{
+   note.disconnect();gain.disconnect();
+   finishGpCueNode(cue,note);
+  };
+  note.start(start);note.stop(end+.02);
+ }
+ if(withPassBy){
+  const pass=ShowCore.passWindow(GP_FINISH_SECONDS);
+  playGpPassBy(cue,pass.start,pass.end-pass.start);
+ }
+}
+function finishGpCueNode(cue,node){
+ const index=cue.nodes.indexOf(node);
+ if(index!==-1)cue.nodes.splice(index,1);
+ if(node===cue.flybyTail)cue.nodes.splice(0);
+ if(!cue.nodes.length&&gpFinishCue===cue){
+  gpFinishCue=null;
+  syncGameplayAudio();
+ }
+}
+function playGpPassBy(cue, delay, duration) {
+  const c = audio.ctx, t0 = c.currentTime + delay, end = t0 + duration;
+  const out = c.createGain(), pan = typeof c.createStereoPanner === "function" ? c.createStereoPanner() : null, lp = c.createBiquadFilter(), env = c.createGain();
+  out.gain.value = 0.9;
+  lp.type = "lowpass";
+  lp.Q.value = 0.7;
+  lp.frequency.setValueAtTime(2600, t0);
+  lp.frequency.linearRampToValueAtTime(900, end);
+  env.gain.setValueAtTime(1e-4, t0);
+  env.connect(lp);
+  lp.connect(pan || out);
+  pan?.connect(out);
+  out.connect(audio.master);
+  const steps = 48, dt = duration / steps, curve = ShowCore.passCurve(steps), nodes = [];
+  const engine = [[1, "sawtooth", 0.2], [2, "square", 0.06], [0.5, "sawtooth", 0.1]];
+  for (const [mult, wave, level] of engine) {
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = wave;
+    g.gain.value = level;
+    o.connect(g);
+    g.connect(env);
+    o.frequency.setValueAtTime(118 * mult * curve[0].ratio, t0);
+    for (let i = 1; i <= steps; i++) o.frequency.linearRampToValueAtTime(118 * mult * curve[i].ratio, t0 + i * dt);
+    o.start(t0);
+    o.stop(end + 0.05);
+    nodes.push(o);
+  }
+  const noiseBuf = c.createBuffer(1, Math.floor(c.sampleRate * (duration + 0.2)), c.sampleRate);
+  const data = noiseBuf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  const src = c.createBufferSource(), bp = c.createBiquadFilter(), ng = c.createGain();
+  src.buffer = noiseBuf;
+  bp.type = "bandpass";
+  bp.Q.value = 1.2;
+  bp.frequency.setValueAtTime(1500, t0);
+  bp.frequency.linearRampToValueAtTime(600, end);
+  ng.gain.value = 0.22;
+  src.connect(bp);
+  bp.connect(ng);
+  ng.connect(env);
+  src.start(t0);
+  src.stop(end + 0.05);
+  nodes.push(src);
+  for (let i = 0; i <= steps; i++) {
+    const p = curve[i], t = t0 + i * dt;
+    if (i === 0) {
+      env.gain.setValueAtTime(Math.max(1e-4, p.gain), t);
+      pan?.pan.setValueAtTime(p.pan, t);
+    } else {
+      env.gain.linearRampToValueAtTime(Math.max(1e-4, p.gain), t);
+      pan?.pan.linearRampToValueAtTime(p.pan, t);
+    }
+  }
+  env.gain.linearRampToValueAtTime(1e-4, end);
+  cue.nodes.push(...nodes);
+  const tail = cue.flybyTail = nodes.at(-1);
+  tail.onended = () => {
+    for (const node of nodes) node.disconnect();
+    for (const node of [env, lp, pan, out, bp, ng]) node?.disconnect();
+    finishGpCueNode(cue,tail);
+  };
 }
 function prepareChaseSong(){if(!chaseUsesWebAudio||!audio.ctx||chaseBuffer||chaseDecode||chaseDecodeError)return;const c=audio.ctx;try{const raw=atob(CHASE_SONG_SRC.slice(CHASE_SONG_SRC.indexOf(',')+1)),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);chaseDecode=new Promise((resolve,reject)=>{c.decodeAudioData(bytes.buffer,resolve,reject);});chaseDecode.then(buffer=>{chaseBuffer=buffer;chaseDecode=null;if(chaseWanted)playChaseBuffer();}).catch(err=>{chaseDecode=null;chaseDecodeError=true;console.warn('Chase audio decode failed',err);});}catch(err){chaseDecodeError=true;console.warn('Chase audio preparation failed',err);}}
 function syncChaseSongVolume(){const vol=(preferences.sound&&!audio.muted)?Math.min(1,.85*preferences.volume/100):0;chaseSong.volume=vol;chaseSong.muted=vol===0;if(chaseGain&&audio.ctx)chaseGain.gain.setTargetAtTime(vol,audio.ctx.currentTime,.025);}
@@ -5607,6 +6146,7 @@ function reset(){
  }
 }
 function selectGameMode(mode){
+ resetGpFinishPresentation();
  resetGpTyreCrash();
  gpPitResetVisual();
  gameMode=mode;
@@ -5659,6 +6199,7 @@ function selectGameMode(mode){
 }
 
 function returnToStartScreen(){
+ resetGpFinishPresentation();
  resetGpTyreCrash();
  leaveWalk();cancelCityJob();cityPanel.close();
  for(const car of harborTraffic)car.group.visible=false;
@@ -6007,6 +6548,11 @@ if(deathScreenOpen){
  muteAllAudioForDeath();
 }
 
+if(gpFinishSequence&&!settingsOpen){
+ updateGpFinishSequence(dt);
+ renderGameScene();
+ return;
+}
 if(gpTyreCrash&&gpTyreCrash.elapsed<GP_CRASH_DURATION&&!settingsOpen){
  updateGpTyreCrash(dt);
  renderGameScene();
@@ -6100,7 +6646,10 @@ if(gameMode==='f1race'&&!pitAssist){
  const traction=preferences.raceAssist==='off'?cornerTraction:Math.min(cornerTraction,1-.26*cornerLoad*(1.35-.5*F1Core.grip(gpTyre)));
  const prevSpeedF1=speed;
  speed=F1Core.drive(speed,target,dt,gpTyre,boosting,traction);
- if(f1Brake&&speed<prevSpeedF1){const maxDrop=72*F1Core.grip(gpTyre)*cornerTraction*dt;if(prevSpeedF1-speed>maxDrop)speed=prevSpeedF1-maxDrop;}
+ const brakingNow=f1Brake||(throttle<0&&prevSpeedF1>1);
+ if(brakingNow&&prevSpeedF1>0){
+  speed=ShowCore.brakeSpeed(prevSpeedF1,speed,dt,f1Brake?brakeDemand:1,F1Core.grip(gpTyre),cornerTraction);
+ }
 }else if(!pitAssist){speed+=acceleration*dt;if(f1Brake){const before=Math.abs(speed);speed=Math.sign(speed)*Math.max(0,before-190*dt);const ratio=before>0?Math.abs(speed)/before:0;velocityX*=ratio;velocityZ*=ratio;}}
 const aeroDrag=1-Math.min(.006,(speed*speed)/2400000);
 if(!pitAssist&&gameMode!=='f1race')speed*=Math.pow((driftInput?(onRoad?.986:.966):(onRoad?.995:.981))*aeroDrag,dt*60);
@@ -6264,6 +6813,7 @@ if(raceOn){let target=race.curve.getPointAt(checkpoints[checkpoint]);if(Math.hyp
 if(gameMode==='f1race'&&!holdingStartCountdown){
  updateF1Race(dt);
  if(gpTyreCrash){updateGpTyreCrash(0);renderGameScene();return;}
+ if(f1RaceFinished){renderGameScene();return;}
 }else if(gameMode==='openworld'){
 // =========================================================================
 // LIVE GTA CRIME SYSTEM, POLICE AI, HEISTS, ROADBLOCKS & PAY 'N' SPRAY
@@ -7099,7 +7649,7 @@ if(formulaView){
  raceCar.rotation.copy(player.rotation);
  for(let i=0;i<formulaPlayer.wheels.length;i++){
   formulaPlayer.wheels[i].rotation.copy(sports.wheels[i].rotation);
-  formulaPlayer.wheels[i].visible=sports.wheels[i].visible;
+  if(gpPitPhase!=='service')formulaPlayer.wheels[i].visible=sports.wheels[i].visible;
  }
 }
 sports.driverHead.visible=sports.helmetGroup.visible=!inside;
@@ -7873,35 +8423,64 @@ let connectedController=null,controllerEnabled=false,controllerButtons=0,control
 let controllerRumbleOff=false,rumbleAt=0,activePad=null,triggerBoostOn=false,analogTriggerSeen=false;
 try{controllerRumbleOff=localStorage.getItem('brickway-rumble')==='off';}catch(e){}
 const rumbleSelect=document.getElementById('set-controllerRumble');
- function controllerRumble(pad, now, weak, strong, ms, lt, rt) {
-   if (!pad || controllerRumbleOff || now < rumbleAt) return;
-   const actuator = pad.vibrationActuator;
-   if (!actuator || !actuator.playEffect) return;
-   rumbleAt = now + 45;
-   lt = lt || 0;
-   rt = rt || 0;
-   try {
-     const hasTriggers = !!(actuator.effects && actuator.effects.includes && actuator.effects.includes("trigger-rumble"));
-     const p = hasTriggers ? actuator.playEffect("trigger-rumble", { startDelay: 0, duration: ms, weakMagnitude: weak, strongMagnitude: strong, leftTrigger: lt, rightTrigger: rt }) : actuator.playEffect("dual-rumble", { startDelay: 0, duration: ms, weakMagnitude: Math.max(weak, rt * 0.6), strongMagnitude: Math.max(strong, lt * 0.6) });
-     p?.catch?.(() => {});
-   } catch (e) {
-   }
+const rumbleStatus=document.getElementById('controller-rumble-status');
+let rumbleSession=null;
+
+function getRumbleSession(pad){
+ const id=controllerIdentity(pad);
+ if(rumbleSession?.id===id)return rumbleSession;
+ return rumbleSession={id,outputs:RumbleCore.hapticOutputs(pad),channel:RumbleCore.createChannel()};
+}
+async function controllerRumble(pad,now,weak,strong,duration,leftTrigger=0,rightTrigger=0){
+ if(!pad||!controllerEnabled||controllerRumbleOff||document.hidden||now<rumbleAt)return 'inactive';
+ const session=getRumbleSession(pad);
+ rumbleAt=now+65;
+ const intensity=value=>Math.min(1,1.18*value**.8);
+ const weakMagnitude=intensity(Math.max(weak,rightTrigger*.86));
+ const strongMagnitude=intensity(Math.max(strong,leftTrigger*.86));
+ return RumbleCore.deliver(session.outputs,session.channel,now,entry=>{
+  if(session!==rumbleSession||session.id!==connectedController||controllerRumbleOff||document.hidden){
+   throw new DOMException('The active controller changed','AbortError');
+  }
+  if(entry.type==='pulse')return entry.actuator.pulse(Math.max(weakMagnitude,strongMagnitude),duration);
+  const effect={startDelay:0,duration,weakMagnitude,strongMagnitude};
+  if(entry.type==='trigger-rumble'){
+   effect.weakMagnitude=intensity(weak);
+   effect.strongMagnitude=intensity(strong);
+   effect.leftTrigger=intensity(leftTrigger);
+   effect.rightTrigger=intensity(rightTrigger);
+  }
+  return entry.actuator.playEffect(entry.type,effect);
+ });
+}
+async function testControllerRumble(){
+ if(!controllerEnabled||!activePad){
+  rumbleStatus.textContent='Connect a controller and choose Use controller first.';
+  return;
  }
- if (rumbleSelect) {
-   rumbleSelect.value = controllerRumbleOff ? "off" : "on";
-   rumbleSelect.addEventListener("change", () => {
-     controllerRumbleOff = rumbleSelect.value === "off";
-     try {
-       localStorage.setItem("brickway-rumble", controllerRumbleOff ? "off" : "on");
-     } catch (e) {
-     }
-     if (controllerRumbleOff) padPulses.length = 0;
-     if (!controllerRumbleOff && controllerEnabled) {
-       rumbleAt = 0;
-       controllerRumble(activePad, performance.now(), 0.5, 0.5, 70);
-     }
-   });
+ if(controllerRumbleOff){
+  rumbleStatus.textContent='Turn controller vibration on to test it.';
+  return;
  }
+ rumbleSession=null;
+ rumbleAt=0;
+ const attempt=controllerRumble(activePad,performance.now(),.86,.76,480,.7,.7);
+ const session=rumbleSession;
+ const result=await attempt;
+ if(session!==rumbleSession||controllerRumbleOff)return;
+ rumbleStatus.textContent=RumbleCore.statusMessage(result);
+}
+rumbleSelect.value=controllerRumbleOff?'off':'on';
+rumbleSelect.addEventListener('change',()=>{
+ controllerRumbleOff=rumbleSelect.value==='off';
+ try{localStorage.setItem('brickway-rumble',rumbleSelect.value);}catch(error){}
+ if(controllerRumbleOff){
+  padPulses.length=0;
+  rumbleSession=null;
+  rumbleStatus.textContent='Controller vibration is off.';
+ }else if(controllerEnabled)testControllerRumble();
+});
+document.getElementById('test-controllerRumble').addEventListener('click',testControllerRumble);
  const padPulses = [], passPrev = new Map();
  let rumblePrevHealth = null, rumblePrevMissiles = 0;
  const clamp01 = (v) => Math.max(0, Math.min(1, v));
@@ -7935,7 +8514,7 @@ const rumbleSelect=document.getElementById('set-controllerRumble');
      if (d > r) r = d;
    };
    const f1 = gameMode === "f1race", fx = Math.sin(yaw), fz = Math.cos(yaw);
-   if (boosting) add(0.15, 0.4, 0, 0.55);
+   if (boosting) add(0.24, 0.52, 0, 0.68);
    if (drifting) {
      const d = Math.min(0.4, (driftAmount || 0) * 0.4);
      const heavy = Math.min(1, 0.7 + (driftAmount || 0) * 0.6 + d * 0.3);
@@ -7957,8 +8536,8 @@ const rumbleSelect=document.getElementById('set-controllerRumble');
    // ABS: hard braking pumps the left trigger
    if (!drifting && brake > 0.45 && kmh > 25) {
      const hard = Math.min(1, (brake - 0.45) / 0.55) * Math.min(1, kmh / 160);
-     const pump = Math.floor(now / 65) % 2 === 0;
-     add(0.05 * hard, 0.1 * hard, pump ? 0.55 + 0.4 * hard : 0.1, 0);
+     const pulse=RumbleCore.brakePulse(now,hard);
+     add(pulse.w,pulse.s,pulse.l,0);
    }
    // Launch: hard throttle from low speed chatters the right trigger like wheelspin
    if (!drifting && throttle > 0.7 && kmh < 70) {
@@ -8041,7 +8620,7 @@ const rumbleSelect=document.getElementById('set-controllerRumble');
    s = Math.max(ps, s * g);
    l = Math.max(pl, l * g);
    r = Math.max(pr, r * g);
-   if (w > 0.02 || s > 0.02 || l > 0.02 || r > 0.02) controllerRumble(pad, now, clamp01(w), clamp01(s), 70, clamp01(l), clamp01(r));
+   if (w > 0.02 || s > 0.02 || l > 0.02 || r > 0.02) controllerRumble(pad, now, clamp01(w), clamp01(s), 120, clamp01(l), clamp01(r));
  }
 
 function shapeSteer(axis){
@@ -8051,13 +8630,12 @@ function shapeSteer(axis){
 }
 function controllerIdentity(pad){return pad?pad.index+':'+pad.id:null;}
 function drivingController(devices){
- return devices.find(pad=>pad?.mapping==='standard'&&controllerIdentity(pad)===connectedController)
-  ||devices.find(pad=>pad?.mapping==='standard')||null;
+ return RumbleCore.pickDrivingPad(devices,connectedController,controllerIdentity)?.pad||null;
 }
 function controllerName(pad){return pad.id?.replace(/\s*\(.*$/,'').trim()||'Controller '+(pad.index+1);}
 function populatePadChoices(devices,active){
  const choices=document.getElementById('controller-choices');
- const pads=devices.filter(pad=>pad?.mapping==='standard');
+ const pads=devices.filter(RumbleCore.isUsablePad);
  const signature=JSON.stringify(pads.map(controllerIdentity));
  if(choices.dataset.devices===signature)return;
  choices.dataset.devices=signature;
@@ -8090,6 +8668,8 @@ function cycleSettingsTab(step){
 }
 function chooseController(enabled){
  controllerEnabled=enabled&&connectedController!==null;
+ rumbleSession=null;rumbleAt=0;
+ rumbleStatus.textContent='Plays a test pulse on your active controller.';
  document.body.classList.toggle('controller-active',controllerEnabled);
  if(controllerPrompt.open)controllerPrompt.close();
  if(!controllerEnabled&&controllerActions.open)controllerActions.close();
@@ -8116,7 +8696,7 @@ function controllerMenu(){
  if(settingsOpen)return {root:settingsOverlay,back:'settings-close'};
  if(cityPanel.open)return {root:cityPanel,back:'city-close'};
  if(controllerActions.open)return {root:controllerActions,back:'controller-resume'};
- if(gameStarted&&f1RaceFinished)return {root:document.getElementById('f1-finish-overlay'),back:'f1-menu-btn'};
+ if(gameStarted&&f1RaceFinished)return {root:document.getElementById('f1-finish-overlay'),back:gpFinishSequence?null:'f1-menu-btn'};
  if(!gameStarted){
   const setup=document.getElementById('gp-setup-screen');
   return setup.hidden?{root:document.getElementById('gp-main-menu')}:{root:setup,back:'gp-back'};

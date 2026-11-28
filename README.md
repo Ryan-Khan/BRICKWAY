@@ -20,7 +20,7 @@ python3 -m http.server 4173
 | Escape | Settings |
 | R | Reset to the mode's starting location |
 
-Landscape touch controls include steer, throttle, brake and a quick button for the cockpit. Connect a standard-mapped gamepad by USB or Bluetooth. If needed, press a button so the browser detects it, then choose **🎮 Use controller** or select your pad by name when more than one is connected. Losing the active controller pauses the game. Navigate menus with the D-pad or left stick, confirm with A / Cross, and go back with B / Circle. Change the focused dropdown or slider with Left / Right. The controller legend appears automatically when a pad is detected. In the phone HUD editor, select a widget with A / Cross, move it with the D-pad, then press A / Cross again to place it.
+Landscape touch controls include steer, throttle, brake and a quick button for the cockpit. Connect a gamepad by USB or Bluetooth. Standard mapping is preferred, and usable third-party pads can also be detected. If needed, press a button so the browser detects it, then choose **🎮 Use controller** or select your pad by name when more than one is connected. Losing the active controller pauses the game. Navigate menus with the D-pad or left stick, confirm with A / Cross, and go back with B / Circle. Change the focused dropdown or slider with Left / Right. The controller legend appears automatically when a pad is detected. In the phone HUD editor, select a widget with A / Cross, move it with the D-pad, then press A / Cross again to place it.
 
 ### Controller
 
@@ -41,7 +41,7 @@ Landscape touch controls include steer, throttle, brake and a quick button for t
 | D-pad ↑ / ↓ while driving | Open World Time Attack / toggle sound |
 | LB / L1 or RB / R1 in Settings | Switch settings tabs |
 
-Controller vibration reacts to braking, shifts, boost, drifts, uneven ground, collisions and pursuits. Switch it off under **Settings → Controls → Controller vibration**. Independent trigger feedback depends on browser and controller support.
+Controller vibration reacts to braking, shifts, boost, drifts, uneven ground, collisions and pursuits. Switch it off under **Settings → Controls → Controller vibration**. Use **Test vibration** in the same tab to send a 480 ms pulse. The game falls back to handle rumble or a legacy pulse when trigger feedback is unavailable. The browser, operating system, controller, and connection determine which outputs are available.
 
 The optional wheel preset expects steering on axis 0 with independent inverted throttle and brake on axes 1 and 2. Hardware with another mapping needs its driver or browser to expose those axes. Reduced camera motion is the default. Settings also include optional race traction assistance.
 
@@ -59,9 +59,9 @@ Choose 3, 6, or 8 laps. The default is 3. Tyre wear per lap increases in shorter
 
 Lewis Hamilton #44 has the strongest power and tyre preservation. Max Verstappen #1 has the highest dry cornering multiplier and commits early to overtakes. Charles Leclerc #16 holds the longest defensive line, Lando Norris #4 preserves tyres, and Fernando Alonso #14 is tuned to attack smaller openings. These are fictional game balance profiles inspired by driving styles. The higher Legend difficulty tightens AI braking margins.
 
-Watch the ERS percentage before deploying boost. Brake to recover energy, and plan tyre changes around weather and wear. Select the next compound and request a stop before the entry boards. The game blends the driver onto the pit trajectory, limits lane speed, waits for the crew, then returns control after the merge. Track barriers are built from the same signed boundaries used to resolve vehicle contact. Cockpit mode carries through the stop.
+Watch the ERS percentage before deploying boost. Brake to recover energy, and plan tyre changes around weather and wear. Select the next compound and request a stop before the entry boards. The game blends the driver onto the pit trajectory, limits lane speed, waits for the crew, then returns control after the merge. Track barriers are built from the same signed boundaries used to resolve vehicle contact. During the three-second service, the jack lifts the chassis, the crew removes and installs Formula wheels in staggered order, and the green lights release the car. Player and rival cars share the crew and wait for the box to clear. Cockpit mode carries through the stop.
 
-Crossing the finish line opens the results board immediately and stops the engine audio. Rivals still racing are marked On Track. The existing qualifying ghost, penalties, and championship scoring remain available.
+Crossing the finish line locks the standings and stops live engine audio. The 6.2-second finish shot follows the car, then settles at a roadside point as the engine sound sweeps past and fades. The results board follows the shot. With reduced motion enabled, the results appear immediately. Rivals still racing are marked On Track. The qualifying ghost, penalties, and championship scoring remain available.
 
 
 ### Visuals and cockpit
@@ -84,7 +84,7 @@ and [Three.js instancing](https://threejs.org/docs/pages/InstancedMesh.html).
 
 ### Grand Prix tyre temperature and grip
 
-Grand Prix applies a shared grip budget to the player car. Braking while turning reduces the grip available for both, and hard acceleration uses some of the same grip at low speed. Brake before turn-in and ease off the pedal as you add steering. Tyre compound, wetness, wear, and temperature all influence grip. Fresh pit tyres start cooler, and the Formula cockpit shows their temperature in blue, green, or orange.
+Grand Prix applies a shared grip budget to the player car. Braking while turning reduces the grip available for both, and hard acceleration uses some of the same grip at low speed. Brake before turn-in and ease off the pedal as you add steering. Braking force scales with pedal input, tyre grip, and corner load. Tyre compound, wetness, wear, and temperature all influence grip. Fresh pit tyres start cooler, and the Formula cockpit shows their temperature in blue, green, or orange.
 
 The compound changes launch traction, braking distance and cornering grip. Race Control shows each compound's fresh grip relative to a dry medium tyre and expected wear per Grand Prix lap for the selected distance and surface.
 

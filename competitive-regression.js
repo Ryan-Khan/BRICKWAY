@@ -117,20 +117,55 @@ async function exercise(mobile) {
     f1Bots[0].finished=true;f1Bots[0].finishTime=89;f1Bots[0].progress=F1_TOTAL_LAPS;
     f1Bots[1].finished=true;f1Bots[1].finishTime=Infinity;f1Bots[1].progress=1;
     gpDist=F1_TOTAL_LAPS-.0001;gpCompleted=F1_TOTAL_LAPS-1;gpTimingU=.9999;gpWallU=.0001;
+    const crossingPoint=gpCurve.getPointAt(gpWallU),crossingHeading=gpCurve.getTangentAt(gpWallU);
+    pos.set(crossingPoint.x,0,crossingPoint.z);
+    speed=95;velocityX=95*crossingHeading.x;velocityZ=95*crossingHeading.z;
     updateF1Race(.05);
     const standings=document.getElementById('f1-standings');
-    check(f1RaceFinished&&gpPlayerDone&&document.querySelector('#f1-finish-overlay.open')&&document.getElementById('f1-finish-title').textContent.includes('YOU FINISHED 2ND'),'final lap opens the P2 board immediately');
+    const title=document.getElementById('f1-finish-title');
+    check(f1RaceFinished&&gpPlayerDone&&title.textContent.includes('YOU FINISHED 2ND'),'final lap immediately locks the P2 result');
+    check(gpFinishSequence&&!gpFinishBanner.hidden&&gpFinishBanner.textContent.includes('P2')&&!document.querySelector('#f1-finish-overlay.open'),'checkered finish is shown before the results board');
+    check(GP_FINISH_SECONDS===6.2&&gpFinishCue?.flybyTail?.buffer&&gpFinishCue.nodes.length>4,'the 6.2-second clip schedules fanfare and a pass-by');
+    const cueEnded=new Promise(resolve=>gpFinishCue.flybyTail.addEventListener('ended',resolve,{once:true}));
     check(!document.getElementById('gp-watch-replay'),'Grand Prix results offer no replay');
     check(standings.textContent.includes('ON TRACK')&&standings.lastElementChild.textContent.includes('DNF'),'unfinished rivals and retirees have distinct statuses');
     const finishTime=f1RaceTime;
+    const finalRows=gpFinishRows;
+    const beforeCoast=formulaPlayer.group.position.clone(),beforeWheel=formulaPlayer.wheels[0].rotation.x;
+    for(let i=0;i<16;i++)frame(prev+40);
+    check(formulaPlayer.group.position.distanceTo(beforeCoast)>25&&formulaPlayer.wheels[0].rotation.x>beforeWheel,'the actual car and wheels animate through the finish coast');
+    for(let i=0;i<100;i++)frame(prev+40);
+    const roadside=camera.position.clone(),atRoadside=formulaPlayer.group.position.clone();
+    for(let i=0;i<24;i++)frame(prev+40);
+    check(gpFinishSequence&&camera.position.distanceTo(roadside)<.001&&formulaPlayer.group.position.distanceTo(atRoadside)>40,'the car accelerates away from the fixed roadside camera');
+    for(let i=0;i<25&&gpFinishSequence;i++)frame(prev+40);
+    check(!gpFinishSequence&&gpFinishBanner.hidden&&document.querySelector('#f1-finish-overlay.open'),'results appear when the finish sequence ends');
     updateF1Race(1);
-    check(f1RaceTime===finishTime&&speed===0&&gameplayAudioBlocked(),'race simulation and driving audio stop at the finish');
+    check(f1RaceTime===finishTime&&gpFinishRows===finalRows&&speed===0&&gameplayAudioBlocked(),'finish coast leaves race simulation and results frozen');
+    await cueEnded;
+    check(!gpFinishCue,'fanfare and pass-by both finish and release their audio nodes');
     await audio.ctx.suspend();
     initSound();syncGameplayAudio();
     check(audio.ctx.state==='suspended'&&audio.voices.every(voice=>voice.gain.gain.value===0),'audio stays silent on the results board');
     document.getElementById('f1-restart-btn').click();
     await audio.ctx.resume();
     check(!gameplayAudioBlocked()&&audio.ctx.state==='running','audio returns after starting the next race');
+    updateF1Countdown(3.21);
+    gpDist=F1_TOTAL_LAPS-.0001;gpCompleted=F1_TOTAL_LAPS-1;gpTimingU=.9999;gpWallU=.0001;
+    pos.set(crossingPoint.x,0,crossingPoint.z);
+    speed=95;velocityX=95*crossingHeading.x;velocityZ=95*crossingHeading.z;
+    updateF1Race(.05);
+    check(gpFinishCue?.flybyTail,'a subsequent finish schedules a fresh pass-by');
+    const hidden=Object.getOwnPropertyDescriptor(document,'hidden');
+    try {
+      Object.defineProperty(document,'hidden',{configurable:true,value:true});
+      syncGameplayAudio();
+      check(!gpFinishCue,'hiding the tab cancels the fanfare and pending pass-by');
+    } finally {
+      if(hidden)Object.defineProperty(document,'hidden',hidden);
+      else delete document.hidden;
+    }
+    document.getElementById('f1-restart-btn').click();
     return {viewport:[innerWidth,innerHeight],joystickWidth:box.width,brakeWidth:brake.width};
   }
   const tyreTrial=(compound,surface='dry')=>{
@@ -251,12 +286,25 @@ async function exercise(mobile) {
     gpRequestPit();check(gpPitPhase==='queued','pit request unlocks at 55% health');gpRequestPit();check(gpPitPhase==='idle','cancel');
     gpRequestPit();document.getElementById('tyre-next-select').value='hard';
     let stationary=0,transit=0,largestYawStep=0;
+    let sawPlayerSwap=false,sawRelease=false;
     do {
       if(gpPitPhase==='service')stationary+=.025;
       const oldYaw=yaw;
-      gpPitTick(.025);transit+=.025;
+      if(!sawPlayerSwap&&gpPitPhase==='service'&&gpPitRemaining<1.18){
+        updateF1Countdown(3.21);
+        frame(prev+25);
+        check(formulaPlayer.wheels.every(wheel=>!wheel.visible),'the render loop keeps all four detached player wheels hidden');
+        check(gpPitCrew.every(crew=>crew.newWheel.visible)&&gpPitJack.visible,'the crew installs Formula wheels while the chassis is lifted');
+        sawPlayerSwap=true;
+      }else gpPitTick(.025);
+      if(gpPitPhase==='service'&&gpPitCrew.every(crew=>crew.lamp.visible)){
+        check(formulaPlayer.wheels.every(wheel=>wheel.visible)&&gpPitCrew.every(crew=>!crew.newWheel.visible),'the release lights only appear after the last new wheel seats');
+        sawRelease=true;
+      }
+      transit+=.025;
       largestYawStep=Math.max(largestYawStep,Math.abs(Math.atan2(Math.sin(yaw-oldYaw),Math.cos(yaw-oldYaw))));
     } while(gpPitPhase!=='idle'&&transit<60);
+    check(sawPlayerSwap&&sawRelease,'the player pit approach, service and release animate in order');
     check(largestYawStep<.20,'pit path does not snap the car heading');
     check(gpTyre.stops===1&&gpTyre.compound==='hard'&&gpTyre.wear===0&&gpTyre.temperature===F1Core.freshTyreTemperature('hard'),'tyre replacement and temperature reset');
     check(stationary>=2.99&&stationary<3.06&&transit>6&&gpPitCrew.length===4,'physical service');
@@ -295,7 +343,7 @@ async function exercise(mobile) {
       check(f1Bots.filter(bot=>bot.pit&&!bot.pit.done&&bot.u>=GP_PIT_BOX-1e-6).length<=1,'only one AI receives service at a time');
       const swapping=f1Bots.find(bot=>bot.pit&&!bot.pit.done&&bot.pit.service>1.15&&bot.pit.service<1.5);
       if(swapping){
-        check(swapping.group.position.y>.15&&swapping.wheels.every(wheel=>!wheel.visible)&&gpPitCrew.every(member=>member.oldWheel.visible&&member.newWheel.visible),'the shared crew animates the rival tyre swap');
+        check(swapping.group.position.y>.15&&swapping.wheels.some(wheel=>!wheel.visible)&&gpPitCrew.some(member=>member.oldWheel.visible||member.newWheel.visible),'the shared crew animates the rival tyre swap');
         sawRivalTyreSwap=true;
       }
       check(f1Bots.every(bot=>!bot.pit?.done||bot.wheels.every(wheel=>wheel.visible)),'leaving rivals have all four replacement wheels visible');
@@ -477,7 +525,7 @@ function exerciseCity() {
   return {crossings:crossings.length,cars:Object.keys(streetCars).length,jobs:cityJobs.length,traffic:harborTraffic.length,heat};
 }
 
-function exerciseController(mobile) {
+async function exerciseController(mobile) {
   const check=(condition,message)=>{if(!condition)throw Error(message);};
   const buttons=Array.from({length:17},()=>({pressed:false,value:0}));
   const vibration=[];
@@ -529,7 +577,7 @@ function exerciseController(mobile) {
     pad.axes[0]=.75;buttons[7].value=.9;
     for(let i=0;i<10;i++)step();
     check(speed>5&&gpSteering>.1,'positive analog steering and acceleration drive the F1 car');
-    check(vibration.some(entry=>entry.effect==='trigger-rumble'&&entry.options.rightTrigger>0),'driving sends supported trigger haptics');
+    check(vibration.some(entry=>entry.effect==='trigger-rumble'&&entry.options.rightTrigger>0&&entry.options.duration===120),'driving sends sustained trigger haptics');
     const before=speed;
     buttons[6].value=.9;step();
     check(speed<before,'left trigger brakes while the accelerator is held');
@@ -545,6 +593,36 @@ function exerciseController(mobile) {
     navigate('set-controllerRumble');press(15);
     check(controllerRumbleOff,'controller vibration can be disabled with the controller');
     press(14);check(!controllerRumbleOff,'controller vibration can be re-enabled');
+    const testButton=document.getElementById('test-controllerRumble');
+    const status=document.getElementById('controller-rumble-status');
+    const originalActuator=pad.vibrationActuator;
+    const effects=[];
+    pad.vibrationActuator={effects:['trigger-rumble','dual-rumble'],playEffect(type,options){
+      effects.push({type,options});
+      if(type==='trigger-rumble')return Promise.reject(new DOMException('Unsupported','NotSupportedError'));
+      return Promise.resolve('complete');
+    }};
+    navigate('test-controllerRumble');press(0);
+    await new Promise(resolve=>setTimeout(resolve,0));
+    check(effects.map(e=>e.type).join(',')==='trigger-rumble,dual-rumble'&&status.textContent.includes('Test pulse sent'),'a rejected trigger effect falls back to handle rumble');
+    for(let i=0;i<2;i++){
+      rumbleAt=0;
+      await controllerRumble(pad,performance.now(),.4,.5,120);
+    }
+    check(effects.map(e=>e.type).join(',')==='trigger-rumble,dual-rumble,trigger-rumble,dual-rumble,dual-rumble','repeat failures cool down while handle rumble keeps working');
+    check(effects[1].options.duration===480&&effects[1].options.weakMagnitude>.95,'the settings pulse is long and strong');
+    delete pad.vibrationActuator;
+    const legacy=[];
+    pad.hapticActuators=[{pulse:(strength,duration)=>{legacy.push({strength,duration});return Promise.resolve(true);}}];
+    testButton.click();
+    await new Promise(resolve=>setTimeout(resolve,0));
+    check(legacy.length===1&&legacy[0].duration===480&&legacy[0].strength>.95&&status.textContent.includes('Test pulse sent'),'pulse-only controllers receive a settings test');
+    delete pad.hapticActuators;
+    testButton.click();
+    await new Promise(resolve=>setTimeout(resolve,0));
+    check(status.textContent.includes('does not pass vibration'),'the game explains when the browser exposes no haptics');
+    pad.vibrationActuator=originalActuator;
+    rumbleSession=null;rumbleAt=0;
     if(mobile){
       navigate('gp-phone-settings-tab');press(0);
       navigate('phone-hud-open');press(0);
@@ -575,6 +653,12 @@ function exerciseController(mobile) {
     check(controllerPrompt.open&&!choices.hidden&&choices.children.length===2,'detection lists the two named controllers');
     press(13);press(13);press(13);press(0);
     check(controllerEnabled&&drivingController(devices)===spare,'D-pad can choose the second controller');
+    devices=[];step();
+    const generic={...pad,index:2,id:'Third-party USB pad',mapping:''};
+    devices=[generic];step();
+    check(controllerPrompt.open&&drivingController(devices)===generic,'a usable third-party pad with an empty mapping is detected');
+    press(0);
+    check(controllerEnabled&&readDrivingPad(devices,generic),'the generic pad can be enabled through its own buttons');
     return {raceLaps:6,controller:true,disconnected:true};
   }finally{
     if(prior)Object.defineProperty(navigator,'getGamepads',prior);

@@ -2,7 +2,7 @@
   "name": "brickway",
   "private": true,
   "scripts": {
-    "test": "node --test f1core.test.js",
+    "test": "node --test *.test.js",
     "test:browser": "node competitive-regression.js"
   },
   "devDependencies": {
